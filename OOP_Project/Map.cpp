@@ -43,7 +43,7 @@ void Map::init() {
 	}
 	camDegree = 0;
 	N = lines.size();
-	posX = 0;
+	posX = 300 * SEGMENT_LENGTH;
 	std::cout << "[Map] Map initialized" << endl;
 }
 
@@ -66,38 +66,34 @@ void Map::draw(SDL_Renderer* renderer) {
 	Uint32 grass, rumble, road;
 	int pub;
 
-	lines[(startpos + N - 1)%N].project(posY, camH, posX, camDegree);
-
-	for (int i = startpos; i < startpos + 300; ++i) {
-
-		Line& l = lines[i % N];
-		Line p = lines[(i - 1 + N) % N];
-		l.project(posY, camH, posX , camDegree);
-		grass = (i / 3) & 1 ? 0xff10c810 : 0xff009A00;
-		drawQuad(renderer, { grass,  WIDTH / 2, p.getY(), WIDTH / 2, WIDTH / 2, l.getY(), WIDTH / 2 });
-
-	}
-	for (int i = startpos; i < startpos + 300; ++i) {
+	for (int i = startpos - 50; i < startpos + 300; ++i) {
 
 		if (i >= N)
 			pub = N * SEGMENT_LENGTH;
 		else
 			pub = 0;
+
 		Line& l = lines[i % N];
-		l.project(posY, camH, posX - pub,camDegree);
-		rumble = (i / 3) & 1 ? 0xffffffff : 0xff000000;
-		road = (i / 3) & 1 ? 0xff6b6b6b : 0xff696969;
+		Line p = lines[(i - 1 + N) % N];
+		l.project(posY, camH, posX - pub, camDegree);
+
+		if (l.getW() < 1e-6 && l.getW() > -1e-6)
+			continue;
 
 		if (l.getY() >= maxy)
 			continue;
 		maxy = l.getY();
 
-		Line p = lines[(i - 1 + N) % N];
-		double a[3] = { i,startpos, camDegree };
-		drawQuad(renderer, { rumble, p.getX(), p.getY(), p.getW() * 1.2, l.getX(), l.getY(), l.getW() * 1.2});
-		drawQuad(renderer, { road, p.getX(), p.getY(), p.getW(), l.getX(), l.getY(), l.getW()});
+		grass = (i / 3) & 1 ? 0xff10c810 : 0xff009A00;
+		rumble = (i / 3) & 1 ? 0xffffffff : 0xff000000;
+		road = (i / 3) & 1 ? 0xff6b6b6b : 0xff696969;
+
+		drawQuad(renderer, { grass,  WIDTH / 2, p.getY(), WIDTH / 2, WIDTH / 2, l.getY(), WIDTH / 2 });
+		drawQuad(renderer, { rumble, p.getX(), p.getY(), p.getW() * 1.2, l.getX(), l.getY(), l.getW() * 1.2 });
+		drawQuad(renderer, { road, p.getX(), p.getY(), p.getW(), l.getX(), l.getY(), l.getW() });
 	}
 }
+
 Uint32 Map::move(Uint32 interval, void* para) {
 	Map* mp = (Map*)para;
 
