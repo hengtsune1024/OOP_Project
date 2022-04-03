@@ -44,6 +44,7 @@ void Map::init() {
 	camDegree = 0;
 	N = lines.size();
 	posX = 300 * SEGMENT_LENGTH;
+	posY = lines[300].getx();
 	std::cout << "[Map] Map initialized" << endl;
 }
 
