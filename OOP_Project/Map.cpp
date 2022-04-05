@@ -36,8 +36,8 @@ void Map::init() {
 	velLinear = 0;
 
 	number_of_lines = lines.size();
-	posX = 50 * SEGMENT_LENGTH;
-	posY = lines[50].getx();
+	posX = 300 * SEGMENT_LENGTH;
+	posY = lines[300].getx();
 	std::cout << "[Map] Map initialized" << endl;
 }
 
@@ -94,22 +94,30 @@ Uint32 Map::move(Uint32 interval, void* para) {
 	Map* mp = (Map*)para;
 
 	double velX = mp->velLinear * cos(mp->camDegree), velY = mp->velLinear * sin(mp->camDegree);
-	int startpos = mp->posX / SEGMENT_LENGTH;
 
 	//move in x-direction
 	mp->posX += velX;
 	if (mp->posX < 0 || mp->posX >= mp->number_of_lines * SEGMENT_LENGTH)
 		mp->posX -= velX;	
 
-	//move in y-direction
-	mp->posY += velY;
-	if (mp->posY <= mp->lines[startpos].getx() - 2 * ROAD_WIDTH || mp->posY >= mp->lines[startpos].getx() + 2 * ROAD_WIDTH){
-		mp->posY -= velY;
-		mp->posX -= velX;
-	}
+	//current index of road line
+	int startpos = mp->posX / SEGMENT_LENGTH;
 
 	//degree between road vector and normal line (same direction as camera degree)
 	mp->roadDegree = atan((mp->lines[startpos + 1].getx() - mp->lines[startpos].getx()) / (mp->lines[startpos + 1].getz() - mp->lines[startpos].getz()));
+
+	//move in y-direction
+	mp->posY += velY;
+	if (mp->posY < mp->lines[startpos].getx() - 2 * ROAD_WIDTH || mp->posY > mp->lines[startpos].getx() + 2 * ROAD_WIDTH){
+		cout << "hit " << mp->posY << "  "<< mp->lines[startpos].getx() << mp->lines[startpos].getx() - 2 * ROAD_WIDTH << ' ' << mp->lines[startpos].getx() + 2 * ROAD_WIDTH  << endl;
+		mp->posY -= velY;
+		mp->posX -= velX;
+
+		double velProjected = mp->velLinear * cos(mp->roadDegree - mp->camDegree);
+		mp->posX += velProjected * cos(mp->roadDegree);
+		mp->posY += velProjected * sin(mp->roadDegree);
+	}
+
 
 	//rotate camera
 	mp->camDegree += mp->velAngular;

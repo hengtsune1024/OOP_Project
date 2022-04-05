@@ -22,9 +22,9 @@ struct Quad {
 
 class Map
 {
-	int posX;	//position in map
-	int posY;
-	int velLinear;	//velocity of driver
+	double posX;	//position in map
+	double posY;
+	double velLinear;	//velocity of driver
 	double velAngular;
 	double camDegree; 
 	double roadDegree;
@@ -46,16 +46,16 @@ public:
 	~Map();
 
 	// getters
-	int getPosX() { return posX; }
-	int getPosY() { return posY; }
-	int getVelLinear() { return velLinear; }
+	double getPosX() { return posX; }
+	double getPosY() { return posY; }
+	double getVelLinear() { return velLinear; }
 	double getVelAngular() { return velAngular; }
 
 	// timer
 	void startTimer(Uint32);
 
 	// setters
-	void setVelLinear(int v) { velLinear = v; }
+	void setVelLinear(double v) { velLinear = v; }
 	void setVelAngular(double v) { velAngular = v; }
 	void setCar(RacingCar* c) { car = c; }
 	 
