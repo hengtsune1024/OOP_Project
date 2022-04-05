@@ -1,24 +1,2 @@
-﻿  Map.cpp
-C:\Users\222\Desktop\OOP專題\OOP_Project\OOP\OOP_Project\Map.cpp(45,18): warning C4267: '=': 將 'size_t' 轉換為 'int'，資料可能遺失
-C:\Users\222\Desktop\OOP專題\OOP_Project\OOP\OOP_Project\Map.cpp(47,24): warning C4244: '=': 將 'double' 轉換為 'int'，由於類型不同，可能導致資料遺失
-C:\Users\222\Desktop\OOP專題\OOP_Project\OOP\OOP_Project\Map.cpp(57,24): warning C4838: 從 'double' 到 'Sint16' 的轉換必須是縮小轉換
-C:\Users\222\Desktop\OOP專題\OOP_Project\OOP\OOP_Project\Map.cpp(57,24): warning C4244: '正在初始化': 將 'double' 轉換為 'Sint16'，由於類型不同，可能導致資料遺失
-C:\Users\222\Desktop\OOP專題\OOP_Project\OOP\OOP_Project\Map.cpp(57,36): warning C4838: 從 'double' 到 'Sint16' 的轉換必須是縮小轉換
-C:\Users\222\Desktop\OOP專題\OOP_Project\OOP\OOP_Project\Map.cpp(57,36): warning C4244: '正在初始化': 將 'double' 轉換為 'Sint16'，由於類型不同，可能導致資料遺失
-C:\Users\222\Desktop\OOP專題\OOP_Project\OOP\OOP_Project\Map.cpp(57,48): warning C4838: 從 'double' 到 'Sint16' 的轉換必須是縮小轉換
-C:\Users\222\Desktop\OOP專題\OOP_Project\OOP\OOP_Project\Map.cpp(57,48): warning C4244: '正在初始化': 將 'double' 轉換為 'Sint16'，由於類型不同，可能導致資料遺失
-C:\Users\222\Desktop\OOP專題\OOP_Project\OOP\OOP_Project\Map.cpp(57,60): warning C4838: 從 'double' 到 'Sint16' 的轉換必須是縮小轉換
-C:\Users\222\Desktop\OOP專題\OOP_Project\OOP\OOP_Project\Map.cpp(57,60): warning C4244: '正在初始化': 將 'double' 轉換為 'Sint16'，由於類型不同，可能導致資料遺失
-C:\Users\222\Desktop\OOP專題\OOP_Project\OOP\OOP_Project\Map.cpp(58,20): warning C4838: 從 'double' 到 'Sint16' 的轉換必須是縮小轉換
-C:\Users\222\Desktop\OOP專題\OOP_Project\OOP\OOP_Project\Map.cpp(58,20): warning C4244: '正在初始化': 將 'double' 轉換為 'Sint16'，由於類型不同，可能導致資料遺失
-C:\Users\222\Desktop\OOP專題\OOP_Project\OOP\OOP_Project\Map.cpp(58,25): warning C4838: 從 'double' 到 'Sint16' 的轉換必須是縮小轉換
-C:\Users\222\Desktop\OOP專題\OOP_Project\OOP\OOP_Project\Map.cpp(58,25): warning C4244: '正在初始化': 將 'double' 轉換為 'Sint16'，由於類型不同，可能導致資料遺失
-C:\Users\222\Desktop\OOP專題\OOP_Project\OOP\OOP_Project\Map.cpp(58,31): warning C4838: 從 'double' 到 'Sint16' 的轉換必須是縮小轉換
-C:\Users\222\Desktop\OOP專題\OOP_Project\OOP\OOP_Project\Map.cpp(58,31): warning C4244: '正在初始化': 將 'double' 轉換為 'Sint16'，由於類型不同，可能導致資料遺失
-C:\Users\222\Desktop\OOP專題\OOP_Project\OOP\OOP_Project\Map.cpp(58,37): warning C4838: 從 'double' 到 'Sint16' 的轉換必須是縮小轉換
-C:\Users\222\Desktop\OOP專題\OOP_Project\OOP\OOP_Project\Map.cpp(58,37): warning C4244: '正在初始化': 將 'double' 轉換為 'Sint16'，由於類型不同，可能導致資料遺失
-C:\Users\222\Desktop\OOP專題\OOP_Project\OOP\OOP_Project\Map.cpp(64,11): warning C4244: '正在初始化': 將 'double' 轉換為 'int'，由於類型不同，可能導致資料遺失
-C:\Users\222\Desktop\OOP專題\OOP_Project\OOP\OOP_Project\Map.cpp(86,16): warning C4244: '=': 將 'double' 轉換為 'int'，由於類型不同，可能導致資料遺失
-C:\Users\222\Desktop\OOP專題\OOP_Project\OOP\OOP_Project\Map.cpp(103,22): warning C4244: '+=': 將 'double' 轉換為 'int'，由於類型不同，可能導致資料遺失
-C:\Users\222\Desktop\OOP專題\OOP_Project\OOP\OOP_Project\Map.cpp(110,23): warning C4244: '+=': 將 'double' 轉換為 'int'，由於類型不同，可能導致資料遺失
-  OOP_Project.vcxproj -> C:\Users\222\Desktop\OOP專題\OOP_Project\OOP\x64\Debug\OOP_Project.exe
+﻿  main.cpp
+  OOP_Project.vcxproj -> D:\vs_program\vsc++\OOP專題\OOP_Project\OOP\x64\Debug\OOP_Project.exe

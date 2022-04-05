@@ -28,6 +28,7 @@
 #define ROAD_WIDTH 2000
 #define NUM_LINE 5000
 #define CAMERA_HEIGHT 1500
+#define MAX_ROTATE_DEGREE 0.785  // 45 degree
 
 //Line
 #define SEGMENT_LENGTH 400

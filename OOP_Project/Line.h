@@ -4,9 +4,10 @@
 
 class Line
 {
-    double x, y, z; //3d center of line
-    double X, Y, W; //screen coord
-    double curve, spriteX, clip, scale;
+    double x, y, z; // 3d center of line
+    double X, Y, W; // screen coord
+    double curve;   // road turning
+    double scale;   // needed in projection
 
 public:
 

@@ -24,14 +24,15 @@ class Map
 {
 	int posX;	//position in map
 	int posY;
-	int velX;	//velocity for driver
-	double velY;
-	double camDegree;
-	int N;
+	int velLinear;	//velocity of driver
+	double velAngular;
+	double camDegree; 
+	double roadDegree;
+	int number_of_lines;
 
 	vector<Line> lines;
 	void drawQuad(SDL_Renderer*, Quad);
-	void generateTool();
+	//void generateTool();
 
 	SDL_TimerID moveTimer;
 	Uint32 moveInterval;
@@ -44,18 +45,27 @@ public:
 	Map();
 	~Map();
 
+	// getters
 	int getPosX() { return posX; }
-	int getVelX() { return velX; }
 	int getPosY() { return posY; }
-	double getVelY() { return velY; }
+	int getVelLinear() { return velLinear; }
+	double getVelAngular() { return velAngular; }
 
+	// timer
 	void startTimer(Uint32);
-	void setVelX(int v) { velX = v; }
-	void setVelY(double v) { velY = v; }
-	void setCar(RacingCar* c) { car = c; }
 
+	// setters
+	void setVelLinear(int v) { velLinear = v; }
+	void setVelAngular(double v) { velAngular = v; }
+	void setCar(RacingCar* c) { car = c; }
+	 
 	void init();
 	void quit();
 	void draw(SDL_Renderer*);
 	
 };
+
+// unused code
+/*
+
+*/

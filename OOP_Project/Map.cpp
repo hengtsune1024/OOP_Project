@@ -13,7 +13,7 @@ void Map::init() {
 	double x = 0, dx = 0;
 	for (int i = 0; i < NUM_LINE; ++i) {
 		
-		if (i > 100 && i < 700)		//range of turing road
+		if (i > 100 && i < 700)		// range of turing road
 			tmp.setCurve(0.9);
 		else if (i > 800 && i < 1400)
 			tmp.setCurve(-1.5);
@@ -25,16 +25,6 @@ void Map::init() {
 		else
 			tmp.sety(0);
 
-		/*
-		if (i > 1100) line.curve = -0.7;
-
-		if (i < 300 && i % 20 == 0) { line.spriteX = -2.5; line.sprite = object[5]; }
-		if (i % 17 == 0) { line.spriteX = 2.0; line.sprite = object[6]; }
-		if (i > 300 && i % 20 == 0) { line.spriteX = -0.7; line.sprite = object[4]; }
-		if (i > 800 && i % 20 == 0) { line.spriteX = -1.2; line.sprite = object[1]; }
-		if (i == 400) { line.spriteX = -1.2; line.sprite = object[7]; }
-
-		*/
 		x += dx;
 		dx += tmp.getCurve();
 		tmp.setx(x);
@@ -42,9 +32,12 @@ void Map::init() {
 		lines.push_back(tmp);
 	}
 	camDegree = 0;
-	N = lines.size();
-	posX = 300 * SEGMENT_LENGTH;
-	posY = lines[300].getx();
+	velAngular = 0;
+	velLinear = 0;
+
+	number_of_lines = lines.size();
+	posX = 50 * SEGMENT_LENGTH;
+	posY = lines[50].getx();
 	std::cout << "[Map] Map initialized" << endl;
 }
 
@@ -65,24 +58,26 @@ void Map::draw(SDL_Renderer* renderer) {
 	int maxy = HEIGHT;
 
 	Uint32 grass, rumble, road;
-	int pub;
 
 	for (int i = startpos - 50; i < startpos + 300; ++i) {
 
-		if (i >= N)
-			pub = N * SEGMENT_LENGTH;
-		else
-			pub = 0;
+		if (i < 0){
+			i = -1;
+			continue;
+		}
+		else if (i >= number_of_lines)
+			break;
 
-		Line& l = lines[i % N];
-		Line p = lines[(i - 1 + N) % N];
-		l.project(posY, camH, posX - pub, camDegree);
+		Line& l = lines[i % number_of_lines];
+		Line p = lines[(i - 1 + number_of_lines) % number_of_lines];
+		l.project(posY, camH, posX, camDegree);
 
 		if (l.getW() < 1e-6 && l.getW() > -1e-6)
 			continue;
 
 		if (l.getY() >= maxy)
 			continue;
+
 		maxy = l.getY();
 
 		grass = (i / 3) & 1 ? 0xff10c810 : 0xff009A00;
@@ -98,20 +93,28 @@ void Map::draw(SDL_Renderer* renderer) {
 Uint32 Map::move(Uint32 interval, void* para) {
 	Map* mp = (Map*)para;
 
-	double co = cos(mp->camDegree), si = sin(mp->camDegree);
+	double velX = mp->velLinear * cos(mp->camDegree), velY = mp->velLinear * sin(mp->camDegree);
+	int startpos = mp->posX / SEGMENT_LENGTH;
 
-	mp->posX += mp->velX* co;
-	
-	if(mp->posX >= mp->N*SEGMENT_LENGTH)
-		mp->posX-= mp->N * SEGMENT_LENGTH;
-	else if(mp->posX <0)
-		mp->posX += mp->N * SEGMENT_LENGTH;
+	//move in x-direction
+	mp->posX += velX;
+	if (mp->posX < 0 || mp->posX >= mp->number_of_lines * SEGMENT_LENGTH)
+		mp->posX -= velX;	
 
-	mp->posY += mp->velX *si;
-	
-	mp->camDegree += mp->velY;
-	if (mp->camDegree > 1.3 || mp->camDegree < -1.3)
-		mp->camDegree -= mp->velY;
+	//move in y-direction
+	mp->posY += velY;
+	if (mp->posY <= mp->lines[startpos].getx() - 2 * ROAD_WIDTH || mp->posY >= mp->lines[startpos].getx() + 2 * ROAD_WIDTH){
+		mp->posY -= velY;
+		mp->posX -= velX;
+	}
+
+	//degree between road vector and normal line (same direction as camera degree)
+	mp->roadDegree = atan((mp->lines[startpos + 1].getx() - mp->lines[startpos].getx()) / (mp->lines[startpos + 1].getz() - mp->lines[startpos].getz()));
+
+	//rotate camera
+	mp->camDegree += mp->velAngular;
+	if (mp->camDegree >= mp->roadDegree + MAX_ROTATE_DEGREE || mp->camDegree  <= mp->roadDegree - MAX_ROTATE_DEGREE)
+		mp->camDegree -= mp->velAngular;
 
 	return mp->moveInterval;
 }

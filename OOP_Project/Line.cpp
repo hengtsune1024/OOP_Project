@@ -1,7 +1,7 @@
 #include "Line.h"
 
 Line::Line(){
-    spriteX = curve = x = y = z = 0;
+    curve = x = y = z = 0;
 }
 
 void Line::project(int camX, int camY, int camZ, double camD)

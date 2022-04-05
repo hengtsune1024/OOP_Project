@@ -1,7 +1,7 @@
 /*
-* the car can get out of the road
-* and the camera can turn 75 degrees each side
-* but when the car is at the sideways,  the background and road image will be broken.
+* The road model is almost completed
+* car cannot move out of the road side over the distance of ROAD_WIDTH 
+* the restriction on the degree of camera rotation is now depending on the road vector
 */
 
 #include <iostream>
@@ -57,21 +57,21 @@ void eventHandler(SDL_Event& e, RenderWindow& w, RacingCar& c, Map& m) {
 		switch (e.key.keysym.sym) {
 			case SDLK_UP:
 				cout << "[Main] Press button UP" << endl;
-				m.setVelX(m.getVelX() + SPEED);
+				m.setVelLinear(m.getVelLinear() + SPEED);
 				break;
 			case SDLK_DOWN:
 				cout << "[Main] Press button DOWN" << endl;
-				m.setVelX(m.getVelX() - SPEED);
+				m.setVelLinear(m.getVelLinear() - SPEED);
 				break;
 			case SDLK_LEFT:
 				cout << "[Main] Press button LEFT" << endl;
 				c.turn(-1);
-				m.setVelY(m.getVelY() - ROTATE);
+				m.setVelAngular(m.getVelAngular() - ROTATE);
 				break;
 			case SDLK_RIGHT:
 				cout << "[Main] Press button RIGHT" << endl;
 				c.turn(1);
-				m.setVelY(m.getVelY() + ROTATE);
+				m.setVelAngular(m.getVelAngular() + ROTATE);
 				break;
 			case SDLK_SPACE:
 				SDL_Delay(5000);
@@ -82,19 +82,19 @@ void eventHandler(SDL_Event& e, RenderWindow& w, RacingCar& c, Map& m) {
 	else if (e.type == SDL_KEYUP && e.key.repeat == 0) {
 		switch (e.key.keysym.sym) {
 			case SDLK_UP:
-				m.setVelX(m.getVelX() - SPEED);
+				m.setVelLinear(m.getVelLinear() - SPEED);
 				break;
 			case SDLK_DOWN:
-				m.setVelX(m.getVelX() + SPEED);
+				m.setVelLinear(m.getVelLinear() + SPEED);
 				//else if (c.getVelX() == 0)
 					//c.setVel(c.getVelX() - 30);
 				break;
 			case SDLK_LEFT:
-				m.setVelY(m.getVelY() + ROTATE);
+				m.setVelAngular(m.getVelAngular() + ROTATE);
 				c.turn(0);
 				break;
 			case SDLK_RIGHT:
-				m.setVelY(m.getVelY() - ROTATE);
+				m.setVelAngular(m.getVelAngular() - ROTATE);
 				c.turn(0);
 				break;
 		}
