@@ -6,13 +6,16 @@ Image::Image(const char* path, SDL_Renderer* renderer)
 	if (imgSurface == NULL)
 	{
 		cout << "[Image] SDL_LoadBMP failed: " << IMG_GetError() << endl;
-		exit(0);
+		SDL_Delay(3000);
+		exit(1);
 	}
 
 	texture = SDL_CreateTextureFromSurface(renderer, imgSurface);
 	if (texture == NULL)
 	{
 		cout << "[Image] SDL_CreateTextureFromSurface failed: " << SDL_GetError() << endl;
+		SDL_Delay(3000);
+		exit(1);
 	}
 	width = imgSurface->w;   // 表面結構可取得圖片寬高
 	height = imgSurface->h;
@@ -27,7 +30,8 @@ void Image::set(const char* path, SDL_Renderer* renderer)
 	if (imgSurface == NULL)
 	{
 		cout << "[Image] SDL_LoadBMP failed: " << IMG_GetError() << endl;
-		exit(0);
+		SDL_Delay(3000);
+		exit(1);
 	}
 	cout << "[Image] IMG_Load OK" << endl;
 
@@ -37,6 +41,8 @@ void Image::set(const char* path, SDL_Renderer* renderer)
 	if (texture == NULL)
 	{
 		cout << "[Image] SDL_CreateTextureFromSurface failed: " << SDL_GetError() << endl;
+		SDL_Delay(3000);
+		exit(1);
 	}
 	cout << "[Image] SDL_CreateTextureFromSurface OK" << endl;
 	width = imgSurface->w;
