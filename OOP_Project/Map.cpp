@@ -109,7 +109,7 @@ Uint32 Map::move(Uint32 interval, void* para) {
 	//move in y-direction
 	mp->posY += velY;
 	if (mp->posY < mp->lines[startpos].getx() - 2 * ROAD_WIDTH || mp->posY > mp->lines[startpos].getx() + 2 * ROAD_WIDTH){
-		cout << "hit " << mp->posY << "  "<< mp->lines[startpos].getx() << mp->lines[startpos].getx() - 2 * ROAD_WIDTH << ' ' << mp->lines[startpos].getx() + 2 * ROAD_WIDTH  << endl;
+		
 		mp->posY -= velY;
 		mp->posX -= velX;
 
