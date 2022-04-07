@@ -2,25 +2,19 @@
 
 RacingCar::RacingCar() {}
 
+RacingCar::RacingCar(Map* _map, SDL_Renderer* renderer):state(0),direct(FRONT),healthPoint(MAX_HP),
+      fullyDamaged(false),energyPoint(MAX_ENERGY),fullyCharged(true),rechargeInterval(0),map(_map)
+{
+	
+	for (int i = 0; i < NUM_CARIMG; ++i) {
+		setImage(RACINGCAR_PATH, NUM_CARIMG, renderer, 0);
+	}
+	cout << "[RacingCar] Car initialized" << endl;
+
+}
+
 RacingCar::~RacingCar() {}
 
-void RacingCar::init(Map& m,SDL_Renderer* renderer) {
-	state = 0;
-	//acc = 0;
-	direct = FRONT;
-	healthPoint = MAX_HP;
-	fullyDamaged = false;
-	energyPoint = MAX_ENERGY;
-	fullyCharged = true;
-	rechargeInterval = 0;
-	for (int i = 0; i < NUM_CARIMG; ++i) {
-		setImage(RACINGCAR_PATH, NUM_CARIMG, renderer,0);
-	}
-
-	map = &m;
-	map->setCar(this);
-	cout << "[RacingCar] Car initialized" << endl;
-}
 
 void RacingCar::quit() {
 	removeTimer();
@@ -92,3 +86,23 @@ Uint32 RacingCar::recharge(Uint32 interval, void* para) {
 	return rc->rechargeInterval;
 }
 
+
+/*
+void RacingCar::init() {
+	state = 0;
+	//acc = 0;
+	direct = FRONT;
+	healthPoint = MAX_HP;
+	fullyDamaged = false;
+	energyPoint = MAX_ENERGY;
+	fullyCharged = true;
+	rechargeInterval = 0;
+	for (int i = 0; i < NUM_CARIMG; ++i) {
+		setImage(RACINGCAR_PATH, NUM_CARIMG, renderer,0);
+	}
+
+	map = &m;
+	map->setCar(this);
+	cout << "[RacingCar] Car initialized" << endl;
+}
+*/

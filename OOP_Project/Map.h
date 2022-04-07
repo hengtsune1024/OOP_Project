@@ -8,6 +8,7 @@
 #include <vector>
 #include <cmath>
 using namespace std;
+
 class RacingCar;
 
 struct Quad {
@@ -43,6 +44,7 @@ class Map
 
 public:
 	Map();
+	Map(SDL_Renderer*);
 	~Map();
 
 	// getters
@@ -57,9 +59,8 @@ public:
 	// setters
 	void setVelLinear(double v) { velLinear = v; }
 	void setVelAngular(double v) { velAngular = v; }
-	void setCar(RacingCar* c) { car = c; }
 	 
-	void init();
+	  
 	void quit();
 	void draw(SDL_Renderer*);
 	
@@ -67,5 +68,6 @@ public:
 
 // unused code
 /*
-
+	void init();
+	void setCar(RacingCar* c) { car = c; }
 */

@@ -9,21 +9,17 @@
 #include <SDL_image.h>
 #include "System.h"
 #include "RenderWindow.h"
-#include "RacingCar.h"
 #include "Map.h" 
+#include "RacingCar.h"
 
-void eventHandler(SDL_Event&, RenderWindow&, RacingCar&, Map&);
+void eventHandler(SDL_Event&, RenderWindow&, Map&);
 
 int main(int argc, char* argv[]) {
 	System sdl;
 	RenderWindow window;
 	sdl.init();
 	window.init();
-	Map map;
-	map.init();
-
-	RacingCar car;
-	car.init(map,window.GetRenderer());
+	Map map(window.GetRenderer());
 
 	SDL_Event e;
 	bool quit = false;
@@ -36,23 +32,21 @@ int main(int argc, char* argv[]) {
 				quit = true;
 				break;
 			}
-			eventHandler(e, window, car, map);
+			eventHandler(e, window, map);
 		}
 		window.clear();
 		map.draw(window.GetRenderer());
-		car.draw(window.GetRenderer());
 		window.display();
 	}
 
 	map.quit();
-	car.quit();
 	
 	window.quit();
 	sdl.quit();
 	return 0;
 }
 
-void eventHandler(SDL_Event& e, RenderWindow& w, RacingCar& c, Map& m) {
+void eventHandler(SDL_Event& e, RenderWindow& w, Map& m) {
 	if (e.type == SDL_KEYDOWN && e.key.repeat == 0) {
 		switch (e.key.keysym.sym) {
 			case SDLK_UP:
@@ -65,12 +59,10 @@ void eventHandler(SDL_Event& e, RenderWindow& w, RacingCar& c, Map& m) {
 				break;
 			case SDLK_LEFT:
 				cout << "[Main] Press button LEFT" << endl;
-				c.turn(-1);
 				m.setVelAngular(m.getVelAngular() - ROTATE);
 				break;
 			case SDLK_RIGHT:
 				cout << "[Main] Press button RIGHT" << endl;
-				c.turn(1);
 				m.setVelAngular(m.getVelAngular() + ROTATE);
 				break;
 			case SDLK_SPACE:
@@ -91,11 +83,9 @@ void eventHandler(SDL_Event& e, RenderWindow& w, RacingCar& c, Map& m) {
 				break;
 			case SDLK_LEFT:
 				m.setVelAngular(m.getVelAngular() + ROTATE);
-				c.turn(0);
 				break;
 			case SDLK_RIGHT:
 				m.setVelAngular(m.getVelAngular() - ROTATE);
-				c.turn(0);
 				break;
 		}
 	}

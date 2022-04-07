@@ -4,45 +4,42 @@ Map::Map() {
 
 }
 
+Map::Map(SDL_Renderer* renderer) :car(new RacingCar(this, renderer)), number_of_lines(NUM_LINE), lines(NUM_LINE) ,
+	camDegree(0), velAngular(0), velLinear(0), posX(INITIAL_POS* SEGMENT_LENGTH)
+{
+	double x = 0, dx = 0;
+	for (int i = 0; i < NUM_LINE; ++i) {
+
+		if (i > 100 && i < 700)		// range of turing road
+			lines[i].setCurve(0.9);
+		else if (i > 800 && i < 1400)
+			lines[i].setCurve(-1.5);
+		else
+			lines[i].setCurve(0);
+
+		if (i > 300 && i < 1000)		//range of road up and down
+			lines[i].sety(sin(i / 30.0) * CAMERA_HEIGHT);
+		else
+			lines[i].sety(0);
+
+		x += dx;
+		dx += lines[i].getCurve();
+		lines[i].setx(x);
+		lines[i].setz(i * SEGMENT_LENGTH);
+	}
+	posY = lines[300].getx();
+	std::cout << "[Map] Map initialized" << endl;
+
+}
+
 Map::~Map() {
 
 }
 
-void Map::init() {
-	Line tmp;
-	double x = 0, dx = 0;
-	for (int i = 0; i < NUM_LINE; ++i) {
-		
-		if (i > 100 && i < 700)		// range of turing road
-			tmp.setCurve(0.9);
-		else if (i > 800 && i < 1400)
-			tmp.setCurve(-1.5);
-		else
-			tmp.setCurve(0);
-
-		if (i > 300 && i < 1000)		//range of road up and down
-			tmp.sety(sin(i / 30.0) * CAMERA_HEIGHT);
-		else
-			tmp.sety(0);
-
-		x += dx;
-		dx += tmp.getCurve();
-		tmp.setx(x);
-		tmp.setz(i * SEGMENT_LENGTH);
-		lines.push_back(tmp);
-	}
-	camDegree = 0;
-	velAngular = 0;
-	velLinear = 0;
-
-	number_of_lines = lines.size();
-	posX = 300 * SEGMENT_LENGTH;
-	posY = lines[300].getx();
-	std::cout << "[Map] Map initialized" << endl;
-}
-
 void Map::quit() {
 	removeTimer();
+	car->quit();
+	delete[]car;
 	std::cout << "[Map] Map closed" << endl;
 }
 
@@ -88,6 +85,9 @@ void Map::draw(SDL_Renderer* renderer) {
 		drawQuad(renderer, { rumble, p.getX(), p.getY(), p.getW() * 1.2, l.getX(), l.getY(), l.getW() * 1.2 });
 		drawQuad(renderer, { road, p.getX(), p.getY(), p.getW(), l.getX(), l.getY(), l.getW() });
 	}
+
+	car->draw(renderer);
+
 }
 
 Uint32 Map::move(Uint32 interval, void* para) {
@@ -134,3 +134,8 @@ void Map::startTimer(Uint32 interval) {
 void Map::removeTimer() {
 	SDL_RemoveTimer(moveTimer);
 }
+
+/*
+void Map::init() {
+}
+*/

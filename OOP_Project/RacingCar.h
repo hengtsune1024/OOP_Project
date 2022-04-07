@@ -31,6 +31,7 @@ class RacingCar :public Entity
 
 public:
 	RacingCar();
+	RacingCar(Map*, SDL_Renderer*);
 	~RacingCar();
 
 	//int getAcc() { return acc; }
@@ -40,7 +41,7 @@ public:
 	//void setAcc(int a) { acc = a; }
 	void turn(int);
 
-	void init(Map&, SDL_Renderer*);
+	//void init(Map&, SDL_Renderer*);
 	void quit();
 	void startTimer(Uint32);
 
