@@ -6,9 +6,9 @@ RacingCar::RacingCar(Map* _map, SDL_Renderer* renderer):state(0),direct(FRONT),h
       fullyDamaged(false),energyPoint(MAX_ENERGY),fullyCharged(true),rechargeInterval(0),map(_map)
 {
 	
-	for (int i = 0; i < NUM_CARIMG; ++i) {
+	//for (int i = 0; i < NUM_CARIMG; ++i) {
 		setImage(RACINGCAR_PATH, NUM_CARIMG, renderer, 0);
-	}
+	//}
 	cout << "[RacingCar] Car initialized" << endl;
 
 }
@@ -69,8 +69,8 @@ void RacingCar::accelerate() {
 }
 
 void RacingCar::draw(SDL_Renderer* renderer) {
-	drawImg(renderer,
-		{WIDTH/2- getCurrentState().getWidth() / 2,HEIGHT - getCurrentState().getHeight(),getCurrentState().getWidth() ,getCurrentState().getHeight() }, {ALL_REGION});
+	drawImg(renderer, { ALL_REGION },
+		{WIDTH/2- getCurrentState().getWidth() / 2,HEIGHT - getCurrentState().getHeight(),getCurrentState().getWidth() ,getCurrentState().getHeight() });
 }
 
 Uint32 RacingCar::recharge(Uint32 interval, void* para) {

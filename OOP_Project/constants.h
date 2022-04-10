@@ -36,7 +36,7 @@
 #define CAMERA_DEPTH 0.96
 
 #define SPEED 800
-#define ROTATE 0.1
+#define ROTATE 0.05
 
 
 enum Direction {
