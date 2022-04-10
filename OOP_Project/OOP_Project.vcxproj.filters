@@ -27,9 +27,6 @@
     <ClCompile Include="Image.cpp">
       <Filter>來源檔案</Filter>
     </ClCompile>
-    <ClCompile Include="RacingCar.cpp">
-      <Filter>來源檔案</Filter>
-    </ClCompile>
     <ClCompile Include="Map.cpp">
       <Filter>來源檔案</Filter>
     </ClCompile>
@@ -40,6 +37,9 @@
       <Filter>來源檔案</Filter>
     </ClCompile>
     <ClCompile Include="Tool.cpp">
+      <Filter>來源檔案</Filter>
+    </ClCompile>
+    <ClCompile Include="RacingCar.cpp">
       <Filter>來源檔案</Filter>
     </ClCompile>
   </ItemGroup>
@@ -56,9 +56,6 @@
     <ClInclude Include="Image.h">
       <Filter>標頭檔</Filter>
     </ClInclude>
-    <ClInclude Include="RacingCar.h">
-      <Filter>標頭檔</Filter>
-    </ClInclude>
     <ClInclude Include="Map.h">
       <Filter>標頭檔</Filter>
     </ClInclude>
@@ -69,6 +66,9 @@
       <Filter>標頭檔</Filter>
     </ClInclude>
     <ClInclude Include="Tool.h">
+      <Filter>標頭檔</Filter>
+    </ClInclude>
+    <ClInclude Include="RacingCar.h">
       <Filter>標頭檔</Filter>
     </ClInclude>
   </ItemGroup>

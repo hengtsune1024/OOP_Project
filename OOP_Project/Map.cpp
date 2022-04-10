@@ -4,7 +4,7 @@ Map::Map() {
 
 }
 
-Map::Map(SDL_Renderer* renderer) :car(new RacingCar(this, renderer)), number_of_lines(NUM_LINE), lines(NUM_LINE) ,
+Map::Map(SDL_Renderer* renderer) :number_of_lines(NUM_LINE), lines(NUM_LINE) ,
 	camDegree(0), velAngular(0), velLinear(0), posX(INITIAL_POS* SEGMENT_LENGTH)
 {
 	double x = 0, dx = 0;
@@ -30,6 +30,11 @@ Map::Map(SDL_Renderer* renderer) :car(new RacingCar(this, renderer)), number_of_
 	posY = lines[300].getx();
 	std::cout << "[Map] Map initialized" << endl;
 
+
+	RacingCar c("../images/pooh/", 22, renderer);
+	car = c;
+	car.setPosition(280, 380);
+	car.turn(0);
 }
 
 Map::~Map() {
@@ -38,8 +43,8 @@ Map::~Map() {
 
 void Map::quit() {
 	removeTimer();
-	car->quit();
-	delete[]car;
+	car.quit();
+	//delete[]car;
 	std::cout << "[Map] Map closed" << endl;
 }
 
@@ -86,7 +91,7 @@ void Map::draw(SDL_Renderer* renderer) {
 		drawQuad(renderer, { road, p.getX(), p.getY(), p.getW(), l.getX(), l.getY(), l.getW() });
 	}
 
-	car->draw(renderer);
+	car.draw(renderer);
 
 }
 
@@ -126,13 +131,21 @@ Uint32 Map::move(Uint32 interval, void* para) {
 
 	return mp->moveInterval;
 }
+void Map::turn(int d)
+{
+	car.turn(d);
+}
+
 void Map::startTimer(Uint32 interval) {
 	moveInterval = interval;
 	moveTimer = SDL_AddTimer(interval, move, this);
+
+	car.startTimer(interval);
 }
 
 void Map::removeTimer() {
 	SDL_RemoveTimer(moveTimer);
+	car.stopTimer();
 }
 
 /*

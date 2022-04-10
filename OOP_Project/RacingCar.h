@@ -1,12 +1,40 @@
 #pragma once
 #include <SDL.h>
 #include "Image.h"
-#include "Map.h"
 #include "constants.h"
-#include "Entity.h"
+
 class Map;
 
-class RacingCar :public Entity
+class RacingCar
+{
+	char path[100];
+	int num;  // New in this example
+	Image* image;
+	int frame;
+	int x;
+	int y;
+	SDL_TimerID timerID;
+	Uint32 time;
+	static Uint32 changeData(Uint32 interval, void* param); // Timer callback 
+	int direct;
+public:
+	RacingCar();
+	RacingCar(const char* path, int n, SDL_Renderer* renderer);
+	void quit();
+	void setPosition(int xx, int yy);
+	int getWidth();
+	int getHeight();
+	void draw(SDL_Renderer* renderer);
+	void startTimer(Uint32 t);
+	void stopTimer();
+	void turn(int); // move the object
+
+};
+
+
+
+//previous code
+/*class RacingCar :public Entity
 {
 	
 	int state;	//0: front, 1: right_front, 2:left_front
@@ -49,4 +77,4 @@ public:
 	bool isHit();
 	
 	void draw(SDL_Renderer*);
-};
+};*/

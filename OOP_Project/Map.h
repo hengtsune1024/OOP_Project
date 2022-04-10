@@ -39,10 +39,9 @@ class Map
 	Uint32 moveInterval;
 	static Uint32 move(Uint32, void*);
 	void removeTimer();
-
-	RacingCar* car;
-
+	RacingCar car;
 public:
+
 	Map();
 	Map(SDL_Renderer*);
 	~Map();
@@ -59,7 +58,7 @@ public:
 	// setters
 	void setVelLinear(double v) { velLinear = v; }
 	void setVelAngular(double v) { velAngular = v; }
-	 
+	void turn(int);
 	  
 	void quit();
 	void draw(SDL_Renderer*);

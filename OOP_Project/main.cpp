@@ -19,6 +19,7 @@ int main(int argc, char* argv[]) {
 	RenderWindow window;
 	sdl.init();
 	window.init();
+
 	Map map(window.GetRenderer());
 
 	SDL_Event e;
@@ -36,11 +37,12 @@ int main(int argc, char* argv[]) {
 		}
 		window.clear();
 		map.draw(window.GetRenderer());
+		//car.move();
+		//car.draw(window.GetRenderer());
 		window.display();
 	}
 
 	map.quit();
-	
 	window.quit();
 	sdl.quit();
 	return 0;
@@ -60,10 +62,12 @@ void eventHandler(SDL_Event& e, RenderWindow& w, Map& m) {
 			case SDLK_LEFT:
 				cout << "[Main] Press button LEFT" << endl;
 				m.setVelAngular(m.getVelAngular() - ROTATE);
+				m.turn(-1);
 				break;
 			case SDLK_RIGHT:
 				cout << "[Main] Press button RIGHT" << endl;
 				m.setVelAngular(m.getVelAngular() + ROTATE);
+				m.turn(1);
 				break;
 			case SDLK_SPACE:
 				SDL_Delay(5000);
@@ -83,9 +87,11 @@ void eventHandler(SDL_Event& e, RenderWindow& w, Map& m) {
 				break;
 			case SDLK_LEFT:
 				m.setVelAngular(m.getVelAngular() + ROTATE);
+				m.turn(0);
 				break;
 			case SDLK_RIGHT:
 				m.setVelAngular(m.getVelAngular() - ROTATE);
+				m.turn(0);
 				break;
 		}
 	}

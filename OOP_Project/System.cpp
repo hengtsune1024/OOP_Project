@@ -16,7 +16,6 @@ void System::init() {
 
 	}
 	cout << "[System] IMG_Init Succeeded" << endl;
-
 }
 void System::quit() {
 	IMG_Quit();
