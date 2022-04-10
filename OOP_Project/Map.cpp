@@ -4,7 +4,7 @@ Map::Map() {
 
 }
 
-Map::Map(SDL_Renderer* renderer) :number_of_lines(NUM_LINE), lines(NUM_LINE) ,
+Map::Map(SDL_Renderer* renderer) :number_of_lines(NUM_LINE), car("../images/pooh/", 22, renderer), lines(NUM_LINE),
 	camDegree(0), velAngular(0), velLinear(0), posX(INITIAL_POS* SEGMENT_LENGTH)
 {
 	double x = 0, dx = 0;
@@ -31,8 +31,6 @@ Map::Map(SDL_Renderer* renderer) :number_of_lines(NUM_LINE), lines(NUM_LINE) ,
 	std::cout << "[Map] Map initialized" << endl;
 
 
-	RacingCar c("../images/pooh/", 22, renderer);
-	car = c;
 	car.setPosition(280, 380);
 	car.turn(0);
 }
