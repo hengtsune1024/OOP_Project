@@ -23,27 +23,27 @@ struct Quad {
 
 class Map
 {
-	double posX;	//position in map
-	double posY;
-	double velLinear;	//velocity of driver
-	double velAngular;
-	double camDegree; 
-	double roadDegree;
-	int number_of_lines;
+	double posX;			// x position in 3D world (moving forward and backword)
+	double posY;			// y position in 3D world (moving right and left)
+	double velLinear;		// linear velocity 
+	double velAngular;		// angular velocity 
+	double camDegree;		// camera degree (in radius, x-axis is 0)
+	double roadDegree;		// the degree from x-axis to the road vector (from current segment to the next segment) 
+	int number_of_lines;	// the number of road segments
 
-	vector<Line> lines;
-	void drawQuad(SDL_Renderer*, Quad);
+	vector<Line> lines;						// road segments constituting the whole road
+	void drawQuad(SDL_Renderer*, Quad);		// draw a road segment
 	//void generateTool();
 
-	SDL_TimerID moveTimer;
-	Uint32 moveInterval;
-	static Uint32 move(Uint32, void*);
-	void removeTimer();
-	RacingCar car;
+	SDL_TimerID moveTimer;				// car moving timer
+	Uint32 moveInterval;				// the interval of moving timer
+	static Uint32 move(Uint32, void*);	// the function of car moving
+	void removeTimer();					// remove all timers
+	RacingCar car;						// the car
 public:
 
-	Map();
-	Map(SDL_Renderer*);
+	Map();					// default constructor (initialize nothing)
+	Map(SDL_Renderer*);		// initialize all members except timers
 	~Map();
 
 	// getters
@@ -60,8 +60,8 @@ public:
 	void setVelAngular(double v) { velAngular = v; }
 	void turn(int);
 	  
-	void quit();
-	void draw(SDL_Renderer*);
+	void quit();				// quit every member that need to be quit
+	void draw(SDL_Renderer*);	// draw the map, car, and tools, etc.
 	
 };
 
