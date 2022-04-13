@@ -22,7 +22,7 @@
 #define NUM_LINE 5000		//
 #define CAMERA_HEIGHT 1500	//
 #define MAX_ROTATE_DEGREE 0.785  // 45 degree
-#define INITIAL_POS 300
+#define INITIAL_POS 1000
 
 //Line
 #define SEGMENT_LENGTH 400

@@ -28,8 +28,8 @@ Map::Map(SDL_Renderer* renderer) :number_of_lines(NUM_LINE), car("../images/pooh
 		lines[i].setx(x);
 		lines[i].setz(i * SEGMENT_LENGTH);
 	}
-	posY = lines[300].getx();
-	std::cout << "[Map] Map initialized" << endl;
+	posY = lines[INITIAL_POS].getx();
+	cout << "[Map] Map initialized" << endl;
 
 
 	car.setPosition(280, 380);
@@ -44,7 +44,7 @@ void Map::quit() {
 	removeTimer();
 	car.quit();
 	//delete[]car;
-	std::cout << "[Map] Map closed" << endl;
+	cout << "[Map] Map closed" << endl;
 }
 
 void Map::drawQuad(SDL_Renderer* renderer, Quad q) {
@@ -124,10 +124,13 @@ Uint32 Map::move(Uint32 interval, void* para) {
 
 
 	//rotate camera
+	double tmp = mp->camDegree;
 	mp->camDegree += mp->velAngular;
-	if (mp->camDegree >= mp->roadDegree + MAX_ROTATE_DEGREE || mp->camDegree  <= mp->roadDegree - MAX_ROTATE_DEGREE)
-		mp->camDegree -= mp->velAngular;
 
+	if ((tmp <= mp->roadDegree - MAX_ROTATE_DEGREE || mp->velAngular >= 0) && (tmp >= mp->roadDegree + MAX_ROTATE_DEGREE || mp->velAngular < 0)
+		&& (mp->camDegree >= mp->roadDegree + MAX_ROTATE_DEGREE || mp->camDegree <= mp->roadDegree - MAX_ROTATE_DEGREE))
+			mp->camDegree -= mp->velAngular;
+	
 	return mp->moveInterval;
 }
 void Map::turn(int d)
