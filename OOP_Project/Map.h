@@ -27,6 +27,7 @@ class Map
 	double posY;			// y position in 3D world (moving right and left)
 	double velLinear;		// linear velocity 
 	double velAngular;		// angular velocity 
+	double accLinear;
 	double camDegree;		// camera degree (in radius, x-axis is 0)
 	double roadDegree;		// the degree from x-axis to the road vector (from current segment to the next segment) 
 	int number_of_lines;	// the number of road segments
@@ -36,8 +37,11 @@ class Map
 	//void generateTool();
 
 	SDL_TimerID moveTimer;				// car moving timer
+	SDL_TimerID accelerateTimer;
 	Uint32 moveInterval;				// the interval of moving timer
+	Uint32 accelerateInterval;
 	static Uint32 move(Uint32, void*);	// the function of car moving
+	static Uint32 accelerate(Uint32, void*);
 	void removeTimer();					// remove all timers
 	RacingCar car;						// the car
 public:
@@ -51,13 +55,15 @@ public:
 	double getPosY() { return posY; }
 	double getVelLinear() { return velLinear; }
 	double getVelAngular() { return velAngular; }
+	double getAccLinear() { return accLinear; }
 
 	// timer
-	void startTimer(Uint32);
+	void startTimer(Uint32 moveInt, Uint32 accInt);
 
 	// setters
 	void setVelLinear(double v) { velLinear = v; }
 	void setVelAngular(double v) { velAngular = v; }
+	void setAccLinear(double a) { accLinear = a; }
 	void turn(int);
 	  
 	void quit();				// quit every member that need to be quit

@@ -6,7 +6,7 @@ Map::Map() {
 
 Map::Map(SDL_Renderer* renderer) :number_of_lines(NUM_LINE), car("../images/pooh/", 22, renderer), 
 	lines(NUM_LINE), camDegree(0), velAngular(0), velLinear(0), posX(INITIAL_POS* SEGMENT_LENGTH),
-	roadDegree(0), moveInterval(0)
+	roadDegree(0), moveInterval(0), accelerateInterval(0)
 {
 	double x = 0, dx = 0;
 	for (int i = 0; i < NUM_LINE; ++i) {
@@ -133,20 +133,41 @@ Uint32 Map::move(Uint32 interval, void* para) {
 	
 	return mp->moveInterval;
 }
+
+Uint32 Map::accelerate(Uint32 interval, void* para) {
+	Map* mp = (Map*)para;
+
+	mp->velLinear += mp->accLinear;
+	if (mp->velLinear > MAX_SPEED || mp->velLinear < -MAX_SPEED) {
+		mp->velLinear -= mp->accLinear;
+	}
+
+	if ((mp->accLinear == -FRICTION_ACC && mp->velLinear < 0) || (mp->accLinear == FRICTION_ACC && mp->velLinear > 0)) {
+		mp->velLinear = 0;
+		mp->accLinear = 0;
+	}
+
+	return mp->accelerateInterval;
+}
+
 void Map::turn(int d)
 {
 	car.turn(d);
 }
 
-void Map::startTimer(Uint32 interval) {
-	moveInterval = interval;
-	moveTimer = SDL_AddTimer(interval, move, this);
+void Map::startTimer(Uint32 moveInt, Uint32 accInt) {
+	moveInterval = moveInt;
+	moveTimer = SDL_AddTimer(moveInt, move, this);
 
-	car.startTimer(interval);
+	accelerateInterval = accInt;
+	accelerateTimer = SDL_AddTimer(accInt, accelerate, this);
+
+	//car.startTimer(moveInt);
 }
 
 void Map::removeTimer() {
 	SDL_RemoveTimer(moveTimer);
+	SDL_RemoveTimer(accelerateTimer);
 	car.stopTimer();
 }
 

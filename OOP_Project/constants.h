@@ -14,7 +14,9 @@
 #define NUM_CARIMG 3		//number of car images
 #define MOVE_INTERVAL 100	//moving timer interval
 #define RACINGCAR_PATH "../images/RacingCar/RacingCar"
-#define SPEED 800			//car moving speed
+#define MAX_SPEED 1000		//max car moving speed
+#define ACCELERATION 20
+#define FRICTION_ACC 5
 #define ROTATE 0.05			//car camera rotation
 
 //map
@@ -31,14 +33,13 @@
 
 
 /*
-#define MAX_SPEED 100  
+
 #define BOUNCE_SPEED -5
 #define MAX_HP 1000
 #define RATE_HEAL 100
 #define MAX_ENERGY 1000
 #define RATE_RECHARGE 100
 #define CAR_ACC 5
-#define FRICTION_ACC 2
 
 
 enum Direction {

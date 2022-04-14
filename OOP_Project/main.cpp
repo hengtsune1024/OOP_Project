@@ -25,7 +25,7 @@ int main(int argc, char* argv[]) {
 	SDL_Event e;
 	bool quit = false;
 
-	map.startTimer(50);
+	map.startTimer(50, 50);
 	while (!quit) {
 
 		while (SDL_PollEvent(&e) != 0) {
@@ -53,11 +53,13 @@ void eventHandler(SDL_Event& e, RenderWindow& w, Map& m) {
 		switch (e.key.keysym.sym) {
 			case SDLK_UP:
 				cout << "[Main] Press button UP" << endl;
-				m.setVelLinear(m.getVelLinear() + SPEED);
+				//m.setVelLinear(m.getVelLinear() + SPEED);
+				m.setAccLinear(m.getAccLinear() + ACCELERATION);
 				break;
 			case SDLK_DOWN:
 				cout << "[Main] Press button DOWN" << endl;
-				m.setVelLinear(m.getVelLinear() - SPEED);
+				//m.setVelLinear(m.getVelLinear() - SPEED);
+				m.setAccLinear(m.getAccLinear() - ACCELERATION);
 				break;
 			case SDLK_LEFT:
 				cout << "[Main] Press button LEFT" << endl;
@@ -78,12 +80,11 @@ void eventHandler(SDL_Event& e, RenderWindow& w, Map& m) {
 	else if (e.type == SDL_KEYUP && e.key.repeat == 0) {
 		switch (e.key.keysym.sym) {
 			case SDLK_UP:
-				m.setVelLinear(m.getVelLinear() - SPEED);
-				break;
 			case SDLK_DOWN:
-				m.setVelLinear(m.getVelLinear() + SPEED);
-				//else if (c.getVelX() == 0)
-					//c.setVel(c.getVelX() - 30);
+				if (m.getVelLinear() > 0)
+					m.setAccLinear(-FRICTION_ACC);
+				else
+					m.setAccLinear(FRICTION_ACC);
 				break;
 			case SDLK_LEFT:
 				m.setVelAngular(m.getVelAngular() + ROTATE);
