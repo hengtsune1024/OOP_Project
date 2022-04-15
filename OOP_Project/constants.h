@@ -13,7 +13,7 @@
 
 #define NUM_CARIMG 3		//number of car images
 #define MOVE_INTERVAL 100	//moving timer interval
-#define RACINGCAR_PATH "../OOP_Project/images/RacingCar/RacingCar"
+#define RACINGCAR_PATH "../images/RacingCar/RacingCar"
 #define MAX_SPEED 1000		//max car moving speed
 #define ACCELERATION 20		//
 #define FRICTION_ACC 5

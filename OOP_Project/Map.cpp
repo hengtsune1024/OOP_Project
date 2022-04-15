@@ -4,7 +4,7 @@ Map::Map() {
 
 }
 
-Map::Map(SDL_Renderer* renderer) :number_of_lines(NUM_LINE), car("../OOP_Project/images/pooh/", 22, renderer), 
+Map::Map(SDL_Renderer* renderer) :number_of_lines(NUM_LINE), car("../images/pooh/", 22, renderer), 
 	lines(NUM_LINE), camDegree(0), velAngular(0), velLinear(0), posX(INITIAL_POS* SEGMENT_LENGTH),
 	roadDegree(0), moveInterval(0), accelerateInterval(0)
 {
