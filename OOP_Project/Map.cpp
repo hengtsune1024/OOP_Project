@@ -162,7 +162,7 @@ void Map::startTimer(Uint32 moveInt, Uint32 accInt) {
 	accelerateInterval = accInt;
 	accelerateTimer = SDL_AddTimer(accInt, accelerate, this);
 
-	//car.startTimer(moveInt);
+	car.startTimer(moveInt);
 }
 
 void Map::removeTimer() {

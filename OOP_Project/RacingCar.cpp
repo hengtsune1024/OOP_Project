@@ -48,7 +48,7 @@ int RacingCar::getHeight()
 
 void RacingCar::draw(SDL_Renderer* renderer)
 {
-	SDL_Rect d, s;
+	SDL_Rect d;
 	d.x = x;
 	d.y = y;
 	d.w = image[frame].getWidth();
