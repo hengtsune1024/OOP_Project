@@ -27,7 +27,7 @@ class Map
 	double posY;			// y position in 3D world (moving right and left)
 	double velLinear;		// linear velocity 
 	double velAngular;		// angular velocity 
-	double accLinear;
+	double accLinear;		// linear acceleration 
 	double camDegree;		// camera degree (in radius, x-axis is 0)
 	double roadDegree;		// the degree from x-axis to the road vector (from current segment to the next segment) 
 	int number_of_lines;	// the number of road segments
@@ -36,14 +36,14 @@ class Map
 	void drawQuad(SDL_Renderer*, Quad);		// draw a road segment
 	//void generateTool();
 
-	SDL_TimerID moveTimer;				// car moving timer
-	SDL_TimerID accelerateTimer;
-	Uint32 moveInterval;				// the interval of moving timer
-	Uint32 accelerateInterval;
-	static Uint32 move(Uint32, void*);	// the function of car moving
-	static Uint32 accelerate(Uint32, void*);
-	void removeTimer();					// remove all timers
-	RacingCar car;						// the car
+	SDL_TimerID moveTimer;						// car moving timer
+	SDL_TimerID accelerateTimer;				// car accelerating timer	
+	Uint32 moveInterval;						// the interval of moving timer
+	Uint32 accelerateInterval;					// the interval of accelerating timer
+	static Uint32 move(Uint32, void*);			// the function of car moving
+	static Uint32 accelerate(Uint32, void*);	// the function of car accelerating
+	void removeTimer();							// remove all timers
+	RacingCar car;								// the car in the map
 public:
 
 	Map();					// default constructor (initialize nothing)

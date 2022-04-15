@@ -1,0 +1,16 @@
+.vs
+SDL2-2.0.20
+x64
+OOP_Project.sln
+OOP_Project\x64
+OOP_Project\OOP_Project.vcxproj
+OOP_Project\OOP_Project.vcxproj.filters
+OOP_Project\OOP_Project.vcxproj.user
+OOP_Project\libjpeg-9.dll
+OOP_Project\libpng16-16.dll
+OOP_Project\libtiff-5.dll
+OOP_Project\libwebp-7.dll
+OOP_Project\SDL2.dll
+OOP_Project\SDL2_gfx.dll
+OOP_Project\SDL2_image.dll
+OOP_Project\zlib1.dll
