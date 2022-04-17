@@ -8,6 +8,7 @@ class Line
     double X, Y, W; // screen coord
     double curve;   // road turning
     double scale;   // needed in projection
+    bool type;
 
 public:
 
@@ -19,10 +20,14 @@ public:
     double getY() { return Y; }
     double getW() { return W; }
     double getCurve() { return curve; }
+    bool getType() { return type; }
+
     void setz(double _z) { z = _z; }
     void sety(double _y) { y = _y; }
     void setx(double _x) { x = _x; }
     void setCurve(double c) { curve = c; }
+    void setType(bool t) { type = t; }
+
     void project(int camX, int camY, int camZ, double camDegree, double camDepth);
     
 };

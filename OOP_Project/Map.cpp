@@ -1,13 +1,13 @@
 #include "Map.h"
 
-Map::Map() {
-
-}
+Map::Map() : lines(NUM_LINE),
+number_of_lines(NUM_LINE), camDepth(DEFAULT_CAMERA_DEPTH), posX(INITIAL_POS* SEGMENT_LENGTH),
+velAngular(0), velLinear(0), roadDegree(0), camDegree(0), accLinear(0)
+{}
 
 Map::Map(SDL_Renderer* renderer) : car("../images/pooh/", 22, renderer), lines(NUM_LINE),
 	number_of_lines(NUM_LINE), camDepth(DEFAULT_CAMERA_DEPTH), posX(INITIAL_POS* SEGMENT_LENGTH), 
-	velAngular(0), velLinear(0), roadDegree(0), camDegree(0), accLinear(0),
-	moveInterval(MOVE_INTERVAL), accelerateInterval(ACCELERATE_INTERVAL)
+	velAngular(0), velLinear(0), roadDegree(0), camDegree(0), accLinear(0)
 {
 	double x = 0, dx = 0;
 	for (int i = 0; i < NUM_LINE; ++i) {
@@ -16,11 +16,15 @@ Map::Map(SDL_Renderer* renderer) : car("../images/pooh/", 22, renderer), lines(N
 			lines[i].setCurve(0.9);
 		else if (i > 800 && i < 1400)
 			lines[i].setCurve(-1.5);
+		else if (i > 1500 && i < 3000)
+			lines[i].setCurve(1.2);
 		else
 			lines[i].setCurve(0);
 
-		if (i > 300 && i < 1000)		//range of road up and down
-			lines[i].sety(sin(i / 30.0) * CAMERA_HEIGHT);
+		if (i > 300 && i < 1054)		//range of road up and down
+			lines[i].sety(sin((i - 300) / 30.0) * CAMERA_HEIGHT);
+		else if (i > 1200 && i < 2896)
+			lines[i].sety(sin((i - 1200) / 20.0) * CAMERA_HEIGHT);
 		else
 			lines[i].sety(0);
 
@@ -29,9 +33,14 @@ Map::Map(SDL_Renderer* renderer) : car("../images/pooh/", 22, renderer), lines(N
 		lines[i].setx(x);
 		lines[i].setz(i * SEGMENT_LENGTH);
 	}
+
+	for (int i = INITIAL_POS - 10; i < INITIAL_POS + 22; ++i)
+		lines[i].setType(0);
+	for (int i = FINAL_POS - 10; i < FINAL_POS + 22; ++i)
+		lines[i].setType(0);
+
 	posY = lines[INITIAL_POS].getx();
 	cout << "[Map] Map initialized" << endl;
-
 
 	car.setPosition(280, 380);
 	car.turn(0);
@@ -60,7 +69,7 @@ void Map::rush()
 
 		velLinear = RUSHBEGIN_SPEED;
 		camDepth = BEGINRUSH_CAMDEPTH;
-		car.rush();
+		car.rush(true);
 		cout << "[Map] rush start" << endl;
 	}
 	else {
@@ -77,6 +86,7 @@ void Map::draw(SDL_Renderer* renderer)
 	//road and ground
 	Uint32 grass, rumble, road;
 
+	boxColor(renderer, 0, HEIGHT / 2, WIDTH, HEIGHT, 0xff10c810);
 	for (int i = startpos - 50; i < startpos + 300; ++i) {
 
 		if (i < 0){
@@ -99,12 +109,26 @@ void Map::draw(SDL_Renderer* renderer)
 		maxy = l.getY();
 
 		grass = (i >> 2) & 1 ? 0xff10c810 : 0xff009A00;
-		rumble = (i >> 2) & 1 ? 0xffffffff : 0xff000000;
-		road = (i >> 2) & 1 ? 0xff6b6b6b : 0xff696969;
-
 		drawQuad(renderer, { grass,  WIDTH / 2, p.getY(), WIDTH / 2, WIDTH / 2, l.getY(), WIDTH / 2 });
-		drawQuad(renderer, { rumble, p.getX(), p.getY(), p.getW() * 1.2, l.getX(), l.getY(), l.getW() * 1.2 });
-		drawQuad(renderer, { road, p.getX(), p.getY(), p.getW(), l.getX(), l.getY(), l.getW() });
+
+		if (lines[i].getType()) {
+
+			rumble = (i >> 2) & 1 ? 0xffffffff : 0xff000000;
+			road = (i >> 2) & 1 ? 0xff6b6b6b : 0xff696969;
+
+			drawQuad(renderer, { rumble, p.getX(), p.getY(), p.getW() * 1.2, l.getX(), l.getY(), l.getW() * 1.2 });
+			drawQuad(renderer, { road, p.getX(), p.getY(), p.getW(), l.getX(), l.getY(), l.getW() });
+		}
+		else {
+			double width_scale = 1.2;
+			for (int j = 0; j <= 7; ++j) {
+
+				width_scale = 1.2 * (15 - (j << 1)) / 15;
+				rumble = ((i >> 2) + j) & 1 ? 0xffffffff : 0xff000000;
+
+				drawQuad(renderer, { rumble,p.getX(), p.getY(), p.getW() * width_scale, l.getX(), l.getY(), l.getW() * width_scale });
+			}
+		}
 	}
 
 	//car
@@ -115,6 +139,9 @@ void Map::draw(SDL_Renderer* renderer)
 Uint32 Map::move(Uint32 interval, void* para) {
 	Map* mp = (Map*)para;
 
+	//current index of road line
+	int startpos = mp->posX / SEGMENT_LENGTH;
+
 	double velX = mp->velLinear * cos(mp->camDegree), velY = mp->velLinear * sin(mp->camDegree);
 	
 	//move in x-direction
@@ -122,15 +149,14 @@ Uint32 Map::move(Uint32 interval, void* para) {
 	if (mp->posX < 0 || mp->posX >= mp->number_of_lines * SEGMENT_LENGTH)
 		mp->posX -= velX;	
 
-	//current index of road line
-	int startpos = mp->posX / SEGMENT_LENGTH;
 
 	//degree between road vector and normal line (same direction as camera degree)
 	mp->roadDegree = atan((mp->lines[startpos + 1].getx() - mp->lines[startpos].getx()) / (mp->lines[startpos + 1].getz() - mp->lines[startpos].getz()));
 
 	//move in y-direction
 	mp->posY += velY;
-	if (mp->posY < mp->lines[startpos].getx() - 2 * ROAD_WIDTH || mp->posY > mp->lines[startpos].getx() + 2 * ROAD_WIDTH){
+	
+	if ((mp->posY < mp->lines[startpos].getx() - 1.5 * ROAD_WIDTH && velY < 0) || (mp->posY > mp->lines[startpos].getx() + 1.5 * ROAD_WIDTH && velY > 0)) {
 		
 		mp->posY -= velY;
 		mp->posX -= velX;
@@ -139,15 +165,13 @@ Uint32 Map::move(Uint32 interval, void* para) {
 		mp->posX += velProjected * cos(mp->roadDegree);
 		mp->posY += velProjected * sin(mp->roadDegree);
 	}
-
-	//rotate camera
-	double tmp = mp->camDegree;
-	mp->camDegree += mp->velAngular;
-
-	if ((tmp <= mp->roadDegree - MAX_ROTATE_DEGREE || mp->velAngular >= 0) && (tmp >= mp->roadDegree + MAX_ROTATE_DEGREE || mp->velAngular < 0)
-		&& (mp->camDegree >= mp->roadDegree + MAX_ROTATE_DEGREE || mp->camDegree <= mp->roadDegree - MAX_ROTATE_DEGREE))
-			mp->camDegree -= mp->velAngular;
 	
+	//rotate camera
+	mp->camDegree += mp->velAngular;
+	
+	if((mp->camDegree <= mp->roadDegree - MAX_ROTATE_DEGREE && mp->velAngular < 0) || (mp->camDegree >= mp->roadDegree + MAX_ROTATE_DEGREE && mp->velAngular >= 0))
+		mp->camDegree -= mp->velAngular;
+
 	return interval;
 }
 
@@ -160,7 +184,7 @@ Uint32 Map::accelerate(Uint32 interval, void* para)
 		mp->velLinear -= AFTERRUSH_SPEED_DECREASE;
 		if (mp->velLinear < MAX_FORWARD_SPEED) {
 			mp->velLinear = MAX_FORWARD_SPEED;
-			mp->car.setRushing(false);
+			mp->car.rush(false);
 		}
 		mp->camDepth += AFTERRUSH_CAMDEPTH_RECOVER;
 		if (mp->camDepth > DEFAULT_CAMERA_DEPTH) {
@@ -193,8 +217,8 @@ void Map::turn(int d)
 
 void Map::startTimer() {
 
-	moveTimer = SDL_AddTimer(moveInterval, move, this);
-	accelerateTimer = SDL_AddTimer(accelerateInterval, accelerate, this);
+	moveTimer = SDL_AddTimer(MOVE_INTERVAL, move, this);
+	accelerateTimer = SDL_AddTimer(ACCELERATE_INTERVAL, accelerate, this);
 
 	car.startTimer(CAR_INTERVAL);
 }
@@ -209,6 +233,10 @@ void Map::removeTimer() {
 void Map::init() {
 }
 
+	if ((mp->camDegree <= mp->roadDegree - MAX_ROTATE_DEGREE || mp->velAngular >= 0) && (mp->camDegree >= mp->roadDegree + MAX_ROTATE_DEGREE || mp->velAngular < 0)
+		&& (mp->camDegree >= mp->roadDegree + MAX_ROTATE_DEGREE || mp->camDegree <= mp->roadDegree - MAX_ROTATE_DEGREE))
+			mp->camDegree -= mp->velAngular;
+	
 
 
 */

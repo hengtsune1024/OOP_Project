@@ -40,11 +40,10 @@ public:
 	void stopTimer();
 	void turn(int); // move the object
 
-	void rush();
+	void rush(bool);
 	bool getRushing() { return isRushing; }
 	bool getFullEnergy() { return fullEnergy; }
 	double getEnergy() { return energy; }
-	void setRushing(bool r) { isRushing = r; }
 
 };
 
