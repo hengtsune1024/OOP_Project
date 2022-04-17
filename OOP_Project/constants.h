@@ -47,7 +47,7 @@
 #define SEGMENT_LENGTH 400
 
 //energy
-#define ENERGY_RECOVER 0.5
+#define ENERGY_RECOVER 0.2
 
 
 /*

@@ -1,5 +1,6 @@
 #pragma once
 #include <SDL.h>
+#include <SDL2_gfxPrimitives.h>
 #include "Image.h"
 #include "constants.h"
 
@@ -17,12 +18,13 @@ class RacingCar
 	Uint32 time;
 	static Uint32 changeData(Uint32 interval, void* param); // Timer callback 
 	int direct;
-
+	
+	//timer
 	SDL_TimerID chargeTimer;
 	static Uint32 charge(Uint32, void*);
 
 	double energy;
-
+	//state
 	bool isRushing;
 	bool fullEnergy;
 

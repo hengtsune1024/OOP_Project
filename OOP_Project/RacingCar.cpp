@@ -50,13 +50,23 @@ int RacingCar::getHeight()
 
 void RacingCar::draw(SDL_Renderer* renderer)
 {
-	SDL_Rect d, s;
+	//car image
+	SDL_Rect d;
 	d.x = x;
 	d.y = y;
 	d.w = image[frame].getWidth();
 	d.h = image[frame].getHeight();
 
 	image[frame].draw(renderer, { NULL }, &d);
+
+	//energy bottle
+	roundedBoxColor(renderer, 10, 10, 10 + WIDTH / 4, 30, 2, 0xff828282);
+	if(energy == 100)
+		roundedBoxColor(renderer, 13, 13, 13 + (WIDTH / 4 - 6) * (energy / 100.0), 27, 2, 0xff00ff00);
+	else if (energy > 2.5)
+		roundedBoxColor(renderer, 13, 13, 13 + (WIDTH / 4 - 6) * (energy / 100.0), 27, 2, 0xff00ffff);
+	else
+		roundedBoxColor(renderer, 13, 13, 13 + (WIDTH / 4 - 6) * 0.02, 27, 1, 0xff00ffff);
 }
 
 Uint32 RacingCar::changeData(Uint32 interval, void* param)

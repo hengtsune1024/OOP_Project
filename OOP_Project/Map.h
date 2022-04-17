@@ -47,13 +47,7 @@ class Map
 	Uint32 accelerateInterval;					// the interval of accelerating timer
 	static Uint32 accelerate(Uint32, void*);	// the function of car accelerating
 
-	
-
 	void removeTimer();							// remove all timers
-
-	//
-	
-	//states
 
 	//others
 	RacingCar car;								// the car in the map
