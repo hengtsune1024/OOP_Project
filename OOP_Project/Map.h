@@ -23,6 +23,7 @@ struct Quad {
 
 class Map
 {
+	//projection
 	double posX;			// x position in 3D world (moving forward and backword)
 	double posY;			// y position in 3D world (moving right and left)
 	double velLinear;		// linear velocity 
@@ -32,22 +33,36 @@ class Map
 	double roadDegree;		// the degree from x-axis to the road vector (from current segment to the next segment) 
 	double camDepth;
 
+	//road
 	vector<Line> lines;						// road segments constituting the whole road
 	int number_of_lines;					// the number of road segments
 	void drawQuad(SDL_Renderer*, Quad);		// draw a road segment
-	//void generateTool();
 
+	//timers
 	SDL_TimerID moveTimer;						// car moving timer
-	SDL_TimerID accelerateTimer;				// car accelerating timer	
 	Uint32 moveInterval;						// the interval of moving timer
-	Uint32 accelerateInterval;					// the interval of accelerating timer
 	static Uint32 move(Uint32, void*);			// the function of car moving
+
+	SDL_TimerID accelerateTimer;				// car accelerating timer	
+	Uint32 accelerateInterval;					// the interval of accelerating timer
 	static Uint32 accelerate(Uint32, void*);	// the function of car accelerating
+
+	SDL_TimerID chargeTimer;
+	Uint32 chargeInterval;
+	static Uint32 charge(Uint32, void*);
+
 	void removeTimer();							// remove all timers
-	RacingCar car;								// the car in the map
 
+	//
+	double energy;
+	
+	//states
 	bool isRushing;
+	bool fullEnergy;
 
+	//others
+	RacingCar car;								// the car in the map
+	 
 public:
 
 	Map();					// default constructor (initialize nothing)

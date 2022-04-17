@@ -14,16 +14,25 @@
 
 //map
 #define NUM_LINE 5000		//
-#define CAMERA_HEIGHT 1500	//
 #define INITIAL_POS 30
+
+//camera
+#define DEFAULT_CAMERA_DEPTH 0.96
+#define CAMERA_HEIGHT 1500
+#define BEGINRUSH_CAMDEPTH 0.3
+#define AFTERRUSH_CAMDEPTH_RECOVER 0.01
 
 //timer interval
 #define MOVE_INTERVAL 50
+#define ACCELERATE_INTERVAL 50
 #define CAR_INTERVAL 50
+#define CHARGE_INTERVAL 50
 
 //speed
 #define MAX_FORWARD_SPEED 1200		//max car forward moving speed
 #define MAX_BACKWARD_SPEED 750		//max car backward moving speed
+#define RUSHBEGIN_SPEED 2000
+#define AFTERRUSH_SPEED_DECREASE 10
 
 //acceleration
 #define ACCELERATION 80		//
@@ -36,8 +45,9 @@
 //road
 #define ROAD_WIDTH 2000
 #define SEGMENT_LENGTH 400
-#define DEFAULT_CAMERA_DEPTH 0.96
 
+//energy
+#define ENERGY_RECOVER 0.5
 
 
 /*

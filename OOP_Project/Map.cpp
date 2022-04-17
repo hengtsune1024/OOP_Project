@@ -4,10 +4,11 @@ Map::Map() {
 
 }
 
-Map::Map(SDL_Renderer* renderer) :number_of_lines(NUM_LINE), car("../images/pooh/", 22, renderer), 
-	lines(NUM_LINE), camDepth(DEFAULT_CAMERA_DEPTH), velAngular(0), velLinear(0), posX(INITIAL_POS* SEGMENT_LENGTH),
-	roadDegree(0), camDegree(0), moveInterval(MOVE_INTERVAL), accelerateInterval(MOVE_INTERVAL), accLinear(0),
-	isRushing(false)
+Map::Map(SDL_Renderer* renderer) : car("../images/pooh/", 22, renderer), lines(NUM_LINE),
+	number_of_lines(NUM_LINE), camDepth(DEFAULT_CAMERA_DEPTH), posX(INITIAL_POS* SEGMENT_LENGTH), 
+	velAngular(0), velLinear(0), roadDegree(0), camDegree(0), accLinear(0),
+	moveInterval(MOVE_INTERVAL), accelerateInterval(ACCELERATE_INTERVAL), chargeInterval(0),
+	isRushing(false), fullEnergy(true), energy(100.0)
 {
 	double x = 0, dx = 0;
 	for (int i = 0; i < NUM_LINE; ++i) {
@@ -54,10 +55,21 @@ void Map::drawQuad(SDL_Renderer* renderer, Quad q) {
 	filledPolygonColor(renderer, vx, vy, 4, q.color);
 }
 
-void Map::rush() {
-	velLinear = 2000;
-	camDepth = 0.3;
-	isRushing = true;
+void Map::rush()
+{
+	if (fullEnergy) {
+		velLinear = RUSHBEGIN_SPEED;
+		camDepth = BEGINRUSH_CAMDEPTH;
+		isRushing = true;
+
+		fullEnergy = false;
+		energy = 0;
+		chargeInterval = CHARGE_INTERVAL;
+		cout << "[Map] rush start" << endl;
+	}
+	else {
+		cout << "[Map] not enough energy: " << energy << endl;
+	}
 }
 
 void Map::draw(SDL_Renderer* renderer) {
@@ -146,14 +158,14 @@ Uint32 Map::accelerate(Uint32 interval, void* para)
 
 	if (mp->isRushing) 
 	{
-		mp->velLinear -= 10;
+		mp->velLinear -= AFTERRUSH_SPEED_DECREASE;
 		if (mp->velLinear < MAX_FORWARD_SPEED) {
 			mp->velLinear = MAX_FORWARD_SPEED;
 			mp->isRushing = false;
 		}
-		mp->camDepth += 0.01;
-		if (mp->camDepth > 0.96) {
-			mp->camDepth = 0.96;
+		mp->camDepth += AFTERRUSH_CAMDEPTH_RECOVER;
+		if (mp->camDepth > DEFAULT_CAMERA_DEPTH) {
+			mp->camDepth = DEFAULT_CAMERA_DEPTH;
 		}
 	}
 	else 
@@ -173,17 +185,32 @@ Uint32 Map::accelerate(Uint32 interval, void* para)
 	return mp->accelerateInterval;
 }
 
+Uint32 Map::charge(Uint32 interval, void* para) {
+	Map* mp = (Map*)para;
+
+	if (mp->chargeInterval == 0)
+		return interval;
+
+	mp->energy += ENERGY_RECOVER;
+	if (mp->energy > 100.0) {
+		mp->energy = 100.0;
+		mp->fullEnergy = true;
+		mp->chargeInterval = 0;
+	}
+
+	return interval;
+}
+
 void Map::turn(int d)
 {
 	car.turn(d);
 }
 
-
-
 void Map::startTimer() {
 
 	moveTimer = SDL_AddTimer(moveInterval, move, this);
 	accelerateTimer = SDL_AddTimer(accelerateInterval, accelerate, this);
+	chargeTimer = SDL_AddTimer(CHARGE_INTERVAL, charge, this);
 
 	car.startTimer(CAR_INTERVAL);
 }
@@ -191,6 +218,7 @@ void Map::startTimer() {
 void Map::removeTimer() {
 	SDL_RemoveTimer(moveTimer);
 	SDL_RemoveTimer(accelerateTimer);
+	SDL_RemoveTimer(chargeTimer);
 	car.stopTimer();
 }
 
