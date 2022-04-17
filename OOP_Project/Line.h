@@ -27,6 +27,7 @@ public:
     void setx(double _x) { x = _x; }
     void setCurve(double c) { curve = c; }
     void setType(bool t) { type = t; }
+    void setAll(double _x, double _y, double _z, double _c) { z = _z; x = _x; y = _y; curve = _c; }
 
     void project(int camX, int camY, int camZ, double camDegree, double camDepth);
     

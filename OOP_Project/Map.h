@@ -33,7 +33,6 @@ class Map
 	double roadDegree;		// the degree from x-axis to the road vector (from current segment to the next segment) 
 	double camDepth;
 
-
 	//road
 	vector<Line> lines;						// road segments constituting the whole road
 	int number_of_lines;					// the number of road segments
@@ -50,6 +49,7 @@ class Map
 
 	//others
 	RacingCar car;								// the car in the map
+
 	 
 public:
 

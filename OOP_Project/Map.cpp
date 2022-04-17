@@ -10,14 +10,17 @@ Map::Map(SDL_Renderer* renderer) : car("../images/pooh/", 22, renderer), lines(N
 	velAngular(0), velLinear(0), roadDegree(0), camDegree(0), accLinear(0)
 {
 	double x = 0, dx = 0;
-	for (int i = 0; i < NUM_LINE; ++i) {
+	lines[0].setAll(0, 0, 0, 0);
+	for (int i = 1; i < NUM_LINE; ++i) {
 
 		if (i > 100 && i < 700)		// range of turing road
 			lines[i].setCurve(0.9);
 		else if (i > 800 && i < 1400)
 			lines[i].setCurve(-1.5);
-		else if (i > 1500 && i < 3000)
+		else if (i > 1500 && i < 2000)
 			lines[i].setCurve(1.2);
+		else if(i>2200 && i<2800)
+			lines[i].setCurve(-1.3);
 		else
 			lines[i].setCurve(0);
 
@@ -29,9 +32,12 @@ Map::Map(SDL_Renderer* renderer) : car("../images/pooh/", 22, renderer), lines(N
 			lines[i].sety(0);
 
 		x += dx;
-		dx += lines[i].getCurve();
 		lines[i].setx(x);
-		lines[i].setz(i * SEGMENT_LENGTH);
+
+		//lines[i].setz(i * SEGMENT_LENGTH);
+		lines[i].setz(lines[i - 1].getz() + sqrt(SEGMENT_LENGTH * SEGMENT_LENGTH - dx * dx));
+
+		dx += lines[i].getCurve();
 	}
 
 	for (int i = INITIAL_POS - 10; i < INITIAL_POS + 22; ++i)
@@ -40,7 +46,7 @@ Map::Map(SDL_Renderer* renderer) : car("../images/pooh/", 22, renderer), lines(N
 		lines[i].setType(0);
 
 	posY = lines[INITIAL_POS].getx();
-	cout << "[Map] Map initialized" << endl;
+	std::cout << "[Map] Map initialized" << endl;
 
 	car.setPosition(280, 380);
 	car.turn(0);
@@ -54,7 +60,7 @@ void Map::quit() {
 	removeTimer();
 	car.quit();
 	//delete[]car;
-	cout << "[Map] Map closed" << endl;
+	std::cout << "[Map] Map closed" << endl;
 }
 
 void Map::drawQuad(SDL_Renderer* renderer, Quad q) {
@@ -70,10 +76,10 @@ void Map::rush()
 		velLinear = RUSHBEGIN_SPEED;
 		camDepth = BEGINRUSH_CAMDEPTH;
 		car.rush(true);
-		cout << "[Map] rush start" << endl;
+		std::cout << "[Map] rush start" << endl;
 	}
 	else {
-		cout << "[Map] not enough energy :" << car.getEnergy() << endl;
+		std::cout << "[Map] not enough energy :" << car.getEnergy() << endl;
 	}
 }
 
@@ -142,7 +148,12 @@ Uint32 Map::move(Uint32 interval, void* para) {
 	//current index of road line
 	int startpos = mp->posX / SEGMENT_LENGTH;
 
-	double velX = mp->velLinear * cos(mp->camDegree), velY = mp->velLinear * sin(mp->camDegree);
+	//degree between road vector and normal line (same direction as camera degree)
+	mp->roadDegree = atan((mp->lines[startpos + 1].getx() - mp->lines[startpos].getx()) / (mp->lines[startpos + 1].getz() - mp->lines[startpos].getz()));
+	
+	double velX, velY;
+	velX = mp->velLinear * cos(mp->camDegree);
+	velY = mp->velLinear * sin(mp->camDegree);
 	
 	//move in x-direction
 	mp->posX += velX;
@@ -150,13 +161,11 @@ Uint32 Map::move(Uint32 interval, void* para) {
 		mp->posX -= velX;	
 
 
-	//degree between road vector and normal line (same direction as camera degree)
-	mp->roadDegree = atan((mp->lines[startpos + 1].getx() - mp->lines[startpos].getx()) / (mp->lines[startpos + 1].getz() - mp->lines[startpos].getz()));
-
 	//move in y-direction
 	mp->posY += velY;
 	
-	if ((mp->posY < mp->lines[startpos].getx() - 1.5 * ROAD_WIDTH && velY < 0) || (mp->posY > mp->lines[startpos].getx() + 1.5 * ROAD_WIDTH && velY > 0)) {
+	if ((mp->posY < mp->lines[startpos].getx() - 1.5 * ROAD_WIDTH && velY < 0) || (mp->posY > mp->lines[startpos].getx() + 1.5 * ROAD_WIDTH && velY > 0)) 
+	{
 		
 		mp->posY -= velY;
 		mp->posX -= velX;
@@ -165,7 +174,10 @@ Uint32 Map::move(Uint32 interval, void* para) {
 		mp->posX += velProjected * cos(mp->roadDegree);
 		mp->posY += velProjected * sin(mp->roadDegree);
 	}
-	
+
+	if (startpos % 100 == 0)
+		std::cout << startpos <<" "<<velX <<" "<<mp->camDegree << endl;
+
 	//rotate camera
 	mp->camDegree += mp->velAngular;
 	

@@ -8,8 +8,8 @@ void Line::project(int camX, int camY, int camZ, double camDegree, double camDep
     double _x = x, _y = y - camY, _z = z - camZ;
     double co = cos(camDegree), si = sin(camDegree);
     _x = co * (x - camX) - si * (z - camZ);
-    //_z = si * (x - camX) + co * (z - camZ);
-   // velScale = 
+    _z = si * (x - camX) + co * (z - camZ);  
+
     if (_z < 0) {
         W = 0;
         return;
