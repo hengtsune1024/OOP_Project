@@ -138,7 +138,7 @@ Uint32 Map::accelerate(Uint32 interval, void* para) {
 	Map* mp = (Map*)para;
 
 	mp->velLinear += mp->accLinear;
-	if (mp->velLinear > MAX_SPEED || mp->velLinear < -MAX_SPEED) {
+	if (mp->velLinear > MAX_FORWARD_SPEED || mp->velLinear < -MAX_BACKWARD_SPEED) {
 		mp->velLinear -= mp->accLinear;
 	}
 
@@ -162,7 +162,7 @@ void Map::startTimer(Uint32 moveInt, Uint32 accInt) {
 	accelerateInterval = accInt;
 	accelerateTimer = SDL_AddTimer(accInt, accelerate, this);
 
-	car.startTimer(moveInt);
+	//car.startTimer(moveInt);
 }
 
 void Map::removeTimer() {

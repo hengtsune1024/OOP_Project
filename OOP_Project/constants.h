@@ -14,9 +14,10 @@
 #define NUM_CARIMG 3		//number of car images
 #define MOVE_INTERVAL 100	//moving timer interval
 #define RACINGCAR_PATH "../images/RacingCar/RacingCar"
-#define MAX_SPEED 1000		//max car moving speed
-#define ACCELERATION 20		//
-#define FRICTION_ACC 5
+#define MAX_FORWARD_SPEED 1000		//max car forward moving speed
+#define MAX_BACKWARD_SPEED 750		//max car backward moving speed
+#define ACCELERATION 80		//1345
+#define FRICTION_ACC 40
 #define ROTATE 0.05			//car camera rotation
 
 //map
