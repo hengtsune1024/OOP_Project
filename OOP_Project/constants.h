@@ -19,7 +19,7 @@
 //camera
 #define DEFAULT_CAMERA_DEPTH 0.96
 #define CAMERA_HEIGHT 1500
-#define BEGINRUSH_CAMDEPTH 0.3
+#define BEGINRUSH_CAMDEPTH 0.2
 #define AFTERRUSH_CAMDEPTH_RECOVER 0.01
 
 //timer interval
@@ -32,7 +32,7 @@
 #define MAX_FORWARD_SPEED 1200		//max car forward moving speed
 #define MAX_BACKWARD_SPEED 750		//max car backward moving speed
 #define RUSHBEGIN_SPEED 2000
-#define AFTERRUSH_SPEED_DECREASE 10
+#define AFTERRUSH_SPEED_DECREASE 5
 
 //acceleration
 #define ACCELERATION 80		//

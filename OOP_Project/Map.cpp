@@ -7,8 +7,7 @@ Map::Map() {
 Map::Map(SDL_Renderer* renderer) : car("../images/pooh/", 22, renderer), lines(NUM_LINE),
 	number_of_lines(NUM_LINE), camDepth(DEFAULT_CAMERA_DEPTH), posX(INITIAL_POS* SEGMENT_LENGTH), 
 	velAngular(0), velLinear(0), roadDegree(0), camDegree(0), accLinear(0),
-	moveInterval(MOVE_INTERVAL), accelerateInterval(ACCELERATE_INTERVAL), chargeInterval(0),
-	isRushing(false), fullEnergy(true), energy(100.0)
+	moveInterval(MOVE_INTERVAL), accelerateInterval(ACCELERATE_INTERVAL)
 {
 	double x = 0, dx = 0;
 	for (int i = 0; i < NUM_LINE; ++i) {
@@ -57,26 +56,25 @@ void Map::drawQuad(SDL_Renderer* renderer, Quad q) {
 
 void Map::rush()
 {
-	if (fullEnergy) {
+	if (car.getFullEnergy()) {
+
 		velLinear = RUSHBEGIN_SPEED;
 		camDepth = BEGINRUSH_CAMDEPTH;
-		isRushing = true;
-
-		fullEnergy = false;
-		energy = 0;
-		chargeInterval = CHARGE_INTERVAL;
+		car.rush();
 		cout << "[Map] rush start" << endl;
 	}
 	else {
-		cout << "[Map] not enough energy: " << energy << endl;
+		cout << "[Map] not enough energy :" << car.getEnergy() << endl;
 	}
 }
 
-void Map::draw(SDL_Renderer* renderer) {
+void Map::draw(SDL_Renderer* renderer) 
+{
 	int startpos = posX / SEGMENT_LENGTH;
 	int camH = CAMERA_HEIGHT + lines[startpos].gety();
 	int maxy = HEIGHT;
 
+	//road and ground
 	Uint32 grass, rumble, road;
 
 	for (int i = startpos - 50; i < startpos + 300; ++i) {
@@ -100,15 +98,16 @@ void Map::draw(SDL_Renderer* renderer) {
 
 		maxy = l.getY();
 
-		grass = (i / 3) & 1 ? 0xff10c810 : 0xff009A00;
-		rumble = (i / 3) & 1 ? 0xffffffff : 0xff000000;
-		road = (i / 3) & 1 ? 0xff6b6b6b : 0xff696969;
+		grass = (i >> 2) & 1 ? 0xff10c810 : 0xff009A00;
+		rumble = (i >> 2) & 1 ? 0xffffffff : 0xff000000;
+		road = (i >> 2) & 1 ? 0xff6b6b6b : 0xff696969;
 
 		drawQuad(renderer, { grass,  WIDTH / 2, p.getY(), WIDTH / 2, WIDTH / 2, l.getY(), WIDTH / 2 });
 		drawQuad(renderer, { rumble, p.getX(), p.getY(), p.getW() * 1.2, l.getX(), l.getY(), l.getW() * 1.2 });
 		drawQuad(renderer, { road, p.getX(), p.getY(), p.getW(), l.getX(), l.getY(), l.getW() });
 	}
 
+	//car
 	car.draw(renderer);
 
 }
@@ -149,19 +148,19 @@ Uint32 Map::move(Uint32 interval, void* para) {
 		&& (mp->camDegree >= mp->roadDegree + MAX_ROTATE_DEGREE || mp->camDegree <= mp->roadDegree - MAX_ROTATE_DEGREE))
 			mp->camDegree -= mp->velAngular;
 	
-	return mp->moveInterval;
+	return interval;
 }
 
 Uint32 Map::accelerate(Uint32 interval, void* para) 
 {
 	Map* mp = (Map*)para;
 
-	if (mp->isRushing) 
+	if (mp->car.getRushing()) 
 	{
 		mp->velLinear -= AFTERRUSH_SPEED_DECREASE;
 		if (mp->velLinear < MAX_FORWARD_SPEED) {
 			mp->velLinear = MAX_FORWARD_SPEED;
-			mp->isRushing = false;
+			mp->car.setRushing(false);
 		}
 		mp->camDepth += AFTERRUSH_CAMDEPTH_RECOVER;
 		if (mp->camDepth > DEFAULT_CAMERA_DEPTH) {
@@ -182,24 +181,10 @@ Uint32 Map::accelerate(Uint32 interval, void* para)
 
 	}
 
-	return mp->accelerateInterval;
-}
-
-Uint32 Map::charge(Uint32 interval, void* para) {
-	Map* mp = (Map*)para;
-
-	if (mp->chargeInterval == 0)
-		return interval;
-
-	mp->energy += ENERGY_RECOVER;
-	if (mp->energy > 100.0) {
-		mp->energy = 100.0;
-		mp->fullEnergy = true;
-		mp->chargeInterval = 0;
-	}
-
 	return interval;
 }
+
+
 
 void Map::turn(int d)
 {
@@ -210,7 +195,6 @@ void Map::startTimer() {
 
 	moveTimer = SDL_AddTimer(moveInterval, move, this);
 	accelerateTimer = SDL_AddTimer(accelerateInterval, accelerate, this);
-	chargeTimer = SDL_AddTimer(CHARGE_INTERVAL, charge, this);
 
 	car.startTimer(CAR_INTERVAL);
 }
@@ -218,7 +202,6 @@ void Map::startTimer() {
 void Map::removeTimer() {
 	SDL_RemoveTimer(moveTimer);
 	SDL_RemoveTimer(accelerateTimer);
-	SDL_RemoveTimer(chargeTimer);
 	car.stopTimer();
 }
 

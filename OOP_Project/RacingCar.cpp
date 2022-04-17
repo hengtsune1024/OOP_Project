@@ -2,7 +2,8 @@
 RacingCar::RacingCar() {
 
 }
-RacingCar::RacingCar(const char* path, int n, SDL_Renderer* renderer)
+RacingCar::RacingCar(const char* path, int n, SDL_Renderer* renderer): 
+	isRushing(false), fullEnergy(true), energy(100.0)
 {
 	num = n;
 	image = new Image[num];
@@ -28,6 +29,7 @@ void RacingCar::quit()
 
 	// Remove timer in case the call back was not called	
 	SDL_RemoveTimer(timerID);
+	SDL_RemoveTimer(chargeTimer);
 }
 
 void RacingCar::setPosition(int xx, int yy)
@@ -90,6 +92,8 @@ void RacingCar::startTimer(Uint32 t)
 {
 	time = t;
 	timerID = SDL_AddTimer(time, changeData, this); // Set Timer callback
+
+	chargeTimer = SDL_AddTimer(CHARGE_INTERVAL, charge, this);
 }
 
 void RacingCar::stopTimer()
@@ -101,7 +105,27 @@ void RacingCar::turn(int d)
 	direct = d;
 } 
 
+Uint32 RacingCar::charge(Uint32 interval, void* para) {
 
+	RacingCar* car = (RacingCar*)para;
+
+	if (car->fullEnergy)
+		return interval;
+
+	car->energy += ENERGY_RECOVER;
+	if (car->energy > 100.0) {
+		car->energy = 100.0;
+		car->fullEnergy = true;
+	}
+
+	return interval;
+}
+
+void RacingCar::rush() {
+	isRushing = true;
+	fullEnergy = false;
+	energy = 0;
+}
 
 
 

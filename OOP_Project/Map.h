@@ -47,18 +47,13 @@ class Map
 	Uint32 accelerateInterval;					// the interval of accelerating timer
 	static Uint32 accelerate(Uint32, void*);	// the function of car accelerating
 
-	SDL_TimerID chargeTimer;
-	Uint32 chargeInterval;
-	static Uint32 charge(Uint32, void*);
+	
 
 	void removeTimer();							// remove all timers
 
 	//
-	double energy;
 	
 	//states
-	bool isRushing;
-	bool fullEnergy;
 
 	//others
 	RacingCar car;								// the car in the map

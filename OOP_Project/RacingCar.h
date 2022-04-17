@@ -18,7 +18,13 @@ class RacingCar
 	static Uint32 changeData(Uint32 interval, void* param); // Timer callback 
 	int direct;
 
+	SDL_TimerID chargeTimer;
+	static Uint32 charge(Uint32, void*);
 
+	double energy;
+
+	bool isRushing;
+	bool fullEnergy;
 
 public:
 	RacingCar();
@@ -31,6 +37,12 @@ public:
 	void startTimer(Uint32 t);
 	void stopTimer();
 	void turn(int); // move the object
+
+	void rush();
+	bool getRushing() { return isRushing; }
+	bool getFullEnergy() { return fullEnergy; }
+	double getEnergy() { return energy; }
+	void setRushing(bool r) { isRushing = r; }
 
 };
 
