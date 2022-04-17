@@ -25,7 +25,8 @@ int main(int argc, char* argv[]) {
 	SDL_Event e;
 	bool quit = false;
 
-	map.startTimer(50, 50);
+	map.startTimer();
+
 	while (!quit) {
 
 		while (SDL_PollEvent(&e) != 0) {
@@ -68,8 +69,8 @@ void eventHandler(SDL_Event& e, RenderWindow& w, Map& m) {
 				m.turn(1);
 				break;
 			case SDLK_SPACE:
-				SDL_Delay(5000);
 				cout << "[Main] Press button SPACE" << endl;
+				m.rush();
 				break;
 		}
 	}

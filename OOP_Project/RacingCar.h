@@ -17,6 +17,9 @@ class RacingCar
 	Uint32 time;
 	static Uint32 changeData(Uint32 interval, void* param); // Timer callback 
 	int direct;
+
+
+
 public:
 	RacingCar();
 	RacingCar(const char* path, int n, SDL_Renderer* renderer);

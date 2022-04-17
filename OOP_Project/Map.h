@@ -30,9 +30,10 @@ class Map
 	double accLinear;		// linear acceleration 
 	double camDegree;		// camera degree (in radius, x-axis is 0)
 	double roadDegree;		// the degree from x-axis to the road vector (from current segment to the next segment) 
-	int number_of_lines;	// the number of road segments
+	double camDepth;
 
 	vector<Line> lines;						// road segments constituting the whole road
+	int number_of_lines;					// the number of road segments
 	void drawQuad(SDL_Renderer*, Quad);		// draw a road segment
 	//void generateTool();
 
@@ -44,6 +45,9 @@ class Map
 	static Uint32 accelerate(Uint32, void*);	// the function of car accelerating
 	void removeTimer();							// remove all timers
 	RacingCar car;								// the car in the map
+
+	bool isRushing;
+
 public:
 
 	Map();					// default constructor (initialize nothing)
@@ -58,7 +62,7 @@ public:
 	double getAccLinear() { return accLinear; }
 
 	// timer
-	void startTimer(Uint32 moveInt, Uint32 accInt);
+	void startTimer();
 
 	// setters
 	void setVelLinear(double v) { velLinear = v; }
@@ -68,11 +72,10 @@ public:
 	  
 	void quit();				// quit every member that need to be quit
 	void draw(SDL_Renderer*);	// draw the map, car, and tools, etc.
-	
+	void rush();
 };
 
 // unused code
 /*
-	void init();
-	void setCar(RacingCar* c) { car = c; }
+
 */

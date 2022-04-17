@@ -10,26 +10,33 @@
 						//or into SDL_Rect dst to fill image into the whole window 
 
 //racing car
-
-#define NUM_CARIMG 3		//number of car images
-#define MOVE_INTERVAL 100	//moving timer interval
 #define RACINGCAR_PATH "../images/RacingCar/RacingCar"
-#define MAX_FORWARD_SPEED 1000		//max car forward moving speed
-#define MAX_BACKWARD_SPEED 750		//max car backward moving speed
-#define ACCELERATION 80		//1345
-#define FRICTION_ACC 40
-#define ROTATE 0.05			//car camera rotation
 
 //map
-#define ROAD_WIDTH 2000		//
 #define NUM_LINE 5000		//
 #define CAMERA_HEIGHT 1500	//
-#define MAX_ROTATE_DEGREE 0.785  // 45 degree
-#define INITIAL_POS 1000
+#define INITIAL_POS 30
 
-//Line
+//timer interval
+#define MOVE_INTERVAL 50
+#define CAR_INTERVAL 50
+
+//speed
+#define MAX_FORWARD_SPEED 1200		//max car forward moving speed
+#define MAX_BACKWARD_SPEED 750		//max car backward moving speed
+
+//acceleration
+#define ACCELERATION 80		//
+#define FRICTION_ACC 40
+
+//rotation
+#define ROTATE 0.04			//car camera rotation
+#define MAX_ROTATE_DEGREE 0.785  // 45 degree
+
+//road
+#define ROAD_WIDTH 2000
 #define SEGMENT_LENGTH 400
-#define CAMERA_DEPTH 0.96
+#define DEFAULT_CAMERA_DEPTH 0.96
 
 
 
@@ -40,7 +47,6 @@
 #define RATE_HEAL 100
 #define MAX_ENERGY 1000
 #define RATE_RECHARGE 100
-#define CAR_ACC 5
 
 
 enum Direction {

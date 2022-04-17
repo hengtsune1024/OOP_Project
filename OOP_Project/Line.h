@@ -23,7 +23,7 @@ public:
     void sety(double _y) { y = _y; }
     void setx(double _x) { x = _x; }
     void setCurve(double c) { curve = c; }
-    void project(int camX, int camY, int camZ, double camD);
+    void project(int camX, int camY, int camZ, double camDegree, double camDepth);
     
 };
 

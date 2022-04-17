@@ -5,8 +5,9 @@ Map::Map() {
 }
 
 Map::Map(SDL_Renderer* renderer) :number_of_lines(NUM_LINE), car("../images/pooh/", 22, renderer), 
-	lines(NUM_LINE), camDegree(0), velAngular(0), velLinear(0), posX(INITIAL_POS* SEGMENT_LENGTH),
-	roadDegree(0), moveInterval(0), accelerateInterval(0)
+	lines(NUM_LINE), camDepth(DEFAULT_CAMERA_DEPTH), velAngular(0), velLinear(0), posX(INITIAL_POS* SEGMENT_LENGTH),
+	roadDegree(0), camDegree(0), moveInterval(MOVE_INTERVAL), accelerateInterval(MOVE_INTERVAL), accLinear(0),
+	isRushing(false)
 {
 	double x = 0, dx = 0;
 	for (int i = 0; i < NUM_LINE; ++i) {
@@ -53,6 +54,12 @@ void Map::drawQuad(SDL_Renderer* renderer, Quad q) {
 	filledPolygonColor(renderer, vx, vy, 4, q.color);
 }
 
+void Map::rush() {
+	velLinear = 2000;
+	camDepth = 0.3;
+	isRushing = true;
+}
+
 void Map::draw(SDL_Renderer* renderer) {
 	int startpos = posX / SEGMENT_LENGTH;
 	int camH = CAMERA_HEIGHT + lines[startpos].gety();
@@ -71,7 +78,7 @@ void Map::draw(SDL_Renderer* renderer) {
 
 		Line& l = lines[i % number_of_lines];
 		Line p = lines[(i - 1 + number_of_lines) % number_of_lines];
-		l.project(posY, camH, posX, camDegree);
+		l.project(posY, camH, posX, camDegree, camDepth);
 
 		if (l.getW() < 1e-6 && l.getW() > -1e-6)
 			continue;
@@ -98,7 +105,7 @@ Uint32 Map::move(Uint32 interval, void* para) {
 	Map* mp = (Map*)para;
 
 	double velX = mp->velLinear * cos(mp->camDegree), velY = mp->velLinear * sin(mp->camDegree);
-
+	
 	//move in x-direction
 	mp->posX += velX;
 	if (mp->posX < 0 || mp->posX >= mp->number_of_lines * SEGMENT_LENGTH)
@@ -122,7 +129,6 @@ Uint32 Map::move(Uint32 interval, void* para) {
 		mp->posY += velProjected * sin(mp->roadDegree);
 	}
 
-
 	//rotate camera
 	double tmp = mp->camDegree;
 	mp->camDegree += mp->velAngular;
@@ -134,17 +140,34 @@ Uint32 Map::move(Uint32 interval, void* para) {
 	return mp->moveInterval;
 }
 
-Uint32 Map::accelerate(Uint32 interval, void* para) {
+Uint32 Map::accelerate(Uint32 interval, void* para) 
+{
 	Map* mp = (Map*)para;
 
-	mp->velLinear += mp->accLinear;
-	if (mp->velLinear > MAX_FORWARD_SPEED || mp->velLinear < -MAX_BACKWARD_SPEED) {
-		mp->velLinear -= mp->accLinear;
+	if (mp->isRushing) 
+	{
+		mp->velLinear -= 10;
+		if (mp->velLinear < MAX_FORWARD_SPEED) {
+			mp->velLinear = MAX_FORWARD_SPEED;
+			mp->isRushing = false;
+		}
+		mp->camDepth += 0.01;
+		if (mp->camDepth > 0.96) {
+			mp->camDepth = 0.96;
+		}
 	}
+	else 
+	{
+		mp->velLinear += mp->accLinear;
+		if (mp->velLinear > MAX_FORWARD_SPEED || mp->velLinear < -MAX_BACKWARD_SPEED) {
+			mp->velLinear -= mp->accLinear;
+		}
 
-	if ((mp->accLinear == -FRICTION_ACC && mp->velLinear < 0) || (mp->accLinear == FRICTION_ACC && mp->velLinear > 0)) {
-		mp->velLinear = 0;
-		mp->accLinear = 0;
+		if ((mp->accLinear == -FRICTION_ACC && mp->velLinear < 0) || (mp->accLinear == FRICTION_ACC && mp->velLinear > 0)) {
+			mp->velLinear = 0;
+			mp->accLinear = 0;
+		}
+
 	}
 
 	return mp->accelerateInterval;
@@ -155,14 +178,14 @@ void Map::turn(int d)
 	car.turn(d);
 }
 
-void Map::startTimer(Uint32 moveInt, Uint32 accInt) {
-	moveInterval = moveInt;
-	moveTimer = SDL_AddTimer(moveInt, move, this);
 
-	accelerateInterval = accInt;
-	accelerateTimer = SDL_AddTimer(accInt, accelerate, this);
 
-	//car.startTimer(moveInt);
+void Map::startTimer() {
+
+	moveTimer = SDL_AddTimer(moveInterval, move, this);
+	accelerateTimer = SDL_AddTimer(accelerateInterval, accelerate, this);
+
+	car.startTimer(CAR_INTERVAL);
 }
 
 void Map::removeTimer() {
@@ -174,4 +197,7 @@ void Map::removeTimer() {
 /*
 void Map::init() {
 }
+
+
+
 */
