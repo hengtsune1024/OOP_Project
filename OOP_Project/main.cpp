@@ -37,8 +37,6 @@ int main(int argc, char* argv[]) {
 		}
 		window.clear();
 		map.draw(window.GetRenderer());
-		//car.move();
-		//car.draw(window.GetRenderer());
 		window.display();
 	}
 
@@ -53,13 +51,11 @@ void eventHandler(SDL_Event& e, RenderWindow& w, Map& m) {
 		switch (e.key.keysym.sym) {
 			case SDLK_UP:
 				cout << "[Main] Press button UP" << endl;
-				//m.setVelLinear(m.getVelLinear() + SPEED);
-				m.setAccLinear(m.getAccLinear() + ACCELERATION);
+				m.setAccLinear(ACCELERATION);
 				break;
 			case SDLK_DOWN:
 				cout << "[Main] Press button DOWN" << endl;
-				//m.setVelLinear(m.getVelLinear() - SPEED);
-				m.setAccLinear(m.getAccLinear() - ACCELERATION);
+				m.setAccLinear(-ACCELERATION);
 				break;
 			case SDLK_LEFT:
 				cout << "[Main] Press button LEFT" << endl;
