@@ -83,18 +83,34 @@ void Map::drawQuad(SDL_Renderer* renderer, Quad q) {
 	filledPolygonColor(renderer, vx, vy, 4, q.color);
 }
 
-void Map::rush()
+void Map::rush(RushType type)
 {
-	if (car.getFullEnergy()) {
+	switch (type) 
+	{
+		case ENERGY:
+			if (car.getFullEnergy()) {
+				velLinear = ENERGY_RUSHBEGIN_SPEED;
+				camDepth = BEGINRUSH_CAMDEPTH;
+				car.rush(ENERGY);
+				std::cout << "[Map] rush start" << endl;
+			}
+			else {
+				std::cout << "[Map] not enough energy :" << car.getEnergy() << endl;
+			}
+			break;
 
-		velLinear = RUSHBEGIN_SPEED;
-		camDepth = BEGINRUSH_CAMDEPTH;
-		car.rush(true);
-		std::cout << "[Map] rush start" << endl;
+		case ACCROAD:
+			velLinear = ACCROAD_RUSHBEGIN_SPEED;
+			camDepth = BEGINRUSH_CAMDEPTH;
+			car.rush(ACCROAD);
+			std::cout << "[Map] rush start" << endl;
+			break;
+		case TOOL:
+			break;
+		default:
+			break;
 	}
-	else {
-		std::cout << "[Map] not enough energy :" << car.getEnergy() << endl;
-	}
+	
 }
 
 void Map::draw(SDL_Renderer* renderer) 
@@ -240,6 +256,10 @@ Uint32 Map::move(Uint32 interval, void* para) {
 	if((mp->camDegree <= mp->roadDegree - MAX_ROTATE_DEGREE && mp->velAngular < 0) || (mp->camDegree >= mp->roadDegree + MAX_ROTATE_DEGREE && mp->velAngular >= 0))
 		mp->camDegree -= mp->velAngular;
 
+	//special road
+	if (mp->car.getRushing() != ACCROAD && (mp->lines[startpos].getType() == ACCELERATE_LEFT || mp->lines[startpos].getType() == ACCELERATE_RIGHT)) {
+		mp->rush(ACCROAD);
+	}
 	return interval;
 }
 
@@ -247,12 +267,12 @@ Uint32 Map::accelerate(Uint32 interval, void* para)
 {
 	Map* mp = (Map*)para;
 
-	if (mp->car.getRushing()) 
+	if (mp->car.getRushing()) //excpet RushType == NONE(0), other types will go here
 	{
 		mp->velLinear -= AFTERRUSH_SPEED_DECREASE;
 		if (mp->velLinear < MAX_FORWARD_SPEED) {
 			mp->velLinear = MAX_FORWARD_SPEED;
-			mp->car.rush(false);
+			mp->car.rush(NONE);
 		}
 		mp->camDepth += AFTERRUSH_CAMDEPTH_RECOVER;
 		if (mp->camDepth > DEFAULT_CAMERA_DEPTH) {

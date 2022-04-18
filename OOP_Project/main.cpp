@@ -70,7 +70,7 @@ void eventHandler(SDL_Event& e, RenderWindow& w, Map& m) {
 				break;
 			case SDLK_SPACE:
 				cout << "[Main] Press button SPACE" << endl;
-				m.rush();
+				m.rush(ENERGY);
 				break;
 		}
 	}

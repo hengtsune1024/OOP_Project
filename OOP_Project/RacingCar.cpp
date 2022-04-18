@@ -3,7 +3,7 @@ RacingCar::RacingCar() {
 
 }
 RacingCar::RacingCar(const char* path, int n, SDL_Renderer* renderer): 
-	isRushing(false), fullEnergy(true), energy(100.0)
+	isRushing(NONE), fullEnergy(true), energy(100.0)
 {
 	num = n;
 	image = new Image[num];
@@ -132,17 +132,14 @@ Uint32 RacingCar::charge(Uint32 interval, void* para) {
 	return interval;
 }
 
-void RacingCar::rush(bool r) {
-	if (r) {
-		isRushing = true;
+void RacingCar::rush(RushType r) {
+
+	isRushing = r;
+	if (r == ENERGY) {
 		fullEnergy = false;
 		energy = 0;
 	}
-	else {
-		isRushing = false;
-	}
 }
-
 
 
 

@@ -31,8 +31,11 @@
 //speed
 #define MAX_FORWARD_SPEED 1600		//max car forward moving speed
 #define MAX_BACKWARD_SPEED 1000		//max car backward moving speed
-#define RUSHBEGIN_SPEED 2500
 #define AFTERRUSH_SPEED_DECREASE 3
+
+//rush
+#define ENERGY_RUSHBEGIN_SPEED 2500
+#define ACCROAD_RUSHBEGIN_SPEED 2000
 
 //acceleration
 #define ACCELERATION 160		//
@@ -54,7 +57,9 @@
 enum RoadType {
 	NORMAL, ENDPOINT, TOOLAREA, ACCELERATE_RIGHT, ACCELERATE_LEFT
 };
-
+enum RushType {
+	NONE, ENERGY, ACCROAD, TOOL
+};
 /*
 
 #define BOUNCE_SPEED -5

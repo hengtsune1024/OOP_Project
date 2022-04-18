@@ -77,7 +77,7 @@ public:
 	  
 	void quit();				// quit every member that need to be quit
 	void draw(SDL_Renderer*);	// draw the map, car, and tools, etc.
-	void rush();
+	void rush(RushType);
 };
 
 // unused code
