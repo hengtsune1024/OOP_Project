@@ -2,16 +2,15 @@
 
 Map::Map() : lines(NUM_LINE),
 number_of_lines(NUM_LINE), camDepth(DEFAULT_CAMERA_DEPTH), posX(INITIAL_POS* SEGMENT_LENGTH),
-velAngular(0), velLinear(0), roadDegree(0), camDegree(0), accLinear(0)
+velAngular(0), velLinear(0), roadDegree(0), camDegree(0), accLinear(0), camHeight(CAMERA_HEIGHT)
 {}
 
 Map::Map(SDL_Renderer* renderer) : car("../images/pooh/", 22, renderer), lines(NUM_LINE),
 	number_of_lines(NUM_LINE), camDepth(DEFAULT_CAMERA_DEPTH), posX(INITIAL_POS* SEGMENT_LENGTH), 
-	velAngular(0), velLinear(0), roadDegree(0), camDegree(0), accLinear(0)
+	velAngular(0), velLinear(0), roadDegree(0), camDegree(0), accLinear(0), camHeight(CAMERA_HEIGHT)
 {
 	double x = 0, dx = 0;
-	lines[0].setAll(0, 0, 0, 0);
-	for (int i = 1; i < NUM_LINE; ++i) {
+	for (int i = 0; i < NUM_LINE; ++i) {
 
 		if (i > 100 && i < 700)		// range of turing road
 			lines[i].setCurve(0.9);
@@ -19,7 +18,7 @@ Map::Map(SDL_Renderer* renderer) : car("../images/pooh/", 22, renderer), lines(N
 			lines[i].setCurve(-1.5);
 		else if (i > 1500 && i < 2000)
 			lines[i].setCurve(1.2);
-		else if(i>2200 && i<2800)
+		else if (i > 2200 && i < 2800)
 			lines[i].setCurve(-1.3);
 		else
 			lines[i].setCurve(0);
@@ -34,16 +33,15 @@ Map::Map(SDL_Renderer* renderer) : car("../images/pooh/", 22, renderer), lines(N
 		x += dx;
 		lines[i].setx(x);
 
-		//lines[i].setz(i * SEGMENT_LENGTH);
-		lines[i].setz(lines[i - 1].getz() + sqrt(SEGMENT_LENGTH * SEGMENT_LENGTH - dx * dx));
+		lines[i].setz(i * SEGMENT_LENGTH);
 
 		dx += lines[i].getCurve();
 	}
 
 	for (int i = INITIAL_POS - 10; i < INITIAL_POS + 22; ++i)
-		lines[i].setType(0);
-	for (int i = FINAL_POS - 10; i < FINAL_POS + 22; ++i)
-		lines[i].setType(0);
+		lines[i].setType(ENDPOINT);
+	for (int i = FINAL_POS - 12; i < FINAL_POS + 20; ++i)
+		lines[i].setType(ENDPOINT);
 
 	posY = lines[INITIAL_POS].getx();
 	std::cout << "[Map] Map initialized" << endl;
@@ -86,7 +84,7 @@ void Map::rush()
 void Map::draw(SDL_Renderer* renderer) 
 {
 	int startpos = posX / SEGMENT_LENGTH;
-	int camH = CAMERA_HEIGHT + lines[startpos].gety();
+	int camH = camHeight + lines[startpos].gety();
 	int maxy = HEIGHT;
 
 	//road and ground
@@ -117,23 +115,27 @@ void Map::draw(SDL_Renderer* renderer)
 		grass = (i >> 2) & 1 ? 0xff10c810 : 0xff009A00;
 		drawQuad(renderer, { grass,  WIDTH / 2, p.getY(), WIDTH / 2, WIDTH / 2, l.getY(), WIDTH / 2 });
 
-		if (lines[i].getType()) {
+		switch (lines[i].getType()) 
+		{
+			case NORMAL:
 
-			rumble = (i >> 2) & 1 ? 0xffffffff : 0xff000000;
-			road = (i >> 2) & 1 ? 0xff6b6b6b : 0xff696969;
+				rumble = (i >> 2) & 1 ? 0xffffffff : 0xff000000;
+				road = (i >> 2) & 1 ? 0xff6b6b6b : 0xff696969;
+				drawQuad(renderer, { rumble, p.getX(), p.getY(), p.getW() * 1.2, l.getX(), l.getY(), l.getW() * 1.2 });
+				drawQuad(renderer, { road, p.getX(), p.getY(), p.getW(), l.getX(), l.getY(), l.getW() });
+				break;
 
-			drawQuad(renderer, { rumble, p.getX(), p.getY(), p.getW() * 1.2, l.getX(), l.getY(), l.getW() * 1.2 });
-			drawQuad(renderer, { road, p.getX(), p.getY(), p.getW(), l.getX(), l.getY(), l.getW() });
-		}
-		else {
-			double width_scale = 1.2;
-			for (int j = 0; j <= 7; ++j) {
+			case ENDPOINT:
 
-				width_scale = 1.2 * (15 - (j << 1)) / 15;
-				rumble = ((i >> 2) + j) & 1 ? 0xffffffff : 0xff000000;
+				double width_scale = 1.2;
+				for (int j = 0; j <= 7; ++j) {
 
-				drawQuad(renderer, { rumble,p.getX(), p.getY(), p.getW() * width_scale, l.getX(), l.getY(), l.getW() * width_scale });
-			}
+					width_scale = 1.2 * (15 - (j << 1)) / 15;
+					rumble = ((i >> 2) + j) & 1 ? 0xffffffff : 0xff000000;
+
+					drawQuad(renderer, { rumble,p.getX(), p.getY(), p.getW() * width_scale, l.getX(), l.getY(), l.getW() * width_scale });
+				}
+				break;
 		}
 	}
 

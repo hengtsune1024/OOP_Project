@@ -1,6 +1,6 @@
 #include "Line.h"
 
-Line::Line() :curve(0), x(0), y(0), z(0), type(1) 
+Line::Line() :curve(0), x(0), y(0), z(0), type(NORMAL) 
 {}
 
 void Line::project(int camX, int camY, int camZ, double camDegree, double camDepth)

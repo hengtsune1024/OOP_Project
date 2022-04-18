@@ -10,7 +10,6 @@
 						//or into SDL_Rect dst to fill image into the whole window 
 
 //racing car
-#define RACINGCAR_PATH "../images/RacingCar/RacingCar"
 
 //map
 #define NUM_LINE 5000		//
@@ -50,7 +49,10 @@
 //energy
 #define ENERGY_RECOVER 0.2
 
-
+//road type (used in Line class)
+enum RoadType {
+	NORMAL, ENDPOINT, TOOLAREA
+};
 /*
 
 #define BOUNCE_SPEED -5
