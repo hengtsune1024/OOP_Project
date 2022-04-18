@@ -16,7 +16,7 @@ RacingCar::RacingCar(const char* path, int n, SDL_Renderer* renderer):
 		image[i].set(file, renderer);
 	}
 
-	frame = 0;
+	frame = n / 2 - 1;
 }
 
 void RacingCar::quit()

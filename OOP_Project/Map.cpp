@@ -43,7 +43,7 @@ Map::Map(SDL_Renderer* renderer) : car("../images/pooh/", 22, renderer), lines(N
 		lines[i].setz(i * SEGMENT_LENGTH);
 
 		//sprite
-		if (i % 20 == 0) {
+		if ((i % 30) == 0) {
 			lines[i].setSprite(tree, 2.5);
 		}
 	}
@@ -170,12 +170,6 @@ void Map::draw(SDL_Renderer* renderer)
 
 Uint32 Map::move(Uint32 interval, void* para) {
 	Map* mp = (Map*)para;
-
-	//current index of road line
-	int startpos = mp->posX / SEGMENT_LENGTH;
-
-	//degree between road vector and normal line (same direction as camera degree)
-	mp->roadDegree = atan((mp->lines[startpos + 1].getx() - mp->lines[startpos].getx()) / (mp->lines[startpos + 1].getz() - mp->lines[startpos].getz()));
 	
 	double velX, velY;
 	velX = mp->velLinear * cos(mp->camDegree);
@@ -186,20 +180,33 @@ Uint32 Map::move(Uint32 interval, void* para) {
 	if (mp->posX < 0 || mp->posX >= mp->number_of_lines * SEGMENT_LENGTH)
 		mp->posX -= velX;	
 
+	//current index of road line
+	int startpos = mp->posX / SEGMENT_LENGTH;
+
+	//degree between road vector and normal line (same direction as camera degree)
+	mp->roadDegree = atan((mp->lines[startpos + 1].getx() - mp->lines[startpos].getx()) / (mp->lines[startpos + 1].getz() - mp->lines[startpos].getz()));
 
 	//move in y-direction
 	mp->posY += velY;
 	
-	if ((mp->posY < mp->lines[startpos].getx() - 1.5 * ROAD_WIDTH && velY < 0) || (mp->posY > mp->lines[startpos].getx() + 1.5 * ROAD_WIDTH && velY > 0)) 
+	if ((mp->posY < mp->lines[startpos].getx() - 2 * ROAD_WIDTH) || (mp->posY > mp->lines[startpos].getx() + 2 * ROAD_WIDTH)) 
 	{
 		
 		mp->posY -= velY;
 		mp->posX -= velX;
-
+		
 		double velProjected = mp->velLinear * cos(mp->roadDegree - mp->camDegree);
 		mp->posX += velProjected * cos(mp->roadDegree);
 		mp->posY += velProjected * sin(mp->roadDegree);
+		
+		int endpos = mp->posX / SEGMENT_LENGTH;
+		if (mp->posY < mp->lines[endpos].getx() - 2 * ROAD_WIDTH)
+			mp->posY = mp->lines[endpos].getx() - 2 * ROAD_WIDTH;
+		else if (mp->posY > mp->lines[endpos].getx() + 2 * ROAD_WIDTH)
+			mp->posY = mp->lines[endpos].getx() + 2 * ROAD_WIDTH;
+		
 	}
+	
 
 	//rotate camera
 	mp->camDegree += mp->velAngular;
