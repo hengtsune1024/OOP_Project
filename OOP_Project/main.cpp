@@ -19,9 +19,9 @@ int main(int argc, char* argv[]) {
 	RenderWindow window;
 	sdl.init();
 	window.init();
-
+	
 	Map map(window.GetRenderer());
-
+	
 	SDL_Event e;
 	bool quit = false;
 
@@ -94,3 +94,4 @@ void eventHandler(SDL_Event& e, RenderWindow& w, Map& m) {
 		}
 	}
 }
+

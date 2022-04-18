@@ -35,7 +35,7 @@
 #define AFTERRUSH_SPEED_DECREASE 3
 
 //acceleration
-#define ACCELERATION 80		//
+#define ACCELERATION 160		//
 #define FRICTION_ACC 70
 
 //rotation
@@ -53,6 +53,7 @@
 enum RoadType {
 	NORMAL, ENDPOINT, TOOLAREA
 };
+
 /*
 
 #define BOUNCE_SPEED -5

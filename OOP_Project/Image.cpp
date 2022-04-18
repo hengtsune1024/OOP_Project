@@ -17,6 +17,7 @@ Image::Image(const char* path, SDL_Renderer* renderer)
 		SDL_Delay(3000);
 		exit(1);
 	}
+	cout << "[Image] SDL_CreateTextureFromSurface OK 0000" << endl;
 	width = imgSurface->w;   // 表面結構可取得圖片寬高
 	height = imgSurface->h;
 

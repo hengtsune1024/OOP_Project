@@ -10,8 +10,11 @@ Map::Map(SDL_Renderer* renderer) : car("../images/pooh/", 22, renderer), lines(N
 	velAngular(0), velLinear(0), roadDegree(0), camDegree(0), accLinear(0), camHeight(CAMERA_HEIGHT)
 {
 	double x = 0, dx = 0;
+	Image* tree = new Image("../images/1.png", renderer);
+
 	for (int i = 0; i < NUM_LINE; ++i) {
 
+		//curve
 		if (i > 100 && i < 700)		// range of turing road
 			lines[i].setCurve(0.9);
 		else if (i > 800 && i < 1400)
@@ -23,6 +26,7 @@ Map::Map(SDL_Renderer* renderer) : car("../images/pooh/", 22, renderer), lines(N
 		else
 			lines[i].setCurve(0);
 
+		// y
 		if (i > 300 && i < 1054)		//range of road up and down
 			lines[i].sety(sin((i - 300) / 30.0) * CAMERA_HEIGHT);
 		else if (i > 1200 && i < 2896)
@@ -30,12 +34,18 @@ Map::Map(SDL_Renderer* renderer) : car("../images/pooh/", 22, renderer), lines(N
 		else
 			lines[i].sety(0);
 
+		// x
 		x += dx;
+		dx += lines[i].getCurve();
 		lines[i].setx(x);
 
+		// z
 		lines[i].setz(i * SEGMENT_LENGTH);
 
-		dx += lines[i].getCurve();
+		//sprite
+		if (i % 20 == 0) {
+			lines[i].setSprite(tree, 2.5);
+		}
 	}
 
 	for (int i = INITIAL_POS - 10; i < INITIAL_POS + 22; ++i)
@@ -91,22 +101,24 @@ void Map::draw(SDL_Renderer* renderer)
 	Uint32 grass, rumble, road;
 
 	boxColor(renderer, 0, HEIGHT / 2, WIDTH, HEIGHT, 0xff10c810);
+
 	for (int i = startpos - 50; i < startpos + 300; ++i) {
 
-		if (i < 0){
-			i = -1;
+		if (i < 1){
+			i = 0;
 			continue;
 		}
 		else if (i >= number_of_lines)
 			break;
 
-		Line& l = lines[i % number_of_lines];
-		Line p = lines[(i - 1 + number_of_lines) % number_of_lines];
+		Line& l = lines[i];
+		Line p = lines[i - 1];
 		l.project(posY, camH, posX, camDegree, camDepth);
 
 		if (l.getW() < 1e-6 && l.getW() > -1e-6)
 			continue;
 
+		l.setClip(maxy);
 		if (l.getY() >= maxy)
 			continue;
 
@@ -137,6 +149,18 @@ void Map::draw(SDL_Renderer* renderer)
 				}
 				break;
 		}
+	}
+	//sprite
+	for (int i = startpos + 300; i > startpos; --i) {
+
+		if (i < 1) {
+			i = 0;
+			continue;
+		}
+		else if (i >= number_of_lines)
+			break;
+
+		lines[i].drawSprite(renderer);
 	}
 
 	//car
@@ -176,9 +200,6 @@ Uint32 Map::move(Uint32 interval, void* para) {
 		mp->posX += velProjected * cos(mp->roadDegree);
 		mp->posY += velProjected * sin(mp->roadDegree);
 	}
-
-	if (startpos % 100 == 0)
-		std::cout << startpos <<" "<<velX <<" "<<mp->camDegree << endl;
 
 	//rotate camera
 	mp->camDegree += mp->velAngular;
