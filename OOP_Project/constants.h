@@ -45,13 +45,14 @@
 //road
 #define ROAD_WIDTH 4000
 #define SEGMENT_LENGTH 400
+#define ACCROAD_LENGHT 50
 
 //energy
 #define ENERGY_RECOVER 0.2
 
 //road type (used in Line class)
 enum RoadType {
-	NORMAL, ENDPOINT, TOOLAREA
+	NORMAL, ENDPOINT, TOOLAREA, ACCELERATE_RIGHT, ACCELERATE_LEFT
 };
 
 /*

@@ -48,10 +48,16 @@ Map::Map(SDL_Renderer* renderer) : car("../images/pooh/", 22, renderer), lines(N
 		}
 	}
 
+	//type
 	for (int i = INITIAL_POS - 10; i < INITIAL_POS + 22; ++i)
 		lines[i].setType(ENDPOINT);
 	for (int i = FINAL_POS - 12; i < FINAL_POS + 20; ++i)
 		lines[i].setType(ENDPOINT);
+
+	for (int i = 300; i < 300 + ACCROAD_LENGHT; ++i)
+		lines[i].setType(ACCELERATE_RIGHT);
+	for (int i = 1000; i < 1000 + ACCROAD_LENGHT; ++i)
+		lines[i].setType(ACCELERATE_LEFT);
 
 	posY = lines[INITIAL_POS].getx();
 	std::cout << "[Map] Map initialized" << endl;
@@ -138,7 +144,7 @@ void Map::draw(SDL_Renderer* renderer)
 				break;
 
 			case ENDPOINT:
-
+			{
 				double width_scale = 1.2;
 				for (int j = 0; j <= 7; ++j) {
 
@@ -147,6 +153,22 @@ void Map::draw(SDL_Renderer* renderer)
 
 					drawQuad(renderer, { rumble,p.getX(), p.getY(), p.getW() * width_scale, l.getX(), l.getY(), l.getW() * width_scale });
 				}
+			}
+				break;
+
+			case ACCELERATE_RIGHT:
+			case ACCELERATE_LEFT:
+			{
+				rumble = (i >> 2) & 1 ? 0xffffffff : 0xff000000;
+				road = (i >> 2) & 1 ? 0xff6b6b6b : 0xff696969;
+				Uint32 accRoad = (i >> 2) & 1 ? 0xff00ffff : 0xff0088ff;
+
+				int sign = lines[i].getType() == ACCELERATE_RIGHT ? 1 : -1;
+
+				drawQuad(renderer, { rumble, p.getX(), p.getY(), p.getW() * 1.2, l.getX(), l.getY(), l.getW() * 1.2 });
+				drawQuad(renderer, { road, p.getX(), p.getY(), p.getW(), l.getX(), l.getY(), l.getW() });
+				drawQuad(renderer, { accRoad, p.getX() + sign * p.getW() / 2, p.getY(), p.getW() / 2, l.getX() + sign * l.getW() / 2, l.getY(), l.getW() / 2 });
+			}
 				break;
 		}
 	}
@@ -180,11 +202,15 @@ Uint32 Map::move(Uint32 interval, void* para) {
 	if (mp->posX < 0 || mp->posX >= mp->number_of_lines * SEGMENT_LENGTH)
 		mp->posX -= velX;	
 
+	/********* Do not move these codes ********/
+
 	//current index of road line
 	int startpos = mp->posX / SEGMENT_LENGTH;
 
 	//degree between road vector and normal line (same direction as camera degree)
 	mp->roadDegree = atan((mp->lines[startpos + 1].getx() - mp->lines[startpos].getx()) / (mp->lines[startpos + 1].getz() - mp->lines[startpos].getz()));
+
+	 /********* Or there will be bugs ***********/
 
 	//move in y-direction
 	mp->posY += velY;
