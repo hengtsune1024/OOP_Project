@@ -277,6 +277,8 @@ Uint32 Map::accelerate(Uint32 interval, void* para)
 		mp->velLinear -= AFTERRUSH_SPEED_DECREASE;
 		if (mp->velLinear < MAX_FORWARD_SPEED) {
 			mp->velLinear = MAX_FORWARD_SPEED;
+			if (mp->accLinear == 0)
+				mp->accLinear = -FRICTION_ACC;
 			mp->car.rush(NONE);
 		}
 		mp->camDepth += AFTERRUSH_CAMDEPTH_RECOVER;
@@ -287,8 +289,11 @@ Uint32 Map::accelerate(Uint32 interval, void* para)
 	else 
 	{
 		mp->velLinear += mp->accLinear;
-		if (mp->velLinear > MAX_FORWARD_SPEED || mp->velLinear < -MAX_BACKWARD_SPEED) {
-			mp->velLinear -= mp->accLinear;
+		if (mp->velLinear > MAX_FORWARD_SPEED) {
+			mp->velLinear = MAX_FORWARD_SPEED;
+		}
+		else if (mp->velLinear < -MAX_BACKWARD_SPEED) {
+			mp->velLinear = -MAX_BACKWARD_SPEED;
 		}
 
 		if ((mp->accLinear == -FRICTION_ACC && mp->velLinear < 0) || (mp->accLinear == FRICTION_ACC && mp->velLinear > 0)) {
@@ -297,7 +302,7 @@ Uint32 Map::accelerate(Uint32 interval, void* para)
 		}
 
 	}
-
+	cout << mp->accLinear << " " << mp->velLinear << endl;
 	return interval;
 }
 
