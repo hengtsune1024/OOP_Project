@@ -5,12 +5,11 @@ number_of_lines(NUM_LINE), camDepth(DEFAULT_CAMERA_DEPTH), posX(INITIAL_POS* SEG
 velAngular(0), velLinear(0), roadDegree(0), camDegree(0), accLinear(0), camHeight(CAMERA_HEIGHT)
 {}
 
-Map::Map(SDL_Renderer* renderer) : car("../images/pooh/", 22, renderer), lines(NUM_LINE),
+Map::Map(SDL_Renderer* renderer) : car("../images/pooh/", 22, renderer), lines(NUM_LINE), tree("../images/1.png", renderer),
 	number_of_lines(NUM_LINE), camDepth(DEFAULT_CAMERA_DEPTH), posX(INITIAL_POS* SEGMENT_LENGTH), 
 	velAngular(0), velLinear(0), roadDegree(0), camDegree(0), accLinear(0), camHeight(CAMERA_HEIGHT)
 {
 	double x = 0, dx = 0;
-	Image* tree = new Image("../images/1.png", renderer);
 
 	for (int i = 0; i < NUM_LINE; ++i) {
 
@@ -44,7 +43,7 @@ Map::Map(SDL_Renderer* renderer) : car("../images/pooh/", 22, renderer), lines(N
 
 		//sprite
 		if ((i % 30) == 0) {
-			lines[i].setSprite(tree, 2.5);
+			lines[i].setSprite(&tree, 2.5);
 		}
 	}
 
@@ -302,7 +301,7 @@ Uint32 Map::accelerate(Uint32 interval, void* para)
 		}
 
 	}
-	cout << mp->accLinear << " " << mp->velLinear << endl;
+	//cout << mp->accLinear << " " << mp->velLinear << endl;
 	return interval;
 }
 

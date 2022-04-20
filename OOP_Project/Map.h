@@ -52,6 +52,8 @@ class Map
 	//others
 	RacingCar car;								// the car in the map
 
+	//sprites
+	Image tree;
 	 
 public:
 
