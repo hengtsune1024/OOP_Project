@@ -258,7 +258,12 @@ Uint32 Map::move(Uint32 interval, void* para) {
 
 	//special road
 	if (mp->car.getRushing() != ACCROAD && (mp->lines[startpos].getType() == ACCELERATE_LEFT || mp->lines[startpos].getType() == ACCELERATE_RIGHT)) {
-		mp->rush(ACCROAD);
+		if (mp->lines[startpos].getType() == ACCELERATE_LEFT && (mp->posY < mp->lines[startpos].getx() && mp->posY > mp->lines[startpos].getx() - ROAD_WIDTH)) {
+			mp->rush(ACCROAD);
+		}
+		else if (mp->lines[startpos].getType() == ACCELERATE_RIGHT && (mp->posY > mp->lines[startpos].getx() && mp->posY < mp->lines[startpos].getx() + ROAD_WIDTH)) {
+			mp->rush(ACCROAD);
+		}
 	}
 	return interval;
 }
