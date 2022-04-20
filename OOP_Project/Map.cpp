@@ -2,36 +2,65 @@
 
 Map::Map() : lines(NUM_LINE),
 number_of_lines(NUM_LINE), camDepth(DEFAULT_CAMERA_DEPTH), posX(INITIAL_POS* SEGMENT_LENGTH),
-velAngular(0), velLinear(0), roadDegree(0), camDegree(0), accLinear(0) 
+velAngular(0), velLinear(0), roadDegree(0), camDegree(0), accLinear(0), camHeight(CAMERA_HEIGHT)
 {}
 
 Map::Map(SDL_Renderer* renderer) : car("../images/pooh/", 22, renderer), lines(NUM_LINE),
 	number_of_lines(NUM_LINE), camDepth(DEFAULT_CAMERA_DEPTH), posX(INITIAL_POS* SEGMENT_LENGTH), 
-	velAngular(0), velLinear(0), roadDegree(0), camDegree(0), accLinear(0)
+	velAngular(0), velLinear(0), roadDegree(0), camDegree(0), accLinear(0), camHeight(CAMERA_HEIGHT)
 {
 	double x = 0, dx = 0;
+	Image* tree = new Image("../images/1.png", renderer);
+
 	for (int i = 0; i < NUM_LINE; ++i) {
 
+		//curve
 		if (i > 100 && i < 700)		// range of turing road
 			lines[i].setCurve(0.9);
 		else if (i > 800 && i < 1400)
 			lines[i].setCurve(-1.5);
+		else if (i > 1500 && i < 2000)
+			lines[i].setCurve(1.2);
+		else if (i > 2200 && i < 2800)
+			lines[i].setCurve(-1.3);
 		else
 			lines[i].setCurve(0);
 
-		if (i > 300 && i < 1000)		//range of road up and down
-			lines[i].sety(sin(i / 30.0) * CAMERA_HEIGHT);
+		// y
+		if (i > 300 && i < 1054)		//range of road up and down
+			lines[i].sety(sin((i - 300) / 30.0) * CAMERA_HEIGHT);
+		else if (i > 1200 && i < 2896)
+			lines[i].sety(sin((i - 1200) / 20.0) * CAMERA_HEIGHT);
 		else
 			lines[i].sety(0);
 
+		// x
 		x += dx;
 		dx += lines[i].getCurve();
 		lines[i].setx(x);
-		lines[i].setz(i * SEGMENT_LENGTH);
-	}
-	posY = lines[INITIAL_POS].getx();
-	cout << "[Map] Map initialized" << endl;
 
+		// z
+		lines[i].setz(i * SEGMENT_LENGTH);
+
+		//sprite
+		if ((i % 30) == 0) {
+			lines[i].setSprite(tree, 2.5);
+		}
+	}
+
+	//type
+	for (int i = INITIAL_POS - 10; i < INITIAL_POS + 22; ++i)
+		lines[i].setType(ENDPOINT);
+	for (int i = FINAL_POS - 12; i < FINAL_POS + 20; ++i)
+		lines[i].setType(ENDPOINT);
+
+	for (int i = 300; i < 300 + ACCROAD_LENGHT; ++i)
+		lines[i].setType(ACCELERATE_RIGHT);
+	for (int i = 1000; i < 1000 + ACCROAD_LENGHT; ++i)
+		lines[i].setType(ACCELERATE_LEFT);
+
+	posY = lines[INITIAL_POS].getx();
+	std::cout << "[Map] Map initialized" << endl;
 
 	car.setPosition(280, 380);
 	car.turn(0);
@@ -45,7 +74,7 @@ void Map::quit() {
 	removeTimer();
 	car.quit();
 	//delete[]car;
-	cout << "[Map] Map closed" << endl;
+	std::cout << "[Map] Map closed" << endl;
 }
 
 void Map::drawQuad(SDL_Renderer* renderer, Quad q) {
@@ -54,57 +83,122 @@ void Map::drawQuad(SDL_Renderer* renderer, Quad q) {
 	filledPolygonColor(renderer, vx, vy, 4, q.color);
 }
 
-void Map::rush()
+void Map::rush(RushType type)
 {
-	if (car.getFullEnergy()) {
+	switch (type) 
+	{
+		case ENERGY:
+			if (car.getFullEnergy()) {
+				velLinear = ENERGY_RUSHBEGIN_SPEED;
+				camDepth = BEGINRUSH_CAMDEPTH;
+				car.rush(ENERGY);
+				std::cout << "[Map] rush start" << endl;
+			}
+			else {
+				std::cout << "[Map] not enough energy :" << car.getEnergy() << endl;
+			}
+			break;
 
-		velLinear = RUSHBEGIN_SPEED;
-		camDepth = BEGINRUSH_CAMDEPTH;
-		car.rush(true);
-		cout << "[Map] rush start" << endl;
+		case ACCROAD:
+			velLinear = ACCROAD_RUSHBEGIN_SPEED;
+			camDepth = BEGINRUSH_CAMDEPTH;
+			car.rush(ACCROAD);
+			std::cout << "[Map] rush start" << endl;
+			break;
+		case TOOL:
+			break;
+		default:
+			break;
 	}
-	else {
-		cout << "[Map] not enough energy :" << car.getEnergy() << endl;
-	}
+	
 }
 
 void Map::draw(SDL_Renderer* renderer) 
 {
 	int startpos = posX / SEGMENT_LENGTH;
-	int camH = CAMERA_HEIGHT + lines[startpos].gety();
+	int camH = camHeight + lines[startpos].gety();
 	int maxy = HEIGHT;
 
 	//road and ground
 	Uint32 grass, rumble, road;
 
+	boxColor(renderer, 0, HEIGHT / 2, WIDTH, HEIGHT, 0xff10c810);
+
 	for (int i = startpos - 50; i < startpos + 300; ++i) {
 
-		if (i < 0){
-			i = -1;
+		if (i < 1){
+			i = 0;
 			continue;
 		}
 		else if (i >= number_of_lines)
 			break;
 
-		Line& l = lines[i % number_of_lines];
-		Line p = lines[(i - 1 + number_of_lines) % number_of_lines];
+		Line& l = lines[i];
+		Line p = lines[i - 1];
 		l.project(posY, camH, posX, camDegree, camDepth);
 
 		if (l.getW() < 1e-6 && l.getW() > -1e-6)
 			continue;
 
+		l.setClip(maxy);
 		if (l.getY() >= maxy)
 			continue;
 
 		maxy = l.getY();
 
 		grass = (i >> 2) & 1 ? 0xff10c810 : 0xff009A00;
-		rumble = (i >> 2) & 1 ? 0xffffffff : 0xff000000;
-		road = (i >> 2) & 1 ? 0xff6b6b6b : 0xff696969;
-
 		drawQuad(renderer, { grass,  WIDTH / 2, p.getY(), WIDTH / 2, WIDTH / 2, l.getY(), WIDTH / 2 });
-		drawQuad(renderer, { rumble, p.getX(), p.getY(), p.getW() * 1.2, l.getX(), l.getY(), l.getW() * 1.2 });
-		drawQuad(renderer, { road, p.getX(), p.getY(), p.getW(), l.getX(), l.getY(), l.getW() });
+
+		switch (lines[i].getType()) 
+		{
+			case NORMAL:
+
+				rumble = (i >> 2) & 1 ? 0xffffffff : 0xff000000;
+				road = (i >> 2) & 1 ? 0xff6b6b6b : 0xff696969;
+				drawQuad(renderer, { rumble, p.getX(), p.getY(), p.getW() * 1.2, l.getX(), l.getY(), l.getW() * 1.2 });
+				drawQuad(renderer, { road, p.getX(), p.getY(), p.getW(), l.getX(), l.getY(), l.getW() });
+				break;
+
+			case ENDPOINT:
+			{
+				double width_scale = 1.2;
+				for (int j = 0; j <= 7; ++j) {
+
+					width_scale = 1.2 * (15 - (j << 1)) / 15;
+					rumble = ((i >> 2) + j) & 1 ? 0xffffffff : 0xff000000;
+
+					drawQuad(renderer, { rumble,p.getX(), p.getY(), p.getW() * width_scale, l.getX(), l.getY(), l.getW() * width_scale });
+				}
+			}
+				break;
+
+			case ACCELERATE_RIGHT:
+			case ACCELERATE_LEFT:
+			{
+				rumble = (i >> 2) & 1 ? 0xffffffff : 0xff000000;
+				road = (i >> 2) & 1 ? 0xff6b6b6b : 0xff696969;
+				Uint32 accRoad = (i >> 2) & 1 ? 0xff00ffff : 0xff0088ff;
+
+				int sign = lines[i].getType() == ACCELERATE_RIGHT ? 1 : -1;
+
+				drawQuad(renderer, { rumble, p.getX(), p.getY(), p.getW() * 1.2, l.getX(), l.getY(), l.getW() * 1.2 });
+				drawQuad(renderer, { road, p.getX(), p.getY(), p.getW(), l.getX(), l.getY(), l.getW() });
+				drawQuad(renderer, { accRoad, p.getX() + sign * p.getW() / 2, p.getY(), p.getW() / 2, l.getX() + sign * l.getW() / 2, l.getY(), l.getW() / 2 });
+			}
+				break;
+		}
+	}
+	//sprite
+	for (int i = startpos + 300; i > startpos; --i) {
+
+		if (i < 1) {
+			i = 0;
+			continue;
+		}
+		else if (i >= number_of_lines)
+			break;
+
+		lines[i].drawSprite(renderer);
 	}
 
 	//car
@@ -114,13 +208,17 @@ void Map::draw(SDL_Renderer* renderer)
 
 Uint32 Map::move(Uint32 interval, void* para) {
 	Map* mp = (Map*)para;
-
-	double velX = mp->velLinear * cos(mp->camDegree), velY = mp->velLinear * sin(mp->camDegree);
+	
+	double velX, velY;
+	velX = mp->velLinear * cos(mp->camDegree);
+	velY = mp->velLinear * sin(mp->camDegree);
 	
 	//move in x-direction
 	mp->posX += velX;
 	if (mp->posX < 0 || mp->posX >= mp->number_of_lines * SEGMENT_LENGTH)
 		mp->posX -= velX;	
+
+	/********* Do not move these codes ********/
 
 	//current index of road line
 	int startpos = mp->posX / SEGMENT_LENGTH;
@@ -128,26 +226,40 @@ Uint32 Map::move(Uint32 interval, void* para) {
 	//degree between road vector and normal line (same direction as camera degree)
 	mp->roadDegree = atan((mp->lines[startpos + 1].getx() - mp->lines[startpos].getx()) / (mp->lines[startpos + 1].getz() - mp->lines[startpos].getz()));
 
+	 /********* Or there will be bugs ***********/
+
 	//move in y-direction
 	mp->posY += velY;
-	if (mp->posY < mp->lines[startpos].getx() - 2 * ROAD_WIDTH || mp->posY > mp->lines[startpos].getx() + 2 * ROAD_WIDTH){
+	
+	if ((mp->posY < mp->lines[startpos].getx() - 2 * ROAD_WIDTH) || (mp->posY > mp->lines[startpos].getx() + 2 * ROAD_WIDTH)) 
+	{
 		
 		mp->posY -= velY;
 		mp->posX -= velX;
-
+		
 		double velProjected = mp->velLinear * cos(mp->roadDegree - mp->camDegree);
 		mp->posX += velProjected * cos(mp->roadDegree);
 		mp->posY += velProjected * sin(mp->roadDegree);
+		
+		int endpos = mp->posX / SEGMENT_LENGTH;
+		if (mp->posY < mp->lines[endpos].getx() - 2 * ROAD_WIDTH)
+			mp->posY = mp->lines[endpos].getx() - 2 * ROAD_WIDTH;
+		else if (mp->posY > mp->lines[endpos].getx() + 2 * ROAD_WIDTH)
+			mp->posY = mp->lines[endpos].getx() + 2 * ROAD_WIDTH;
+		
 	}
+	
 
 	//rotate camera
-	double tmp = mp->camDegree;
 	mp->camDegree += mp->velAngular;
-
-	if ((tmp <= mp->roadDegree - MAX_ROTATE_DEGREE || mp->velAngular >= 0) && (tmp >= mp->roadDegree + MAX_ROTATE_DEGREE || mp->velAngular < 0)
-		&& (mp->camDegree >= mp->roadDegree + MAX_ROTATE_DEGREE || mp->camDegree <= mp->roadDegree - MAX_ROTATE_DEGREE))
-			mp->camDegree -= mp->velAngular;
 	
+	if((mp->camDegree <= mp->roadDegree - MAX_ROTATE_DEGREE && mp->velAngular < 0) || (mp->camDegree >= mp->roadDegree + MAX_ROTATE_DEGREE && mp->velAngular >= 0))
+		mp->camDegree -= mp->velAngular;
+
+	//special road
+	if (mp->car.getRushing() != ACCROAD && (mp->lines[startpos].getType() == ACCELERATE_LEFT || mp->lines[startpos].getType() == ACCELERATE_RIGHT)) {
+		mp->rush(ACCROAD);
+	}
 	return interval;
 }
 
@@ -155,12 +267,12 @@ Uint32 Map::accelerate(Uint32 interval, void* para)
 {
 	Map* mp = (Map*)para;
 
-	if (mp->car.getRushing()) 
+	if (mp->car.getRushing()) //excpet RushType == NONE(0), other types will go here
 	{
 		mp->velLinear -= AFTERRUSH_SPEED_DECREASE;
 		if (mp->velLinear < MAX_FORWARD_SPEED) {
 			mp->velLinear = MAX_FORWARD_SPEED;
-			mp->car.rush(false);
+			mp->car.rush(NONE);
 		}
 		mp->camDepth += AFTERRUSH_CAMDEPTH_RECOVER;
 		if (mp->camDepth > DEFAULT_CAMERA_DEPTH) {
@@ -209,6 +321,10 @@ void Map::removeTimer() {
 void Map::init() {
 }
 
+	if ((mp->camDegree <= mp->roadDegree - MAX_ROTATE_DEGREE || mp->velAngular >= 0) && (mp->camDegree >= mp->roadDegree + MAX_ROTATE_DEGREE || mp->velAngular < 0)
+		&& (mp->camDegree >= mp->roadDegree + MAX_ROTATE_DEGREE || mp->camDegree <= mp->roadDegree - MAX_ROTATE_DEGREE))
+			mp->camDegree -= mp->velAngular;
+	
 
 
 */

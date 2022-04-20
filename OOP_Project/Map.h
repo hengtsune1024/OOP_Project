@@ -33,6 +33,8 @@ class Map
 	double roadDegree;		// the degree from x-axis to the road vector (from current segment to the next segment) 
 	double camDepth;
 
+	double camHeight;
+
 	//road
 	vector<Line> lines;						// road segments constituting the whole road
 	int number_of_lines;					// the number of road segments
@@ -49,6 +51,7 @@ class Map
 
 	//others
 	RacingCar car;								// the car in the map
+
 	 
 public:
 
@@ -74,7 +77,7 @@ public:
 	  
 	void quit();				// quit every member that need to be quit
 	void draw(SDL_Renderer*);	// draw the map, car, and tools, etc.
-	void rush();
+	void rush(RushType);
 };
 
 // unused code

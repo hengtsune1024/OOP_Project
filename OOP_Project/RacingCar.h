@@ -25,7 +25,7 @@ class RacingCar
 
 	double energy;
 	//state
-	bool isRushing;
+	RushType isRushing;
 	bool fullEnergy;
 
 public:
@@ -40,8 +40,8 @@ public:
 	void stopTimer();
 	void turn(int); // move the object
 
-	void rush(bool);
-	bool getRushing() { return isRushing; }
+	void rush(RushType);
+	RushType getRushing() { return isRushing; }
 	bool getFullEnergy() { return fullEnergy; }
 	double getEnergy() { return energy; }
 
