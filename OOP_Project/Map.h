@@ -49,7 +49,7 @@ class Map
 
 	void removeTimer();							// remove all timers
 
-	//others
+	//car
 	RacingCar car;								// the car in the map
 
 	//sprites

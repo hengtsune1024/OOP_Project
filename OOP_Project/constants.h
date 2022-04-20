@@ -48,7 +48,7 @@
 //road
 #define ROAD_WIDTH 4000
 #define SEGMENT_LENGTH 400
-#define ACCROAD_LENGHT 50
+#define ACCROAD_LENGHT 20
 
 //energy
 #define ENERGY_RECOVER 0.2

@@ -1,7 +1,6 @@
 #include "RacingCar.h"
-RacingCar::RacingCar() {
-
-}
+RacingCar::RacingCar():isRushing(NONE), fullEnergy(true), energy(100.0) 
+{}
 RacingCar::RacingCar(const char* path, int n, SDL_Renderer* renderer): 
 	isRushing(NONE), fullEnergy(true), energy(100.0)
 {

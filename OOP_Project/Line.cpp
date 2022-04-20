@@ -1,6 +1,6 @@
 #include "Line.h"
 
-Line::Line() :curve(0), x(0), y(0), z(0), type(NORMAL), sprite(NULL), clip(0)
+Line::Line() :curve(0), x(0), y(0), z(0), type(NORMAL), sprite(NULL), clip(0), border(2 * ROAD_WIDTH)
 {}
 
 void Line::project(int camX, int camY, int camZ, double camDegree, double camDepth)
@@ -8,7 +8,7 @@ void Line::project(int camX, int camY, int camZ, double camDegree, double camDep
     double _x = x, _y = y - camY, _z = z - camZ;
     double co = cos(camDegree), si = sin(camDegree);
     _x = co * (x - camX) - si * (z - camZ);
-    _z = si * (x - camX) + co * (z - camZ);  
+    //_z = si * (x - camX) + co * (z - camZ);
 
     if (_z < 0) {
         W = 0;

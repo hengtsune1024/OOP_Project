@@ -22,9 +22,12 @@ Map::Map(SDL_Renderer* renderer) : car("../images/pooh/", 22, renderer), lines(N
 			lines[i].setCurve(1.2);
 		else if (i > 2200 && i < 2800)
 			lines[i].setCurve(-1.3);
-		else
-			lines[i].setCurve(0);
-
+		
+		if (i > 300 && i < 600)
+			lines[i].setCurve(8.5);
+		else if (i > 700 && i < 1000)
+			lines[i].setCurve(-8.5);
+			
 		// y
 		if (i > 300 && i < 1054)		//range of road up and down
 			lines[i].sety(sin((i - 300) / 30.0) * CAMERA_HEIGHT);
@@ -42,7 +45,7 @@ Map::Map(SDL_Renderer* renderer) : car("../images/pooh/", 22, renderer), lines(N
 		lines[i].setz(i * SEGMENT_LENGTH);
 
 		//sprite
-		if ((i % 30) == 0) {
+		if ((i & 31) == 0) {    // same as i % 32
 			lines[i].setSprite(&tree, 2.5);
 		}
 	}
@@ -176,7 +179,7 @@ void Map::draw(SDL_Renderer* renderer)
 			{
 				rumble = (i >> 2) & 1 ? 0xffffffff : 0xff000000;
 				road = (i >> 2) & 1 ? 0xff6b6b6b : 0xff696969;
-				Uint32 accRoad = (i >> 2) & 1 ? 0xff00ffff : 0xff0088ff;
+				Uint32 accRoad = (i >> 1) & 1 ? 0xff00ffff : 0xff0000ff;
 
 				int sign = lines[i].getType() == ACCELERATE_RIGHT ? 1 : -1;
 
@@ -208,9 +211,16 @@ void Map::draw(SDL_Renderer* renderer)
 Uint32 Map::move(Uint32 interval, void* para) {
 	Map* mp = (Map*)para;
 	
+	int startpos = mp->posX / SEGMENT_LENGTH;
+	mp->roadDegree = atan((mp->lines[startpos + 1].getx() - mp->lines[startpos].getx()) / (mp->lines[startpos + 1].getz() - mp->lines[startpos].getz()));
+
+	double velM = (sin(mp->roadDegree) * (mp->lines[startpos + 1].getx() - mp->lines[startpos].getx()) + cos(mp->roadDegree) * SEGMENT_LENGTH) / SEGMENT_LENGTH;
+	cout << mp->lines[startpos + 1].getx() - mp->lines[startpos].getx() << " " << velM << " ";
+	
 	double velX, velY;
-	velX = mp->velLinear * cos(mp->camDegree);
-	velY = mp->velLinear * sin(mp->camDegree);
+	
+	velX = mp->velLinear * cos(mp->camDegree) * velM;
+	velY = mp->velLinear * sin(mp->camDegree) * velM;
 	
 	//move in x-direction
 	mp->posX += velX;
@@ -220,7 +230,7 @@ Uint32 Map::move(Uint32 interval, void* para) {
 	/********* Do not move these codes ********/
 
 	//current index of road line
-	int startpos = mp->posX / SEGMENT_LENGTH;
+	startpos = mp->posX / SEGMENT_LENGTH;
 
 	//degree between road vector and normal line (same direction as camera degree)
 	mp->roadDegree = atan((mp->lines[startpos + 1].getx() - mp->lines[startpos].getx()) / (mp->lines[startpos + 1].getz() - mp->lines[startpos].getz()));
@@ -235,8 +245,10 @@ Uint32 Map::move(Uint32 interval, void* para) {
 		
 		mp->posY -= velY;
 		mp->posX -= velX;
+		//mp->posY = mp->lines[startpos].getx() + 2 * ROAD_WIDTH;
+		//mp->posX = mp->lines[startpos].getz();
 		
-		double velProjected = mp->velLinear * cos(mp->roadDegree - mp->camDegree);
+		double velProjected = mp->velLinear * cos(mp->roadDegree - mp->camDegree) * velM;
 		mp->posX += velProjected * cos(mp->roadDegree);
 		mp->posY += velProjected * sin(mp->roadDegree);
 		
@@ -250,10 +262,12 @@ Uint32 Map::move(Uint32 interval, void* para) {
 	
 
 	//rotate camera
-	mp->camDegree += mp->velAngular;
+	mp->camDegree += mp->velAngular / velM ;
 	
 	if((mp->camDegree <= mp->roadDegree - MAX_ROTATE_DEGREE && mp->velAngular < 0) || (mp->camDegree >= mp->roadDegree + MAX_ROTATE_DEGREE && mp->velAngular >= 0))
 		mp->camDegree -= mp->velAngular;
+
+	cout << mp->velAngular / velM << endl;
 
 	//special road
 	if (mp->car.getRushing() != ACCROAD && (mp->lines[startpos].getType() == ACCELERATE_LEFT || mp->lines[startpos].getType() == ACCELERATE_RIGHT)) {

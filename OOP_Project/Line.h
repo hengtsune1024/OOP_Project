@@ -7,6 +7,7 @@
 class Line
 {
     double x, y, z; // 3d center of line
+    double border;
     double X, Y, W; // screen coord
     double curve;   // road turning
     double scale;   // needed in projection
