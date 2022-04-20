@@ -18,7 +18,7 @@
 
 //camera
 #define DEFAULT_CAMERA_DEPTH 0.96
-#define CAMERA_HEIGHT 1500
+#define CAMERA_HEIGHT 2000
 #define BEGINRUSH_CAMDEPTH 0.2
 #define AFTERRUSH_CAMDEPTH_RECOVER 0.01
 
@@ -29,21 +29,21 @@
 #define CHARGE_INTERVAL 50
 
 //speed
-#define MAX_FORWARD_SPEED 1200		//max car forward moving speed
-#define MAX_BACKWARD_SPEED 750		//max car backward moving speed
-#define RUSHBEGIN_SPEED 2000
-#define AFTERRUSH_SPEED_DECREASE 5
+#define MAX_FORWARD_SPEED 1600		//max car forward moving speed
+#define MAX_BACKWARD_SPEED 1000		//max car backward moving speed
+#define RUSHBEGIN_SPEED 2500
+#define AFTERRUSH_SPEED_DECREASE 3
 
 //acceleration
 #define ACCELERATION 80		//
-#define FRICTION_ACC 40
+#define FRICTION_ACC 70
 
 //rotation
 #define ROTATE 0.04			//car camera rotation
 #define MAX_ROTATE_DEGREE 0.785  // 45 degree
 
 //road
-#define ROAD_WIDTH 2000
+#define ROAD_WIDTH 4000
 #define SEGMENT_LENGTH 400
 
 //energy

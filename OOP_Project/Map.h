@@ -40,11 +40,9 @@ class Map
 
 	//timers
 	SDL_TimerID moveTimer;						// car moving timer
-	Uint32 moveInterval;						// the interval of moving timer
 	static Uint32 move(Uint32, void*);			// the function of car moving
 
 	SDL_TimerID accelerateTimer;				// car accelerating timer	
-	Uint32 accelerateInterval;					// the interval of accelerating timer
 	static Uint32 accelerate(Uint32, void*);	// the function of car accelerating
 
 	void removeTimer();							// remove all timers

@@ -66,7 +66,7 @@ void RacingCar::draw(SDL_Renderer* renderer)
 	else if (energy > 2.5)
 		roundedBoxColor(renderer, 13, 13, 13 + (WIDTH / 4 - 6) * (energy / 100.0), 27, 2, 0xff00ffff);
 	else
-		roundedBoxColor(renderer, 13, 13, 13 + (WIDTH / 4 - 6) * 0.02, 27, 1, 0xff00ffff);
+		roundedBoxColor(renderer, 13, 13, 13 + (WIDTH / 4 - 6) * 0.02, 27, 1, 0xff0000ff);
 }
 
 Uint32 RacingCar::changeData(Uint32 interval, void* param)
@@ -119,8 +119,9 @@ Uint32 RacingCar::charge(Uint32 interval, void* para) {
 
 	RacingCar* car = (RacingCar*)para;
 
-	if (car->fullEnergy)
+	if (car->fullEnergy){
 		return interval;
+	}
 
 	car->energy += ENERGY_RECOVER;
 	if (car->energy > 100.0) {
@@ -131,10 +132,15 @@ Uint32 RacingCar::charge(Uint32 interval, void* para) {
 	return interval;
 }
 
-void RacingCar::rush() {
-	isRushing = true;
-	fullEnergy = false;
-	energy = 0;
+void RacingCar::rush(bool r) {
+	if (r) {
+		isRushing = true;
+		fullEnergy = false;
+		energy = 0;
+	}
+	else {
+		isRushing = false;
+	}
 }
 
 

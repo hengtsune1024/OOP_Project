@@ -1,13 +1,13 @@
 #include "Map.h"
 
-Map::Map() {
-
-}
+Map::Map() : lines(NUM_LINE),
+number_of_lines(NUM_LINE), camDepth(DEFAULT_CAMERA_DEPTH), posX(INITIAL_POS* SEGMENT_LENGTH),
+velAngular(0), velLinear(0), roadDegree(0), camDegree(0), accLinear(0) 
+{}
 
 Map::Map(SDL_Renderer* renderer) : car("../images/pooh/", 22, renderer), lines(NUM_LINE),
 	number_of_lines(NUM_LINE), camDepth(DEFAULT_CAMERA_DEPTH), posX(INITIAL_POS* SEGMENT_LENGTH), 
-	velAngular(0), velLinear(0), roadDegree(0), camDegree(0), accLinear(0),
-	moveInterval(MOVE_INTERVAL), accelerateInterval(ACCELERATE_INTERVAL)
+	velAngular(0), velLinear(0), roadDegree(0), camDegree(0), accLinear(0)
 {
 	double x = 0, dx = 0;
 	for (int i = 0; i < NUM_LINE; ++i) {
@@ -60,7 +60,7 @@ void Map::rush()
 
 		velLinear = RUSHBEGIN_SPEED;
 		camDepth = BEGINRUSH_CAMDEPTH;
-		car.rush();
+		car.rush(true);
 		cout << "[Map] rush start" << endl;
 	}
 	else {
@@ -160,7 +160,7 @@ Uint32 Map::accelerate(Uint32 interval, void* para)
 		mp->velLinear -= AFTERRUSH_SPEED_DECREASE;
 		if (mp->velLinear < MAX_FORWARD_SPEED) {
 			mp->velLinear = MAX_FORWARD_SPEED;
-			mp->car.setRushing(false);
+			mp->car.rush(false);
 		}
 		mp->camDepth += AFTERRUSH_CAMDEPTH_RECOVER;
 		if (mp->camDepth > DEFAULT_CAMERA_DEPTH) {
@@ -193,8 +193,8 @@ void Map::turn(int d)
 
 void Map::startTimer() {
 
-	moveTimer = SDL_AddTimer(moveInterval, move, this);
-	accelerateTimer = SDL_AddTimer(accelerateInterval, accelerate, this);
+	moveTimer = SDL_AddTimer(MOVE_INTERVAL, move, this);
+	accelerateTimer = SDL_AddTimer(ACCELERATE_INTERVAL, accelerate, this);
 
 	car.startTimer(CAR_INTERVAL);
 }
