@@ -23,6 +23,7 @@ class RacingCar
 	SDL_TimerID chargeTimer;
 	static Uint32 charge(Uint32, void*);
 
+	double healthPoint;
 	double energy;
 	//state
 	RushType isRushing;

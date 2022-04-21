@@ -1,8 +1,8 @@
 #include "RacingCar.h"
-RacingCar::RacingCar():isRushing(NONE), fullEnergy(true), energy(100.0) 
+RacingCar::RacingCar():isRushing(NONE), fullEnergy(true), energy(100.0), healthPoint(100.0)
 {}
 RacingCar::RacingCar(const char* path, int n, SDL_Renderer* renderer): 
-	isRushing(NONE), fullEnergy(true), energy(100.0)
+	isRushing(NONE), fullEnergy(true), energy(100.0), healthPoint(100.0)
 {
 	num = n;
 	image = new Image[num];
@@ -66,6 +66,14 @@ void RacingCar::draw(SDL_Renderer* renderer)
 		roundedBoxColor(renderer, 13, 13, 13 + (WIDTH / 4 - 6) * (energy / 100.0), 27, 2, 0xff00ffff);
 	else
 		roundedBoxColor(renderer, 13, 13, 13 + (WIDTH / 4 - 6) * 0.02, 27, 1, 0xff0000ff);
+
+	//HP bottle
+	roundedBoxColor(renderer, 10, 43, 10 + WIDTH / 4, 63, 2, 0xff828282);
+	if (healthPoint > 2.5)
+		roundedBoxColor(renderer, 13, 46, 13 + (WIDTH / 4 - 6) * (healthPoint / 100.0), 60, 2, 0xff0000ff);
+	else
+		roundedBoxColor(renderer, 13, 46, 13 + (WIDTH / 4 - 6) * 0.02, 60, 1, 0xff0000ff);
+
 }
 
 Uint32 RacingCar::changeData(Uint32 interval, void* param)
