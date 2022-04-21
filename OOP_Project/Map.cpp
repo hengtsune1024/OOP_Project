@@ -122,7 +122,8 @@ void Map::draw(SDL_Renderer* renderer)
 	int maxy = HEIGHT;
 
 	//road and ground
-	Uint32 grass, rumble, road;
+	Uint32 grass, rumble, road, laneLine;
+	laneLine = 0xffffffff;
 	bool f = true;
 
 	boxColor(renderer, 0, HEIGHT / 2, WIDTH, HEIGHT, 0xff10c810);
@@ -148,6 +149,8 @@ void Map::draw(SDL_Renderer* renderer)
 			continue;
 
 		maxy = l.getY();
+
+		//grass
 		grass = (i >> 2) & 1 ? 0xff10c810 : 0xff009A00;
 		drawQuad(renderer, { grass,  WIDTH / 2, p.getY(), WIDTH / 2, WIDTH / 2, l.getY(), WIDTH / 2 });
 
@@ -159,6 +162,10 @@ void Map::draw(SDL_Renderer* renderer)
 				road = (i >> 2) & 1 ? 0xff6b6b6b : 0xff696969;
 				drawQuad(renderer, { rumble, p.getX(), p.getY(), p.getW() * 1.2, l.getX(), l.getY(), l.getW() * 1.2 });
 				drawQuad(renderer, { road, p.getX(), p.getY(), p.getW(), l.getX(), l.getY(), l.getW() });
+
+				if ((i >> 3) & 1) {
+					drawQuad(renderer, { laneLine, p.getX(), p.getY(), p.getW() * LANELINE_WIDTH / ROAD_WIDTH, l.getX(), l.getY(),l.getW() * LANELINE_WIDTH / ROAD_WIDTH });
+				}
 				break;
 
 			case ENDPOINT:
@@ -186,6 +193,10 @@ void Map::draw(SDL_Renderer* renderer)
 				drawQuad(renderer, { rumble, p.getX(), p.getY(), p.getW() * 1.2, l.getX(), l.getY(), l.getW() * 1.2 });
 				drawQuad(renderer, { road, p.getX(), p.getY(), p.getW(), l.getX(), l.getY(), l.getW() });
 				drawQuad(renderer, { accRoad, p.getX() + sign * p.getW() / 2, p.getY(), p.getW() / 2, l.getX() + sign * l.getW() / 2, l.getY(), l.getW() / 2 });
+
+				if ((i >> 3) & 1) {
+					drawQuad(renderer, { laneLine, p.getX(), p.getY(), p.getW() * LANELINE_WIDTH / ROAD_WIDTH, l.getX(), l.getY(),l.getW() * LANELINE_WIDTH / ROAD_WIDTH });
+				}
 			}
 				break;
 		}

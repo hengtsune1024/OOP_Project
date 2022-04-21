@@ -50,6 +50,7 @@
 #define SEGMENT_LENGTH 400
 #define ACCROAD_LENGHT 20
 #define ROAD_BORDER (2.5 * ROAD_WIDTH)
+#define LANELINE_WIDTH 150
 
 //energy
 #define ENERGY_RECOVER 0.2
