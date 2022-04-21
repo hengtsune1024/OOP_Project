@@ -33,6 +33,8 @@ class Map
 	double roadDegree;		// the degree from x-axis to the road vector (from current segment to the next segment) 
 	double camDepth;
 
+	double velM;
+
 	double camHeight;
 
 	//road

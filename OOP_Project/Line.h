@@ -7,7 +7,6 @@
 class Line
 {
     double x, y, z; // 3d center of line
-    double border;
     double X, Y, W; // screen coord
     double curve;   // road turning
     double scale;   // needed in projection
@@ -37,7 +36,7 @@ public:
     void setSprite(Image* i, double sX) { sprite = i; spriteX = sX; }
     void setClip(double c) { clip = c; }
 
-    void project(int camX, int camY, int camZ, double camDegree, double camDepth);
+    void project(int camX, int camY, int camZ, double camDegree, double camDepth,double);
     void drawSprite(SDL_Renderer*);
 };
 

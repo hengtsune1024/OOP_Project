@@ -29,7 +29,7 @@
 #define CHARGE_INTERVAL 50
 
 //speed
-#define MAX_FORWARD_SPEED 1600		//max car forward moving speed
+#define MAX_FORWARD_SPEED 1800		//max car forward moving speed
 #define MAX_BACKWARD_SPEED 1000		//max car backward moving speed
 #define AFTERRUSH_SPEED_DECREASE 3
 
@@ -38,17 +38,18 @@
 #define ACCROAD_RUSHBEGIN_SPEED 2000
 
 //acceleration
-#define ACCELERATION 160		//
-#define FRICTION_ACC 70
+#define ACCELERATION 150		//
+#define FRICTION_ACC 30
 
 //rotation
 #define ROTATE 0.04			//car camera rotation
-#define MAX_ROTATE_DEGREE 0.785  // 45 degree
+#define MAX_ROTATE_DEGREE 0.52  // 30 degree
 
 //road
 #define ROAD_WIDTH 4000
 #define SEGMENT_LENGTH 400
 #define ACCROAD_LENGHT 20
+#define ROAD_BORDER (2.5 * ROAD_WIDTH)
 
 //energy
 #define ENERGY_RECOVER 0.2
