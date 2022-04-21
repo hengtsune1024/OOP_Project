@@ -68,11 +68,11 @@ void RacingCar::draw(SDL_Renderer* renderer)
 		roundedBoxColor(renderer, 13, 13, 13 + (WIDTH / 4 - 6) * 0.02, 27, 1, 0xff0000ff);
 
 	//HP bottle
-	roundedBoxColor(renderer, 10, 43, 10 + WIDTH / 4, 63, 2, 0xff828282);
+	roundedBoxColor(renderer, 10, 40, 10 + WIDTH / 4, 60, 2, 0xff828282);
 	if (healthPoint > 2.5)
-		roundedBoxColor(renderer, 13, 46, 13 + (WIDTH / 4 - 6) * (healthPoint / 100.0), 60, 2, 0xff0000ff);
+		roundedBoxColor(renderer, 13, 43, 13 + (WIDTH / 4 - 6) * (healthPoint / 100.0), 57, 2, 0xff0000ff);
 	else
-		roundedBoxColor(renderer, 13, 46, 13 + (WIDTH / 4 - 6) * 0.02, 60, 1, 0xff0000ff);
+		roundedBoxColor(renderer, 13, 43, 13 + (WIDTH / 4 - 6) * 0.02, 57, 1, 0xff0000ff);
 
 }
 
