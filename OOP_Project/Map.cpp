@@ -75,7 +75,7 @@ Map::~Map() {
 void Map::quit() {
 	removeTimer();
 	car.quit();
-	//delete[]car;
+	tree.close();
 	std::cout << "[Map] Map closed" << endl;
 }
 
@@ -201,7 +201,7 @@ void Map::draw(SDL_Renderer* renderer)
 			break;
 
 		lines[i].drawSprite(renderer);
-		filledCircleColor(renderer, lines[i].getX(), lines[i].getY(), 2, 0xffffffff);
+		//filledCircleColor(renderer, lines[i].getX(), lines[i].getY(), 2, 0xffffffff);
 	}
 
 	//car
@@ -217,11 +217,16 @@ Uint32 Map::move(Uint32 interval, void* para) {
 	mp->roadDegree = atan((mp->lines[startpos + 1].getx() - mp->lines[startpos].getx()) / (mp->lines[startpos + 1].getz() - mp->lines[startpos].getz()));
 
 	mp->velM = (sin(mp->roadDegree) * (mp->lines[startpos + 1].getx() - mp->lines[startpos].getx()) + cos(mp->roadDegree) * SEGMENT_LENGTH) / SEGMENT_LENGTH;
+	double punish = 1;
 		//cout << mp->lines[startpos + 1].getx() - mp->lines[startpos].getx() << " " << velM << " ";
-	
+	if (mp->posY > mp->lines[startpos].getx() + ROAD_WIDTH * mp->velM || mp->posY < mp->lines[startpos].getx() - ROAD_WIDTH * mp->velM) {
+		punish =   (ROAD_WIDTH * mp->velM)/ (mp->posY - mp->lines[startpos].getx());
+		if (punish < 0)
+			punish = -punish;
+	}
 	double velX, velY;
-	velX = mp->velLinear * cos(mp->camDegree) * mp->velM;
-	velY = mp->velLinear * sin(mp->camDegree) * mp->velM;
+	velX = mp->velLinear * cos(mp->camDegree) * mp->velM * punish;
+	velY = mp->velLinear * sin(mp->camDegree) * mp->velM * punish;
 	
 	//move in x-direction
 	mp->posX += velX;
@@ -252,7 +257,7 @@ Uint32 Map::move(Uint32 interval, void* para) {
 			++endpos;
 		double roadD = atan((mp->lines[endpos].getx() - mp->lines[startpos].getx()) / (mp->lines[endpos].getz() - mp->lines[startpos].getz()));
 
-		double velProjected = mp->velLinear * cos(roadD - mp->camDegree) * mp->velM;
+		double velProjected = mp->velLinear * cos(roadD - mp->camDegree) * mp->velM* punish;
 		mp->posX += velProjected * cos(roadD);
 		mp->posY += velProjected * sin(roadD);
 		endpos = mp->posX / SEGMENT_LENGTH;
@@ -277,6 +282,8 @@ Uint32 Map::move(Uint32 interval, void* para) {
 			mp->rush(ACCROAD);
 		}
 	}
+
+	
 	//cout << mp->camDegree - mp->roadDegree << endl;
 	return interval;
 }
