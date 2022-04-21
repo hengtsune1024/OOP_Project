@@ -193,11 +193,11 @@ void Map::draw(SDL_Renderer* renderer)
 	//sprite
 	for (int i = startpos + 300; i > startpos; --i) {
 
-		if (i < 1) {
-			i = 0;
+		if (i >= number_of_lines) {
+			i = number_of_lines;
 			continue;
 		}
-		else if (i >= number_of_lines)
+		else if (i < 1)
 			break;
 
 		lines[i].drawSprite(renderer);
@@ -272,7 +272,14 @@ Uint32 Map::move(Uint32 interval, void* para) {
 	
 	if ((mp->camDegree <= mp->roadDegree - MAX_ROTATE_DEGREE / mp->velM && mp->velAngular <= 0) || (mp->camDegree >= mp->roadDegree + MAX_ROTATE_DEGREE / mp->velM && mp->velAngular >= 0)) {
 		mp->camDegree -= mp->velAngular / mp->velM;
+		if (mp->camDegree <= mp->roadDegree - MAX_ROTATE_DEGREE / mp->velM) {
+			mp->camDegree = mp->roadDegree - MAX_ROTATE_DEGREE / mp->velM;
+		}
+		else if (mp->camDegree >= mp->roadDegree + MAX_ROTATE_DEGREE / mp->velM) {
+			mp->camDegree = mp->roadDegree + MAX_ROTATE_DEGREE / mp->velM;
+		}
 	}
+
 	//special road
 	if (mp->car.getRushing() != ACCROAD && (mp->lines[startpos].getType() == ACCELERATE_LEFT || mp->lines[startpos].getType() == ACCELERATE_RIGHT)) {
 		if (mp->lines[startpos].getType() == ACCELERATE_LEFT && (mp->posY < mp->lines[startpos].getx() && mp->posY > mp->lines[startpos].getx() - ROAD_WIDTH * mp->velM)) {
@@ -294,7 +301,13 @@ Uint32 Map::accelerate(Uint32 interval, void* para)
 
 	if (mp->car.getRushing()) //excpet RushType == NONE(0), other types will go here
 	{
-		mp->velLinear -= AFTERRUSH_SPEED_DECREASE;
+		double speedDecrease = AFTERRUSH_SPEED_DECREASE;
+		if (mp->accLinear < 0)
+			++speedDecrease;
+		if (mp->accLinear < -FRICTION_ACC)
+			++speedDecrease;
+
+		mp->velLinear -= speedDecrease;
 		if (mp->velLinear < MAX_FORWARD_SPEED) {
 			mp->velLinear = MAX_FORWARD_SPEED;
 			if (mp->accLinear == 0)
