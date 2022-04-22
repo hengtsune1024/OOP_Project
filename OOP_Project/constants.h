@@ -27,6 +27,7 @@
 #define ACCELERATE_INTERVAL 50
 #define CAR_INTERVAL 50
 #define CHARGE_INTERVAL 50
+#define TRAP_INTERVAL 50
 
 //speed
 #define MAX_FORWARD_SPEED 1800		//max car forward moving speed
@@ -51,16 +52,20 @@
 #define ACCROAD_LENGHT 20
 #define ROAD_BORDER (2.5 * ROAD_WIDTH)
 #define LANELINE_WIDTH 150
+#define TRAP_WIDTH 1000
 
 //energy
 #define ENERGY_RECOVER 0.2
 
 //road type (used in Line class)
 enum RoadType {
-	NORMAL, ENDPOINT, TOOLAREA, ACCELERATE_RIGHT, ACCELERATE_LEFT
+	NORMAL, ENDPOINT, TOOLAREA, ACCELERATE_RIGHT, ACCELERATE_LEFT, TRAPAREA
 };
 enum RushType {
 	NONE, ENERGY, ACCROAD, TOOL
+};
+enum TrapType {
+	STAIN, DIZZY, LOST
 };
 /*
 

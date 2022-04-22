@@ -14,7 +14,7 @@ class RacingCar
 	int frame;
 	int x;
 	int y;
-	SDL_TimerID timerID;
+	SDL_TimerID cartimer;
 	Uint32 time;
 	static Uint32 changeData(Uint32 interval, void* param); // Timer callback 
 	int direct;

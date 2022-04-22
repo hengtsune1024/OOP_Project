@@ -5,11 +5,13 @@
 #include "constants.h"
 #include "Line.h"
 #include "RacingCar.h"
+#include "Trap.h"
 #include <vector>
 #include <cmath>
 using namespace std;
 
 class RacingCar;
+class Trap;
 
 struct Quad {
 	Uint32 color;
@@ -56,7 +58,10 @@ class Map
 
 	//sprites
 	Image tree;
-	 
+	
+	//trap
+	Trap virus;
+
 public:
 
 	Map();					// default constructor (initialize nothing)
@@ -82,6 +87,7 @@ public:
 	void quit();				// quit every member that need to be quit
 	void draw(SDL_Renderer*);	// draw the map, car, and tools, etc.
 	void rush(RushType);
+	void gettrap(Trap &);
 };
 
 // unused code
