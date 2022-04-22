@@ -7,7 +7,7 @@ velAngular(0), velLinear(0), roadDegree(0), camDegree(0), accLinear(0), camHeigh
 
 Map::Map(SDL_Renderer* renderer) : car("../images/pooh/", 22, renderer), lines(NUM_LINE), tree("../images/1.png", renderer),
 	number_of_lines(NUM_LINE), camDepth(DEFAULT_CAMERA_DEPTH), posX(INITIAL_POS* SEGMENT_LENGTH), 
-	velAngular(0), velLinear(0), roadDegree(0), camDegree(0), accLinear(0), camHeight(CAMERA_HEIGHT), velM(1)
+	velAngular(0), velLinear(0), roadDegree(0), camDegree(0), accLinear(0), camHeight(CAMERA_HEIGHT), velM(1), virus("../images/coronavirus/", 15, renderer)
 {
 	double x = 0, dx = 0;
 
@@ -48,6 +48,10 @@ Map::Map(SDL_Renderer* renderer) : car("../images/pooh/", 22, renderer), lines(N
 		if ((i & 31) == 0) {    // same as i % 32
 			lines[i].setSprite(&tree, 2.5);
 		}
+
+		if (i == 300)
+			virus.setTrap(&lines[i]);
+		
 	}
 
 	//type
@@ -60,6 +64,9 @@ Map::Map(SDL_Renderer* renderer) : car("../images/pooh/", 22, renderer), lines(N
 		lines[i].setType(ACCELERATE_RIGHT);
 	for (int i = 1800; i < 1800 + ACCROAD_LENGHT; ++i)
 		lines[i].setType(ACCELERATE_LEFT);
+	
+	for(int i=295;i<300;i++)
+		lines[i].setType(TRAPAREA);
 
 	posY = lines[INITIAL_POS].getx();
 	std::cout << "[Map] Map initialized" << endl;
@@ -75,6 +82,7 @@ Map::~Map() {
 void Map::quit() {
 	removeTimer();
 	car.quit();
+	virus.quit();
 	tree.close();
 	std::cout << "[Map] Map closed" << endl;
 }
@@ -139,7 +147,7 @@ void Map::draw(SDL_Renderer* renderer)
 
 		Line& l = lines[i];
 		Line p = lines[i - 1];
-		l.project(posY, camH, posX, camDegree, camDepth,roadDegree);
+		l.project(posY, camH, posX, camDegree, camDepth, roadDegree);
 		//l.project(lines[startpos+5].getx(), camH, lines[startpos+5].getz(), camDegree, camDepth, roadDegree);
 		if (l.getW() < 1e-6 && l.getW() > -1e-6)
 			continue;
@@ -154,10 +162,11 @@ void Map::draw(SDL_Renderer* renderer)
 		grass = (i >> 2) & 1 ? 0xff10c810 : 0xff009A00;
 		drawQuad(renderer, { grass,  WIDTH / 2, p.getY(), WIDTH / 2, WIDTH / 2, l.getY(), WIDTH / 2 });
 
+		//road type 
 		switch (lines[i].getType()) 
 		{
 			case NORMAL:
-
+			case TRAPAREA:
 				rumble = (i >> 2) & 1 ? 0xffffffff : 0xff000000;
 				road = (i >> 2) & 1 ? 0xff6b6b6b : 0xff696969;
 				drawQuad(renderer, { rumble, p.getX(), p.getY(), p.getW() * 1.2, l.getX(), l.getY(), l.getW() * 1.2 });
@@ -199,8 +208,15 @@ void Map::draw(SDL_Renderer* renderer)
 				}
 			}
 				break;
+			
+			/*case TRAPAREA:
+			{
+
+			}*/
+
 		}
 	}
+
 	//sprite
 	for (int i = startpos + 300; i > startpos; --i) {
 
@@ -213,6 +229,9 @@ void Map::draw(SDL_Renderer* renderer)
 
 		lines[i].drawSprite(renderer);
 		//filledCircleColor(renderer, lines[i].getX(), lines[i].getY(), 2, 0xffffffff);
+		
+		virus.draw(renderer, &lines[i]);
+		//lines[i].drawActSprite(renderer, 0);
 	}
 
 	//car
@@ -305,6 +324,13 @@ Uint32 Map::move(Uint32 interval, void* para) {
 		}
 	}
 
+	//trap
+	if (mp->lines[startpos].getType() == TRAPAREA && mp->posY < mp->lines[startpos].getx() + TRAP_WIDTH * mp->velM && mp->posY > mp->lines[startpos].getx() - TRAP_WIDTH * mp->velM)
+		mp->virus.gettrap(STAIN);
+
+	
+	
+	//cout << mp->camDegree - mp->roadDegree << endl;
 	return interval;
 }
 
@@ -364,13 +390,13 @@ void Map::startTimer() {
 	moveTimer = SDL_AddTimer(MOVE_INTERVAL, move, this);
 	accelerateTimer = SDL_AddTimer(ACCELERATE_INTERVAL, accelerate, this);
 
+	virus.startTimer(TRAP_INTERVAL);
 	car.startTimer(CAR_INTERVAL);
 }
 
 void Map::removeTimer() {
 	SDL_RemoveTimer(moveTimer);
 	SDL_RemoveTimer(accelerateTimer);
-	car.stopTimer();
 }
 
 /*

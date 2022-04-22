@@ -27,7 +27,7 @@ void RacingCar::quit()
 	}
 
 	// Remove timer in case the call back was not called	
-	SDL_RemoveTimer(timerID);
+	SDL_RemoveTimer(cartimer);
 	SDL_RemoveTimer(chargeTimer);
 }
 
@@ -108,7 +108,7 @@ Uint32 RacingCar::changeData(Uint32 interval, void* param)
 void RacingCar::startTimer(Uint32 t)
 {
 	time = t;
-	timerID = SDL_AddTimer(time, changeData, this); // Set Timer callback
+	cartimer = SDL_AddTimer(time, changeData, this); // Set Timer callback
 
 	chargeTimer = SDL_AddTimer(CHARGE_INTERVAL, charge, this);
 }

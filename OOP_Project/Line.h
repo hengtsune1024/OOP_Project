@@ -14,6 +14,7 @@ class Line
     double clip;
     RoadType type;    
     Image* sprite;
+    Image* actsprite;
 
 public:
 
@@ -38,5 +39,9 @@ public:
 
     void project(int camX, int camY, int camZ, double camDegree, double camDepth,double);
     void drawSprite(SDL_Renderer*);
+    
+    void setActSprite(Image* i, double sX) { actsprite = i; spriteX = sX; }
+    void drawActSprite(SDL_Renderer*, int);
+
 };
 
