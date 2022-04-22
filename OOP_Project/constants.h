@@ -39,7 +39,7 @@
 
 //acceleration
 #define ACCELERATION 150		//
-#define FRICTION_ACC 30
+#define FRICTION_ACC 20
 
 //rotation
 #define ROTATE 0.04			//car camera rotation

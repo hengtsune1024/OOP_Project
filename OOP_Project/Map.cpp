@@ -225,9 +225,11 @@ Uint32 Map::move(Uint32 interval, void* para) {
 	
 	//velocity modification
 	int startpos = mp->posX / SEGMENT_LENGTH;
-	mp->roadDegree = atan((mp->lines[startpos + 1].getx() - mp->lines[startpos].getx()) / (mp->lines[startpos + 1].getz() - mp->lines[startpos].getz()));
+	mp->roadDegree = atan((mp->lines[startpos + 1].getx() - mp->lines[startpos].getx()) / SEGMENT_LENGTH);
 
 	mp->velM = (sin(mp->roadDegree) * (mp->lines[startpos + 1].getx() - mp->lines[startpos].getx()) + cos(mp->roadDegree) * SEGMENT_LENGTH) / SEGMENT_LENGTH;
+
+	//speed punishment
 	double punish = 1;
 		//cout << mp->lines[startpos + 1].getx() - mp->lines[startpos].getx() << " " << velM << " ";
 	if (mp->posY > mp->lines[startpos].getx() + ROAD_WIDTH * mp->velM || mp->posY < mp->lines[startpos].getx() - ROAD_WIDTH * mp->velM) {
@@ -235,6 +237,7 @@ Uint32 Map::move(Uint32 interval, void* para) {
 		if (punish < 0)
 			punish = -punish;
 	}
+
 	double velX, velY;
 	velX = mp->velLinear * cos(mp->camDegree) * mp->velM * punish;
 	velY = mp->velLinear * sin(mp->camDegree) * mp->velM * punish;
@@ -259,23 +262,24 @@ Uint32 Map::move(Uint32 interval, void* para) {
 	
 	if ((mp->posY < mp->lines[startpos].getx() - ROAD_BORDER * mp->velM) || (mp->posY > mp->lines[startpos].getx() + ROAD_BORDER * mp->velM))
 	{
-		int endpos = mp->posX / SEGMENT_LENGTH;
-
 		mp->posY -= velY;
 		mp->posX -= velX;
 
-		if (endpos == startpos)
-			++endpos;
-		double roadD = atan((mp->lines[endpos].getx() - mp->lines[startpos].getx()) / (mp->lines[endpos].getz() - mp->lines[startpos].getz()));
+		int originpos = mp->posX / SEGMENT_LENGTH;		//startpos after moving, endpos is original
+		if (originpos == startpos)
+			++originpos;
 
-		double velProjected = mp->velLinear * cos(roadD - mp->camDegree) * mp->velM* punish;
+		double roadD = atan((mp->lines[startpos].getx() - mp->lines[originpos].getx()) / (mp->lines[startpos].getz() - mp->lines[originpos].getz()));
+
+		double velProjected = mp->velLinear * cos(roadD - mp->camDegree) * mp->velM * punish;
 		mp->posX += velProjected * cos(roadD);
 		mp->posY += velProjected * sin(roadD);
-		endpos = mp->posX / SEGMENT_LENGTH;
-		if (mp->posY < mp->lines[endpos].getx() - ROAD_BORDER * mp->velM)
-			mp->posY = mp->lines[endpos].getx() - ROAD_BORDER * mp->velM;
-		else if (mp->posY > mp->lines[endpos].getx() + ROAD_BORDER * mp->velM)
-			mp->posY = mp->lines[endpos].getx() + ROAD_BORDER * mp->velM;
+
+		originpos = mp->posX / SEGMENT_LENGTH;
+		if (mp->posY < mp->lines[originpos].getx() - ROAD_BORDER * mp->velM)
+			mp->posY = mp->lines[originpos].getx() - ROAD_BORDER * mp->velM;
+		else if (mp->posY > mp->lines[originpos].getx() + ROAD_BORDER * mp->velM)
+			mp->posY = mp->lines[originpos].getx() + ROAD_BORDER * mp->velM;
 		
 	}
 	//rotate camera
@@ -301,8 +305,6 @@ Uint32 Map::move(Uint32 interval, void* para) {
 		}
 	}
 
-	
-	//cout << mp->camDegree - mp->roadDegree << endl;
 	return interval;
 }
 
