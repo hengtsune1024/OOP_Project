@@ -23,6 +23,7 @@ public:
 	void startTimer(Uint32 t);
 	void stopTimer();
 	void setEntity(Line *line);
+	void drawImg(SDL_Renderer*, Line*);	
 	
 
 protected:
@@ -33,7 +34,6 @@ protected:
 	void setState(int s) { state = s; }
 
 	void closeImg();
-	void drawImg(SDL_Renderer*, Line *);
 
 	
 };

@@ -230,9 +230,14 @@ void Map::draw(SDL_Renderer* renderer)
 		lines[i].drawSprite(renderer);
 		//filledCircleColor(renderer, lines[i].getX(), lines[i].getY(), 2, 0xffffffff);
 		
-		virus.draw(renderer, &lines[i]);
+		//virus.draw(renderer, &lines[i]);
+		virus.drawImg(renderer, &lines[i]);		//i changed drawImg in entity to public, so that we can directly use it here
 		//lines[i].drawActSprite(renderer, 0);
 	}
+
+	/**************************/
+	virus.drawStain(renderer);	//only draws stain
+	/**************************/
 
 	//car
 	car.draw(renderer);

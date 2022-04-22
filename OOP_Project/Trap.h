@@ -27,8 +27,10 @@ public:
 
 	int getWidth();
 	int getHeight();
-	void draw(SDL_Renderer* renderer, Line*);
+	//void draw(SDL_Renderer* renderer, Line*);
 	void gettrap(TrapType);
+
+	void drawStain(SDL_Renderer* renderer);
 	
 };
 

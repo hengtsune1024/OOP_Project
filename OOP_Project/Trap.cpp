@@ -16,14 +16,18 @@ Trap::Trap(const char* path, int n, SDL_Renderer* renderer) :stain("../images/st
 void Trap::setTrap(Line *line) {
 	setEntity(line);
 }
+/*
 void Trap::draw(SDL_Renderer* renderer, Line *line) {
+	
+	drawImg(renderer, line);
+}
+*/
+void Trap::drawStain(SDL_Renderer* renderer) {
 	if (staintime != 0)
 	{
-		stain.draw(renderer, {NULL}, {NULL});
+		stain.draw(renderer, { NULL }, { NULL });
 		staintime--;
 	}
-		
-	drawImg(renderer, line);
 }
 
 void Trap::gettrap(TrapType type) {
