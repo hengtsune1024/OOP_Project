@@ -5,9 +5,10 @@ number_of_lines(NUM_LINE), camDepth(DEFAULT_CAMERA_DEPTH), posX(INITIAL_POS* SEG
 velAngular(0), velLinear(0), roadDegree(0), camDegree(0), accLinear(0), camHeight(CAMERA_HEIGHT), velM(1)
 {}
 
-Map::Map(SDL_Renderer* renderer) : car("../images/pooh/", 22, renderer), lines(NUM_LINE), tree("../images/1.png", renderer),
+Map::Map(SDL_Renderer* renderer) : car("../images/pooh/", 22, renderer), lines(NUM_LINE), velM(1), virus("../images/coronavirus/", 15, renderer),
+	tree("../images/1.png", renderer), moon("../images/moon.png", renderer),
 	number_of_lines(NUM_LINE), camDepth(DEFAULT_CAMERA_DEPTH), posX(INITIAL_POS* SEGMENT_LENGTH), 
-	velAngular(0), velLinear(0), roadDegree(0), camDegree(0), accLinear(0), camHeight(CAMERA_HEIGHT), velM(1), virus("../images/coronavirus/", 15, renderer)
+	velAngular(0), velLinear(0), roadDegree(0), camDegree(0), accLinear(0), camHeight(CAMERA_HEIGHT)
 {
 	double x = 0, dx = 0;
 
@@ -47,10 +48,12 @@ Map::Map(SDL_Renderer* renderer) : car("../images/pooh/", 22, renderer), lines(N
 			lines[i].setSprite(&tree, 2.5);
 		}
 
-		if (i == 300)
-			virus.setTrap(&lines[i]);
+		//if (i == 300)
+		//	virus.setTrap(&lines[i]);
 		
 	}
+
+	virus.setTrap(&lines[300]);
 
 	//type
 	for (int i = INITIAL_POS - 10; i < INITIAL_POS + 22; ++i)
@@ -133,6 +136,10 @@ void Map::draw(SDL_Renderer* renderer)
 	static int colorChange = 0;
 
 	boxColor(renderer, 0, HEIGHT / 2, WIDTH, HEIGHT, 0xff10c810);
+	double moonW = moon.getWidth();
+	SDL_Rect dst = { (1 - sin(camDegree) * 1.2) * WIDTH / 2 - moonW / 2,30,moonW,moon.getHeight() };
+	if (dst.x > -moonW && dst.x < WIDTH)
+		moon.draw(renderer, NULL, &dst);
 
 	for (int i = startpos - 50; i < startpos + 300; ++i) {
 

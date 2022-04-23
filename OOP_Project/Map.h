@@ -56,8 +56,9 @@ class Map
 	//car
 	RacingCar car;								// the car in the map
 
-	//sprites
+	//images
 	Image tree;
+	Image moon;
 	
 	//trap
 	Trap virus;

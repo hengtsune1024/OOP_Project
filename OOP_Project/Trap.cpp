@@ -25,7 +25,8 @@ void Trap::draw(SDL_Renderer* renderer, Line *line) {
 void Trap::drawStain(SDL_Renderer* renderer) {
 	if (staintime != 0)
 	{
-		stain.draw(renderer, { NULL }, { NULL });
+		//stain.draw(renderer, { NULL }, { NULL });
+		stain.draw(renderer, NULL, NULL);
 		staintime--;
 	}
 }
