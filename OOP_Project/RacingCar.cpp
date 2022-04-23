@@ -83,19 +83,19 @@ Uint32 RacingCar::changeData(Uint32 interval, void* param)
 	{
 		if (p->direct == 0)
 		{
-			if (p->frame > 10)
+			if (p->frame > p->num / 2)
 				p->frame--;
-			else if (p->frame < 10)
+			else if (p->frame < p->num / 2)
 				p->frame++;
 		}
 		else if (p->direct == -1)
 		{
-			if (p->frame > 1)
+			if (p->frame > 0)
 				p->frame--;
 		}
 		else if (p->direct == 1)
 		{
-			if (p->frame < 21)
+			if (p->frame < p->num - 1)
 				p->frame++;
 		}
 		return interval;

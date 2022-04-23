@@ -5,7 +5,7 @@ number_of_lines(NUM_LINE), camDepth(DEFAULT_CAMERA_DEPTH), posX(INITIAL_POS* SEG
 velAngular(0), velLinear(0), roadDegree(0), camDegree(0), accLinear(0), camHeight(CAMERA_HEIGHT), velM(1)
 {}
 
-Map::Map(SDL_Renderer* renderer) : car("../images/pooh/", 22, renderer), lines(NUM_LINE), velM(1), virus("../images/coronavirus/", 15, renderer),
+Map::Map(SDL_Renderer* renderer) : car("../images/RacingCar/racingcar", 13, renderer), lines(NUM_LINE), velM(1), virus("../images/coronavirus/", 15, renderer),
 	tree("../images/1.png", renderer), moon("../images/moon.png", renderer),
 	number_of_lines(NUM_LINE), camDepth(DEFAULT_CAMERA_DEPTH), posX(INITIAL_POS* SEGMENT_LENGTH), 
 	velAngular(0), velLinear(0), roadDegree(0), camDegree(0), accLinear(0), camHeight(CAMERA_HEIGHT)
@@ -72,7 +72,7 @@ Map::Map(SDL_Renderer* renderer) : car("../images/pooh/", 22, renderer), lines(N
 	posY = lines[INITIAL_POS].getx();
 	std::cout << "[Map] Map initialized" << endl;
 
-	car.setPosition(280, 380);
+	car.setPosition(WIDTH / 2 - car.getWidth() / 2, HEIGHT - car.getHeight() + 20);
 	car.turn(0);
 }
 
