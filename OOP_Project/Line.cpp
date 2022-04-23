@@ -3,7 +3,7 @@
 Line::Line() :curve(0), x(0), y(0), z(0), type(NORMAL), sprite(NULL), clip(0), actsprite(NULL)
 {}
 
-void Line::project(int camX, int camY, int camZ, double camDegree, double camDepth, double rd)
+void Line::project(int camX, int camY, int camZ, double camDegree, double camDepth)
 {
     double _x = x, _y = y - camY, _z = z - camZ;
     double co = cos(camDegree), si = sin(camDegree);
@@ -20,7 +20,6 @@ void Line::project(int camX, int camY, int camZ, double camDegree, double camDep
     X = (1 + scale * _x) * WIDTH / 2;
     Y = (1 - scale * _y) * HEIGHT / 2;
     W = scale * ROAD_WIDTH * WIDTH / 2;
-    
     //if (W > WIDTH)
     //    W = WIDTH;
     /*
@@ -28,7 +27,6 @@ void Line::project(int camX, int camY, int camZ, double camDegree, double camDep
     X = (1 + scale * (x - camX)) * WIDTH / 2;
     Y = (1 - scale * (y - camY)) * HEIGHT / 2;
     W = scale * ROAD_WIDTH * WIDTH / 2;*/
-
 }
 
 void Line::drawSprite(SDL_Renderer * renderer) {

@@ -1,9 +1,3 @@
-/*
-* The road model is almost completed
-* car cannot move out of the road side over the distance of ROAD_WIDTH 
-* the restriction on the degree of camera rotation is now depending on the road vector
-*/
-
 #include <iostream>
 #include <SDL.h>
 #include <SDL_image.h>
@@ -51,19 +45,23 @@ void eventHandler(SDL_Event& e, RenderWindow& w, Map& m) {
 	if (e.type == SDL_KEYDOWN && e.key.repeat == 0) {
 		switch (e.key.keysym.sym) {
 			case SDLK_UP:
+			case SDLK_w:
 				cout << "[Main] Press button UP" << endl;
 				m.setAccLinear(ACCELERATION);
 				break;
 			case SDLK_DOWN:
+			case SDLK_s:
 				cout << "[Main] Press button DOWN" << endl;
 				m.setAccLinear(-ACCELERATION);
 				break;
 			case SDLK_LEFT:
+			case SDLK_a:
 				cout << "[Main] Press button LEFT" << endl;
 				m.setVelAngular(m.getVelAngular() - ROTATE);
 				m.turn(-1);
 				break;
 			case SDLK_RIGHT:
+			case SDLK_d:
 				cout << "[Main] Press button RIGHT" << endl;
 				m.setVelAngular(m.getVelAngular() + ROTATE);
 				m.turn(1);
@@ -77,17 +75,21 @@ void eventHandler(SDL_Event& e, RenderWindow& w, Map& m) {
 	else if (e.type == SDL_KEYUP && e.key.repeat == 0) {
 		switch (e.key.keysym.sym) {
 			case SDLK_UP:
+			case SDLK_w:
 			case SDLK_DOWN:
+			case SDLK_s:
 				if (m.getVelLinear() > 0)
 					m.setAccLinear(-FRICTION_ACC);
 				else
 					m.setAccLinear(FRICTION_ACC);
 				break;
 			case SDLK_LEFT:
+			case SDLK_a:
 				m.setVelAngular(m.getVelAngular() + ROTATE);
 				m.turn(0);
 				break;
 			case SDLK_RIGHT:
+			case SDLK_d:
 				m.setVelAngular(m.getVelAngular() - ROTATE);
 				m.turn(0);
 				break;

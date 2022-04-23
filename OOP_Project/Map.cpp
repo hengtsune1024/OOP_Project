@@ -13,7 +13,7 @@ Map::Map(SDL_Renderer* renderer) : car("../images/pooh/", 22, renderer), lines(N
 
 	for (int i = 0; i < NUM_LINE; ++i) {
 
-		//curve
+		//curve, default = 0
 		if (i > 100 && i <= 300)		// range of turing road
 			lines[i].setCurve(0.9);
 		else if (i > 300 && i < 600)
@@ -28,13 +28,11 @@ Map::Map(SDL_Renderer* renderer) : car("../images/pooh/", 22, renderer), lines(N
 			lines[i].setCurve(-1.3);
 		
 			
-		// y
+		// y, default = 0
 		if (i > 300 && i < 1054)		//range of road up and down
 			lines[i].sety(sin((i - 300) / 30.0) * CAMERA_HEIGHT);
 		else if (i > 1200 && i < 2896)
 			lines[i].sety(sin((i - 1200) / 20.0) * (CAMERA_HEIGHT * 0.6));
-		else
-			lines[i].sety(0);
 
 		// x
 		x += dx;
@@ -147,7 +145,7 @@ void Map::draw(SDL_Renderer* renderer)
 
 		Line& l = lines[i];
 		Line p = lines[i - 1];
-		l.project(posY, camH, posX, camDegree, camDepth, roadDegree);
+		l.project(posY, camH, posX, camDegree, camDepth);
 		//l.project(lines[startpos+5].getx(), camH, lines[startpos+5].getz(), camDegree, camDepth, roadDegree);
 		if (l.getW() < 1e-6 && l.getW() > -1e-6)
 			continue;
@@ -202,11 +200,12 @@ void Map::draw(SDL_Renderer* renderer)
 
 				drawQuad(renderer, { rumble, p.getX(), p.getY(), p.getW() * 1.2, l.getX(), l.getY(), l.getW() * 1.2 });
 				drawQuad(renderer, { road, p.getX(), p.getY(), p.getW(), l.getX(), l.getY(), l.getW() });
-				drawQuad(renderer, { accRoad, p.getX() + sign * p.getW() / 2, p.getY(), p.getW() / 2, l.getX() + sign * l.getW() / 2, l.getY(), l.getW() / 2 });
 
 				if ((i >> 3) & 1) {
 					drawQuad(renderer, { laneLine, p.getX(), p.getY(), p.getW() * LANELINE_WIDTH / ROAD_WIDTH, l.getX(), l.getY(),l.getW() * LANELINE_WIDTH / ROAD_WIDTH });
 				}
+
+				drawQuad(renderer, { accRoad, p.getX() + sign * p.getW() / 2, p.getY(), p.getW() / 2, l.getX() + sign * l.getW() / 2, l.getY(), l.getW() / 2 });
 			}
 				break;
 			
@@ -254,7 +253,7 @@ Uint32 Map::move(Uint32 interval, void* para) {
 	mp->roadDegree = atan((mp->lines[startpos + 1].getx() - mp->lines[startpos].getx()) / SEGMENT_LENGTH);
 
 	mp->velM = (sin(mp->roadDegree) * (mp->lines[startpos + 1].getx() - mp->lines[startpos].getx()) + cos(mp->roadDegree) * SEGMENT_LENGTH) / SEGMENT_LENGTH;
-
+	
 	//speed punishment
 	double punish = 1;
 		//cout << mp->lines[startpos + 1].getx() - mp->lines[startpos].getx() << " " << velM << " ";
@@ -270,7 +269,7 @@ Uint32 Map::move(Uint32 interval, void* para) {
 	
 	//move in x-direction
 	mp->posX += velX;
-	if (mp->posX < 0 || mp->posX >= mp->number_of_lines * SEGMENT_LENGTH)
+	if (mp->posX < 0 || mp->posX > (mp->number_of_lines - 20) * SEGMENT_LENGTH)
 		mp->posX -= velX;	
 
 	/********* Do not move these codes ********/
