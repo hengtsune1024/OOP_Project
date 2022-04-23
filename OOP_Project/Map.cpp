@@ -132,7 +132,7 @@ void Map::draw(SDL_Renderer* renderer)
 	//road and ground
 	Uint32 grass, rumble, road, laneLine;
 	laneLine = 0xffffffff;
-	bool f = true;
+	static int colorChange = 0;
 
 	boxColor(renderer, 0, HEIGHT / 2, WIDTH, HEIGHT, 0xff10c810);
 
@@ -195,7 +195,8 @@ void Map::draw(SDL_Renderer* renderer)
 			{
 				rumble = (i >> 2) & 1 ? 0xffffffff : 0xff000000;
 				road = (i >> 2) & 1 ? 0xff6b6b6b : 0xff696969;
-				Uint32 accRoad = (i >> 1) & 1 ? 0xff00ffff : 0xff0000ff;
+				Uint32 accRoad = ((i - (colorChange >> 3)) >> 1) & 1 ? 0xff00ffff : 0xff0000ff;
+				
 
 				int sign = lines[i].getType() == ACCELERATE_RIGHT ? 1 : -1;
 
@@ -216,6 +217,7 @@ void Map::draw(SDL_Renderer* renderer)
 
 		}
 	}
+	colorChange = (colorChange + 2) & 31;
 
 	//sprite
 	for (int i = startpos + 300; i > startpos; --i) {
