@@ -243,12 +243,13 @@ void Map::draw(SDL_Renderer* renderer)
 		//lines[i].drawActSprite(renderer, 0);
 	}
 
+	//car
+	car.draw(renderer);
+
 	/**************************/
 	virus.drawStain(renderer);	//only draws stain
 	/**************************/
 
-	//car
-	car.draw(renderer);
 
 }
 
