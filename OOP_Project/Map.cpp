@@ -6,7 +6,7 @@ velAngular(0), velLinear(0), roadDegree(0), camDegree(0), accLinear(0), camHeigh
 {}
 
 Map::Map(SDL_Renderer* renderer) : car("../images/RacingCar/racingcar", 13, renderer), lines(NUM_LINE), velM(1), virus("../images/coronavirus/", 15, renderer),
-	tree("../images/1.png", renderer), moon("../images/moon.png", renderer),
+	streetlight("../images/streetlight.png", renderer), moon("../images/moon.png", renderer),
 	number_of_lines(NUM_LINE), camDepth(DEFAULT_CAMERA_DEPTH), posX(INITIAL_POS* SEGMENT_LENGTH), 
 	velAngular(0), velLinear(0), roadDegree(0), camDegree(0), accLinear(0), camHeight(CAMERA_HEIGHT)
 {
@@ -43,9 +43,9 @@ Map::Map(SDL_Renderer* renderer) : car("../images/RacingCar/racingcar", 13, rend
 		// z
 		lines[i].setz(i * SEGMENT_LENGTH);
 
-		//sprite
-		if ((i & 31) == 0) {    // same as i % 32
-			lines[i].setSprite(&tree, 2.5);
+		//sprite   
+		if ((i & 31) == 0) {	// same as i % 32
+			lines[i].setSprite(&streetlight, 2.5);
 		}
 
 		//if (i == 300)
@@ -84,7 +84,7 @@ void Map::quit() {
 	removeTimer();
 	car.quit();
 	virus.quit();
-	tree.close();
+	streetlight.close();
 	std::cout << "[Map] Map closed" << endl;
 }
 

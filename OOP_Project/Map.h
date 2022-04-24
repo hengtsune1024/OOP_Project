@@ -57,7 +57,7 @@ class Map
 	RacingCar car;								// the car in the map
 
 	//images
-	Image tree;
+	Image streetlight;
 	Image moon;
 	
 	//trap

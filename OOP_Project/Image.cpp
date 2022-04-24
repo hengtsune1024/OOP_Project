@@ -57,7 +57,7 @@ void Image::close()
 	SDL_DestroyTexture(texture);
 }
 
-void Image::draw(SDL_Renderer* renderer, SDL_Rect* src, SDL_Rect* dst)
+void Image::draw(SDL_Renderer* renderer, SDL_Rect* src, SDL_Rect* dst, bool flip)
 {	/*
 	SDL_Rect* d = &dst, * s = &src;
 
@@ -71,5 +71,9 @@ void Image::draw(SDL_Renderer* renderer, SDL_Rect* src, SDL_Rect* dst)
 		s = NULL;
 	}
 	*/
-	SDL_RenderCopy(renderer, texture, src, dst);
+	if (flip)
+		SDL_RenderCopyEx(renderer, texture, src, dst, 0, NULL, SDL_FLIP_HORIZONTAL);
+	else
+		SDL_RenderCopy(renderer, texture, src, dst);
+
 }

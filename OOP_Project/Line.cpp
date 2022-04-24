@@ -33,15 +33,15 @@ void Line::drawSprite(SDL_Renderer * renderer) {
     if (sprite == NULL)
         return;
     int w = sprite->getWidth(), h = sprite->getHeight();
-    double destX = X - scale * spriteX * WIDTH / 2 - 40;
+    double destX = X - scale * spriteX * WIDTH / 4;
     double destY = Y + 4;
-    double destW = w * W / 380.0 ;
-    double destH = h * W / 380.0 ;
+    double destW = w * W / 150.0 ;
+    double destH = h * W / 150.0 ;
 
     destX -= destW * spriteX;
     destY += -destH;
 
-    double clipH = destY + destH - clip - 2;
+    double clipH = destY + destH - clip - 1;
     if (clipH < 0) 
         clipH = 0;
 
@@ -52,10 +52,10 @@ void Line::drawSprite(SDL_Renderer * renderer) {
     SDL_Rect dst = { destX,destY,destW,destH - clipH };
     sprite->draw(renderer, &src, &dst);
 
-    destX = X + scale * spriteX * WIDTH / 2;
+    destX = X + scale * spriteX * WIDTH / 4 - 30;
     destX += destW * spriteX;
     dst.x = destX;
-    sprite->draw(renderer, &src, &dst);
+    sprite->draw(renderer, &src, &dst, true);
     
 }
 
