@@ -35,7 +35,7 @@ void Trap::gettrap(TrapType type) {
 	switch (type)
 	{
 		case STAIN:
-			staintime = 100000;
+			staintime = 500;
 			break;
 		case DIZZY:
 
