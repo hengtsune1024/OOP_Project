@@ -425,24 +425,6 @@ Uint32 Map::move(Uint32 interval, void* para)
 	int startpos = motion.posX / SEGMENT_LENGTH;
 	car->setRoadDegree(atan((map->lines[startpos + 1].getx() - map->lines[startpos].getx()) / SEGMENT_LENGTH));
 	
-	
-
-	car->setRoadMod(1);
-	if (car->isOutofRoad()) {
-		//car->setRoadMod(punish);
-	}
-	else if (map->lines[startpos].getType() == HIGH_FRICTION)
-		car->setRoadMod(0.6);
-	else if (map->lines[startpos].getType() == LOW_FRICTION)
-		car->setRoadMod(1.4);
-
-	car->setVelM(car->getRoadMod() * ((sin(motion.roadDegree) * (map->lines[startpos + 1].getx() - map->lines[startpos].getx()) + cos(motion.roadDegree) * SEGMENT_LENGTH) / SEGMENT_LENGTH));
-
-
-
-	//set car road type
-	car->setRoadType(map->lines[startpos].getType());
-
 	//speed punishment
 	double punish = 1.0;
 	//cout << map->lines[startpos + 1].getx() - map->lines[startpos].getx() << " " << velM << " ";
@@ -455,7 +437,51 @@ Uint32 Map::move(Uint32 interval, void* para)
 	else {
 		car->setOutofRoad(false);
 	}
-	
+
+	if (map->lines[startpos].getType() == HIGH_FRICTION) {
+		if (!car->isOutofRoad() && (motion.roadMod - 0.6 > 1e-6 || motion.roadMod - 0.6 < -1e-6)) {
+			if (motion.roadMod < 0.6)
+				car->setRoadMod(motion.roadMod + 0.1);
+			else
+				car->setRoadMod(motion.roadMod - 0.1);
+		}
+	}
+	else if (map->lines[startpos].getType() == LOW_FRICTION) {
+		if (!car->isOutofRoad() && (motion.roadMod - 1.3 > 1e-6 || motion.roadMod - 1.3 < -1e-6)) {
+			if (motion.roadMod < 1.3)
+				car->setRoadMod(motion.roadMod + 0.1);
+			else
+				car->setRoadMod(motion.roadMod - 0.1);
+		}
+	}
+	else {
+		if (motion.roadMod - 1 > 1e-6 || motion.roadMod - 1 < -1e-6) {
+			if (motion.roadMod < 1)
+				car->setRoadMod(motion.roadMod + 0.1);
+			else
+				car->setRoadMod(motion.roadMod - 0.1);
+		}
+	}
+
+	car->setVelM(car->getRoadMod() * (sin(motion.roadDegree) * (map->lines[startpos + 1].getx() - map->lines[startpos].getx()) + cos(motion.roadDegree) * SEGMENT_LENGTH) / SEGMENT_LENGTH);
+
+
+	//set car road type
+	car->setRoadType(map->lines[startpos].getType());
+	/*
+	//speed punishment
+	double punish = 1.0;
+	//cout << map->lines[startpos + 1].getx() - map->lines[startpos].getx() << " " << velM << " ";
+	if (motion.posY > map->lines[startpos].getx() + ROAD_WIDTH * motion.velM || motion.posY < map->lines[startpos].getx() - ROAD_WIDTH * motion.velM) {
+		punish = (ROAD_WIDTH * motion.velM) / (motion.posY - map->lines[startpos].getx());
+		if (punish < 0)
+			punish = -punish;
+		car->setOutofRoad(true);
+	}
+	else {
+		car->setOutofRoad(false);
+	}
+	*/
 	double velX, velY;
 	velX = motion.velLinear * cos(motion.camDegree) * motion.velM * punish;
 	velY = motion.velLinear * sin(motion.camDegree) * motion.velM * punish;
@@ -545,17 +571,25 @@ Uint32 Map::move(Uint32 interval, void* para)
 		startpos = motion.posX / SEGMENT_LENGTH;
 		car->setRoadDegree(atan((map->lines[startpos + 1].getx() - map->lines[startpos].getx()) / SEGMENT_LENGTH));
 
-
-
-		car->setRoadMod(1);
-		if (car->isOutofRoad()) {
-			//car->setRoadMod(punish);
+		if (map->lines[startpos].getType() == HIGH_FRICTION) {
+			if (motion.roadMod - 0.6 < 1e-6 && motion.roadMod - 0.6 > -1e-6) {
+				if (motion.roadMod < 0.6)
+					car->setRoadMod(motion.roadMod + 0.1);
+				else
+					car->setRoadMod(motion.roadMod - 0.1);
+			}
 		}
-		else if (map->lines[startpos].getType() == HIGH_FRICTION)
-			car->setRoadMod(0.6);
-		else if (map->lines[startpos].getType() == LOW_FRICTION)
-			car->setRoadMod(1.4);
+		else if (map->lines[startpos].getType() == LOW_FRICTION) {
+			if (motion.roadMod - 1.3 < 1e-6 && motion.roadMod - 1.3 > -1e-6) {
+				if (motion.roadMod < 1.3)
+					car->setRoadMod(motion.roadMod + 0.1);
+				else
+					car->setRoadMod(motion.roadMod - 0.1);
+			}
+		}
+		else {
 
+		}
 		car->setVelM(car->getRoadMod() * ((sin(motion.roadDegree) * (map->lines[startpos + 1].getx() - map->lines[startpos].getx()) + cos(motion.roadDegree) * SEGMENT_LENGTH) / SEGMENT_LENGTH));
 
 
