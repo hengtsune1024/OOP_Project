@@ -1,7 +1,7 @@
 #include "RenderWindow.h"
 
-void RenderWindow::init() {
-	window = SDL_CreateWindow(TITLE, SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, WIDTH, HEIGHT, SDL_WINDOW_SHOWN);
+void RenderWindow::init(bool dual) {
+	window = SDL_CreateWindow(TITLE, SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, (dual ? WIDTH * 2 : WIDTH), HEIGHT, SDL_WINDOW_SHOWN);
 	if (window == NULL) {
 		cout << "[RenderWindow] Window initialization failed : " << SDL_GetError() << endl;
 		return;

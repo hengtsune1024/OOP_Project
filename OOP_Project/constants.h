@@ -1,7 +1,7 @@
 #pragma once
 
 //window
-#define WIDTH 800				//window width and height
+#define WIDTH 600				//window width and height
 #define HEIGHT 600
 #define TITLE "OOP Project"		//window title
 

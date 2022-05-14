@@ -25,7 +25,10 @@ struct Quad {
 
 class Map
 {
-	//projection
+	//cars
+	bool dualMode;
+	RacingCar* car1;
+	RacingCar* car2;
 
 	//road
 	vector<Line> lines;						// road segments constituting the whole road
@@ -41,9 +44,6 @@ class Map
 
 	void removeTimer();							// remove all timers
 
-	//car
-	RacingCar car;								// the car in the map
-
 	//images
 	Image streetlight;
 	Image moon;
@@ -51,26 +51,29 @@ class Map
 	//trap
 	Trap virus;
 
+	//static member
+	static Uint32 grass;
+	static Uint32 rumble;
+	static Uint32 road;
+	static Uint32 laneLine;
+	static SDL_Rect viewPort1;
+	static SDL_Rect viewPort2;
+
 public:
 
 	Map();					// default constructor (initialize nothing)
-	Map(SDL_Renderer*);		// initialize all members except timers
+	Map(SDL_Renderer*, bool = false);		// initialize all members except timers
 	~Map();
 
 	// getters
-	RacingCar* getCar() { return &car; }
+	RacingCar* getCar1() { return car1; }
+	RacingCar* getCar2() { return car2; }
 
 	// timer
 	void startTimer();
 
-	// setters
-
-
-	//void turn(int);
-	  
 	void quit();				// quit every member that need to be quit
 	void draw(SDL_Renderer*);	// draw the map, car, and tools, etc.
-	//void rush(RushType);
 	void gettrap(Trap &);
 
 };
@@ -98,6 +101,9 @@ public:
 	double camDepth;
 	double velM;
 	double camHeight;
+
+	//void turn(int);
+	//void rush(RushType);
 	
 
 */

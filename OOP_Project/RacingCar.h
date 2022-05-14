@@ -80,7 +80,6 @@ public:
 	void setRoadDegree(double rd) { motion.roadDegree = rd; }
 	void setVelM(double vm) { motion.velM = vm; }
 
-	
 };
 
 

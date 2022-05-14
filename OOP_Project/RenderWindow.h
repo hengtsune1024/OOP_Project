@@ -11,7 +11,7 @@ class RenderWindow
 public:
 	RenderWindow() :window(nullptr), renderer(nullptr) {}
 
-	void init();
+	void init(bool);
 	void quit();
 
 	void clear();
