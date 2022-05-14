@@ -1,8 +1,8 @@
 #include "RacingCar.h"
-RacingCar::RacingCar():isRushing(NONE), fullEnergy(true), energy(100.0), healthPoint(100.0)
+RacingCar::RacingCar():isRushing(NONE), fullEnergy(true), energy(100.0), healthPoint(100.0), motion(MOTION_INIT)
 {}
 RacingCar::RacingCar(const char* path, int n, SDL_Renderer* renderer): 
-	isRushing(NONE), fullEnergy(true), energy(100.0), healthPoint(100.0)
+	isRushing(NONE), fullEnergy(true), energy(100.0), healthPoint(100.0), motion(MOTION_INIT)
 {
 	num = n;
 	image = new Image[num];
@@ -139,13 +139,42 @@ Uint32 RacingCar::charge(Uint32 interval, void* para) {
 	return interval;
 }
 
-void RacingCar::rush(RushType r) {
+void RacingCar::rush(RushType r) 
+{
+	isRushing = r;
+	switch (r)
+	{
+		case ENERGY:
+			if (fullEnergy) {
+				motion.velLinear = ENERGY_RUSHBEGIN_SPEED;
+				motion.camDepth = BEGINRUSH_CAMDEPTH;
+				fullEnergy = false;
+				energy = 0;
+				std::cout << "[Map] rush start" << endl;
+			}
+			else {
+				std::cout << "[Map] not enough energy :" << energy << endl;
+			}
+			break;
 
+		case ACCROAD:
+			motion.velLinear = ACCROAD_RUSHBEGIN_SPEED;
+			motion.camDepth = BEGINRUSH_CAMDEPTH;
+			//car.rush(ACCROAD);
+			std::cout << "[Map] rush start" << endl;
+			break;
+		case TOOL:
+			break;
+		default:
+			break;
+	}
+	/*
 	isRushing = r;
 	if (r == ENERGY) {
 		fullEnergy = false;
 		energy = 0;
 	}
+	*/
 }
 
 

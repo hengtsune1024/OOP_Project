@@ -26,18 +26,6 @@ struct Quad {
 class Map
 {
 	//projection
-	double posX;			// x position in 3D world (moving forward and backword)
-	double posY;			// y position in 3D world (moving right and left)
-	double velLinear;		// linear velocity 
-	double velAngular;		// angular velocity 
-	double accLinear;		// linear acceleration 
-	double camDegree;		// camera degree (in radius, x-axis is 0)
-	double roadDegree;		// the degree from x-axis to the road vector (from current segment to the next segment) 
-	double camDepth;
-
-	double velM;
-
-	double camHeight;
 
 	//road
 	vector<Line> lines;						// road segments constituting the whole road
@@ -70,28 +58,46 @@ public:
 	~Map();
 
 	// getters
-	double getPosX() { return posX; }
-	double getPosY() { return posY; }
-	double getVelLinear() { return velLinear; }
-	double getVelAngular() { return velAngular; }
-	double getAccLinear() { return accLinear; }
+	RacingCar* getCar() { return &car; }
 
 	// timer
 	void startTimer();
 
 	// setters
-	void setVelLinear(double v) { velLinear = v; }
-	void setVelAngular(double v) { velAngular = v; }
-	void setAccLinear(double a) { accLinear = a; }
-	void turn(int);
+
+
+	//void turn(int);
 	  
 	void quit();				// quit every member that need to be quit
 	void draw(SDL_Renderer*);	// draw the map, car, and tools, etc.
-	void rush(RushType);
+	//void rush(RushType);
 	void gettrap(Trap &);
+
 };
 
 // unused code
 /*
+	
+	void setVelLinear(double v) { velLinear = v; }
+	void setVelAngular(double v) { velAngular = v; }
+	void setAccLinear(double a) { accLinear = a; }
+	double getPosX() { return posX; }
+	double getPosY() { return posY; }
+	double getVelLinear() { return velLinear; }
+	double getVelAngular() { return velAngular; }
+	double getAccLinear() { return accLinear; }
+	
+	
+	double posX;			// x position in 3D world (moving forward and backword)
+	double posY;			// y position in 3D world (moving right and left)
+	double velLinear;		// linear velocity 
+	double velAngular;		// angular velocity 
+	double accLinear;		// linear acceleration 
+	double camDegree;		// camera degree (in radius, x-axis is 0)
+	double roadDegree;		// the degree from x-axis to the road vector (from current segment to the next segment) 
+	double camDepth;
+	double velM;
+	double camHeight;
+	
 
 */

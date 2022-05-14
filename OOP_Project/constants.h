@@ -10,6 +10,7 @@
 						//or into SDL_Rect dst to fill image into the whole window 
 
 //racing car
+#define MOTION_INIT {INITIAL_POS* SEGMENT_LENGTH,0,0,0,0,0,0,DEFAULT_CAMERA_DEPTH,1,CAMERA_HEIGHT}
 
 //map
 #define NUM_LINE 5000		//
@@ -66,6 +67,9 @@ enum RushType {
 };
 enum TrapType {
 	STAIN, DIZZY, LOST
+};
+enum ToolType {
+	ACCELERATE_SHORT, ACCELERATE_LONG, INVINCIBLE
 };
 /*
 

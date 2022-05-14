@@ -6,8 +6,23 @@
 
 class Map;
 
+struct Motion {
+	double posX;			// x position in 3D world (moving forward and backword)
+	double posY;			// y position in 3D world (moving right and left)
+	double velLinear;		// linear velocity 
+	double velAngular;		// angular velocity 
+	double accLinear;		// linear acceleration 
+	double camDegree;		// camera degree (in radius, x-axis is 0)
+	double roadDegree;		// the degree from x-axis to the road vector (from current segment to the next segment) 
+	double camDepth;
+	double velM;
+	double camHeight;
+};
+
 class RacingCar
 {
+	Motion motion;
+
 	char path[100];
 	int num;  // New in this example
 	Image* image;
@@ -18,7 +33,7 @@ class RacingCar
 	Uint32 time;
 	static Uint32 changeData(Uint32 interval, void* param); // Timer callback 
 	int direct;
-	
+
 	//timer
 	SDL_TimerID chargeTimer;
 	static Uint32 charge(Uint32, void*);
@@ -46,6 +61,26 @@ public:
 	bool getFullEnergy() { return fullEnergy; }
 	double getEnergy() { return energy; }
 
+
+	double getPosX() { return motion.posX; }
+	double getPosY() { return motion.posY; }
+	double getVelLinear() { return motion.velLinear; }
+	double getVelAngular() { return motion.velAngular; }
+	double getAccLinear() { return motion.accLinear; }
+
+	const Motion& getMotioin() { return motion; }
+
+	void setPosX(double x) { motion.posX = x; }
+	void setPosY(double y) { motion.posY = y; }
+	void setVelLinear(double v) { motion.velLinear = v; }
+	void setVelAngular(double v) { motion.velAngular = v; }
+	void setAccLinear(double a) { motion.accLinear = a; }
+	void setCamDegree(double cd) { motion.camDegree = cd;  }  //camera degree
+	void setCamDepth(double cdp) { motion.camDepth = cdp; }  //camera depth
+	void setRoadDegree(double rd) { motion.roadDegree = rd; }
+	void setVelM(double vm) { motion.velM = vm; }
+
+	
 };
 
 
