@@ -365,6 +365,10 @@ void Map::draw(SDL_Renderer* renderer)
 		/**************************/
 		car2->getTrap()->drawStain(renderer);	//only draws stain
 		/**************************/
+
+
+		SDL_RenderSetViewport(renderer, NULL);
+		thickLineColor(renderer, WIDTH, 0, WIDTH, HEIGHT, 5, 0xff0000ff);
 	}
 }
 
