@@ -9,12 +9,13 @@
 void eventHandler(SDL_Event&, RenderWindow&, RacingCar*, RacingCar* = NULL);
 
 int main(int argc, char* argv[]) {
+	bool dual = true;
 	System sdl;
 	RenderWindow window;
 	sdl.init();
-	window.init(false);
+	window.init(dual);
 	
-	Map map(window.GetRenderer(), false);
+	Map map(window.GetRenderer(), dual);
 	
 	SDL_Event e;
 	bool quit = false;
