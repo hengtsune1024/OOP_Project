@@ -18,6 +18,7 @@ struct Motion {
 	double roadDegree;		// the degree from x-axis to the road vector (from current segment to the next segment) 
 	double camDepth;
 	double velM;
+	double roadMod;
 	double camHeight;
 };
 
@@ -45,9 +46,13 @@ class RacingCar
 	//state
 	RushType isRushing;
 	bool fullEnergy;
+	bool outOfRoad;
 
 	//trap
 	Trap virus;
+
+	//road type
+	RoadType roadtype;
 
 public:
 	RacingCar();
@@ -73,21 +78,28 @@ public:
 	double getVelLinear() { return motion.velLinear; }
 	double getVelAngular() { return motion.velAngular; }
 	double getAccLinear() { return motion.accLinear; }
+	double getRoadMod() { return motion.roadMod; }
 	Trap* getTrap() { return &virus; }
+	bool isOutofRoad() { return outOfRoad; }
 
 	const Motion& getMotioin() { return motion; }
 
+	void brake(int);
+	void setRoadType(RoadType);
+
 	void setTrap(Line* l) { virus.setTrap(l); }
+	void setOutofRoad(bool o) { outOfRoad = o; }
 
 	void setPosX(double x) { motion.posX = x; }
 	void setPosY(double y) { motion.posY = y; }
 	void setVelLinear(double v) { motion.velLinear = v; }
 	void setVelAngular(double v) { motion.velAngular = v; }
-	void setAccLinear(double a) { motion.accLinear = a; }
+	//void setAccLinear(double a) { motion.accLinear = a; }
 	void setCamDegree(double cd) { motion.camDegree = cd;  }  //camera degree
 	void setCamDepth(double cdp) { motion.camDepth = cdp; }  //camera depth
 	void setRoadDegree(double rd) { motion.roadDegree = rd; }
 	void setVelM(double vm) { motion.velM = vm; }
+	void setRoadMod(double rm) { motion.roadMod = rm; }
 
 };
 

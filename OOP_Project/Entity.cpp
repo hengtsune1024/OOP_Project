@@ -52,7 +52,7 @@ void Entity::drawImg(SDL_Renderer* renderer, Line *line) {
 }
 
 void Entity::setEntity(Line* line) {
-	line->setActSprite(&entityImg[state],2.5);
+	line->setActSprite(&entityImg[state], 2.5);
 }
 
 Uint32 Entity::changeData(Uint32 interval, void* param)

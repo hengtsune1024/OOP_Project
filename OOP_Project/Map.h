@@ -47,8 +47,6 @@ class Map
 	//images
 	Image streetlight;
 	Image moon;
-	
-	//trap
 
 	//static member
 	static Uint32 grass;

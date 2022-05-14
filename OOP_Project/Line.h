@@ -19,6 +19,7 @@ class Line
 public:
 
     Line();
+    ~Line();
     double getx() { return x; }
     double gety() { return y; }
     double getz() { return z; }

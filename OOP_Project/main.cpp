@@ -6,9 +6,10 @@
 #include "Map.h" 
 #include "RacingCar.h"
 
-void eventHandler(SDL_Event&, RenderWindow&, RacingCar*, RacingCar* = NULL);
+void eventHandler(SDL_Event&, RenderWindow&, Map&, RacingCar*, RacingCar* = NULL);
 
-int main(int argc, char* argv[]) {
+int main(int argc, char* argv[]) 
+{
 	bool dual = true;
 	System sdl;
 	RenderWindow window;
@@ -29,7 +30,7 @@ int main(int argc, char* argv[]) {
 				quit = true;
 				break;
 			}
-			eventHandler(e, window, map.getCar1(), map.getCar2());
+			eventHandler(e, window, map, map.getCar1(), map.getCar2());
 		}
 
 		window.clear();
@@ -43,7 +44,7 @@ int main(int argc, char* argv[]) {
 	return 0;
 }
 
-void eventHandler(SDL_Event& e, RenderWindow& w, RacingCar* car1, RacingCar* car2) 
+void eventHandler(SDL_Event& e, RenderWindow& w, Map& map, RacingCar* car1, RacingCar* car2) 
 {
 	if (e.type == SDL_KEYDOWN && e.key.repeat == 0)
 	{
@@ -51,10 +52,10 @@ void eventHandler(SDL_Event& e, RenderWindow& w, RacingCar* car1, RacingCar* car
 		{
 			//car 1
 			case SDLK_w:
-				car1->setAccLinear(ACCELERATION);
+				car1->brake(1);
 				break;
 			case SDLK_s:
-				car1->setAccLinear(-ACCELERATION);
+				car1->brake(2);
 				break;
 			case SDLK_a:
 				car1->setVelAngular(car1->getVelAngular() - ROTATE);
@@ -71,11 +72,11 @@ void eventHandler(SDL_Event& e, RenderWindow& w, RacingCar* car1, RacingCar* car
 			//car 2
 			case SDLK_UP:
 				if (car2)
-					car2->setAccLinear(ACCELERATION);
+					car2->brake(1);
 				break;
 			case SDLK_DOWN:
 				if (car2)
-					car2->setAccLinear(-ACCELERATION);
+					car2->brake(2);
 				break;
 			case SDLK_LEFT:
 				if (car2) {
@@ -104,9 +105,9 @@ void eventHandler(SDL_Event& e, RenderWindow& w, RacingCar* car1, RacingCar* car
 			case SDLK_s:
 			case SDLK_w:
 				if (car1->getVelLinear() > 0)
-					car1->setAccLinear(-FRICTION_ACC);
+					car1->brake(0);
 				else
-					car1->setAccLinear(FRICTION_ACC);
+					car1->brake(0);
 				break;
 			case SDLK_a:
 				car1->setVelAngular(car1->getVelAngular() + ROTATE);
@@ -122,9 +123,9 @@ void eventHandler(SDL_Event& e, RenderWindow& w, RacingCar* car1, RacingCar* car
 			case SDLK_DOWN:
 				if (car2) {
 					if (car2->getVelLinear() > 0)
-						car2->setAccLinear(-FRICTION_ACC);
+						car2->brake(0);
 					else
-						car2->setAccLinear(FRICTION_ACC);
+						car2->brake(0);
 				}
 				break;
 			case SDLK_LEFT:

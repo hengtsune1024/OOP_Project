@@ -10,7 +10,7 @@
 						//or into SDL_Rect dst to fill image into the whole window 
 
 //racing car
-#define MOTION_INIT {INITIAL_POS* SEGMENT_LENGTH,0,0,0,0,0,0,DEFAULT_CAMERA_DEPTH,1,CAMERA_HEIGHT}
+#define MOTION_INIT {INITIAL_POS* SEGMENT_LENGTH,0,0,0,0,0,0,DEFAULT_CAMERA_DEPTH,1,1,CAMERA_HEIGHT}
 
 //map
 #define NUM_LINE 5000		//
@@ -42,6 +42,8 @@
 //acceleration
 #define ACCELERATION 150		//
 #define FRICTION_ACC 20
+#define HIGH_FRICTION_ACC 60
+#define LOW_FRICTION_ACC 5
 
 //rotation
 #define ROTATE 0.04			//car camera rotation
@@ -60,17 +62,21 @@
 
 //road type (used in Line class)
 enum RoadType {
-	NORMAL, ENDPOINT, TOOLAREA, ACCELERATE_RIGHT, ACCELERATE_LEFT, TRAPAREA
+	NORMAL, ENDPOINT, TOOLAREA, ACCELERATE_RIGHT, ACCELERATE_LEFT, TRAPAREA, HIGH_FRICTION, LOW_FRICTION
 };
+
 enum RushType {
 	NONE, ENERGY, ACCROAD, TOOL
 };
+
 enum TrapType {
 	STAIN, DIZZY, LOST
 };
+
 enum ToolType {
 	ACCELERATE_SHORT, ACCELERATE_LONG, INVINCIBLE
 };
+
 /*
 
 #define BOUNCE_SPEED -5

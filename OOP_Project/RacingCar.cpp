@@ -1,5 +1,7 @@
 #include "RacingCar.h"
-RacingCar::RacingCar():isRushing(NONE), fullEnergy(true), energy(100.0), healthPoint(100.0), motion(MOTION_INIT)
+RacingCar::RacingCar():
+	isRushing(NONE), fullEnergy(true), energy(100.0), healthPoint(100.0), 
+	motion(MOTION_INIT), roadtype(NORMAL), outOfRoad(false)
 {}
 
 RacingCar::~RacingCar() {
@@ -133,6 +135,59 @@ void RacingCar::turn(int d)
 {
 	direct = d;
 } 
+
+void RacingCar::setRoadType(RoadType rt) {
+	if (rt == NORMAL || rt == HIGH_FRICTION || rt == LOW_FRICTION) {
+		roadtype = rt;
+	}
+}
+
+void RacingCar::brake(int type) 
+{
+	//no acc
+	if (type == 0) {
+		int sign = motion.velLinear > 0 ? -1 : (motion.velLinear<1e-6 && motion.velLinear>-1e-6 ? 0 : 1);
+		switch (roadtype) {
+			case NORMAL:
+				motion.accLinear = sign * FRICTION_ACC;
+				break;
+			case HIGH_FRICTION:
+				motion.accLinear = sign * HIGH_FRICTION_ACC;
+				break;
+			case LOW_FRICTION:
+				motion.accLinear = sign * LOW_FRICTION_ACC;
+				break;
+		}
+	}
+	//foward
+	else if (type == 1) {
+		switch (roadtype) {
+			case NORMAL:
+				motion.accLinear = ACCELERATION - FRICTION_ACC;
+				break;
+			case HIGH_FRICTION:
+				motion.accLinear = ACCELERATION - HIGH_FRICTION_ACC;
+				break;
+			case LOW_FRICTION:
+				motion.accLinear = ACCELERATION - LOW_FRICTION_ACC;
+				break;
+		}
+	}
+	//backward
+	else if (type == 2) {
+		switch (roadtype) {
+			case NORMAL:
+				motion.accLinear = -ACCELERATION + FRICTION_ACC;
+				break;
+			case HIGH_FRICTION:
+				motion.accLinear = -ACCELERATION + HIGH_FRICTION_ACC;
+				break;
+			case LOW_FRICTION:
+				motion.accLinear = -ACCELERATION + LOW_FRICTION_ACC;
+				break;
+		}
+	}
+}
 
 Uint32 RacingCar::charge(Uint32 interval, void* para) {
 
