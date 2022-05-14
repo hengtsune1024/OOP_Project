@@ -1,7 +1,16 @@
 #include "RacingCar.h"
 RacingCar::RacingCar():isRushing(NONE), fullEnergy(true), energy(100.0), healthPoint(100.0), motion(MOTION_INIT)
 {}
+
+RacingCar::~RacingCar() {
+	if (image != NULL) {
+		delete[]image;
+		image = NULL;
+	}
+}
+
 RacingCar::RacingCar(const char* path, int n, SDL_Renderer* renderer): 
+	virus("../images/coronavirus/", 15, renderer),
 	isRushing(NONE), fullEnergy(true), energy(100.0), healthPoint(100.0), motion(MOTION_INIT)
 {
 	num = n;
@@ -20,15 +29,18 @@ RacingCar::RacingCar(const char* path, int n, SDL_Renderer* renderer):
 
 void RacingCar::quit()
 {
+	// Remove timer in case the call back was not called	
+	SDL_RemoveTimer(cartimer);
+	SDL_RemoveTimer(chargeTimer);
+
 	// Free loaded image	
 	for (int i = 0; i < num; i++)
 	{
 		image[i].close();
 	}
 
-	// Remove timer in case the call back was not called	
-	SDL_RemoveTimer(cartimer);
-	SDL_RemoveTimer(chargeTimer);
+	virus.quit();
+
 }
 
 void RacingCar::setPosition(int xx, int yy)
@@ -109,7 +121,7 @@ void RacingCar::startTimer(Uint32 t)
 {
 	time = t;
 	cartimer = SDL_AddTimer(time, changeData, this); // Set Timer callback
-
+	virus.startTimer(TRAP_INTERVAL);
 	chargeTimer = SDL_AddTimer(CHARGE_INTERVAL, charge, this);
 }
 

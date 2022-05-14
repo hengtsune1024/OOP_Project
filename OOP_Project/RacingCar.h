@@ -3,6 +3,8 @@
 #include <SDL2_gfxPrimitives.h>
 #include "Image.h"
 #include "constants.h"
+#include "Line.h"
+#include "Trap.h"
 
 class Map;
 
@@ -44,9 +46,13 @@ class RacingCar
 	RushType isRushing;
 	bool fullEnergy;
 
+	//trap
+	Trap virus;
+
 public:
 	RacingCar();
 	RacingCar(const char* path, int n, SDL_Renderer* renderer);
+	~RacingCar();
 	void quit();
 	void setPosition(int xx, int yy);
 	int getWidth();
@@ -67,8 +73,11 @@ public:
 	double getVelLinear() { return motion.velLinear; }
 	double getVelAngular() { return motion.velAngular; }
 	double getAccLinear() { return motion.accLinear; }
+	Trap* getTrap() { return &virus; }
 
 	const Motion& getMotioin() { return motion; }
+
+	void setTrap(Line* l) { virus.setTrap(l); }
 
 	void setPosX(double x) { motion.posX = x; }
 	void setPosY(double y) { motion.posY = y; }

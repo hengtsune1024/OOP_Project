@@ -3,10 +3,12 @@
 Trap::Trap() {
 
 }
+
 Trap::~Trap() {
 
 }
-Trap::Trap(const char* path, int n, SDL_Renderer* renderer) :stain("../images/stain.png", renderer)
+Trap::Trap(const char* path, int n, SDL_Renderer* renderer) :
+	stain("../images/stain.png", renderer)
 
 {
 	staintime = 0;
@@ -51,5 +53,10 @@ int Trap::getWidth() {
 }
 int Trap::getHeight() {
 	return 0;
+}
+
+void Trap::quit() {
+	Entity::quit();
+	stain.close();
 }
 

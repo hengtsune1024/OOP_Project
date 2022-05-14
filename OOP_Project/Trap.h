@@ -31,6 +31,8 @@ public:
 	void gettrap(TrapType);
 
 	void drawStain(SDL_Renderer* renderer);
+
+	void quit();
 	
 };
 

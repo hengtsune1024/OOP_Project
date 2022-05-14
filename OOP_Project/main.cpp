@@ -9,7 +9,7 @@
 void eventHandler(SDL_Event&, RenderWindow&, RacingCar*, RacingCar* = NULL);
 
 int main(int argc, char* argv[]) {
-	bool dual = true;
+	bool dual = false;
 	System sdl;
 	RenderWindow window;
 	sdl.init();
@@ -37,7 +37,7 @@ int main(int argc, char* argv[]) {
 		window.display();
 	}
 
-	map.quit();
+	//map.quit();
 	window.quit();
 	sdl.quit();
 	return 0;

@@ -18,7 +18,6 @@ Map::Map() : lines(NUM_LINE), number_of_lines(NUM_LINE)
 Map::Map(SDL_Renderer* renderer, bool dual) : lines(NUM_LINE), number_of_lines(NUM_LINE), dualMode(dual),
 	car1(new RacingCar("../images/RacingCar/racingcar", 13, renderer)),
 	car2(dual ? new RacingCar("../images/RacingCar/racingcar", 13, renderer) : NULL),
-	virus("../images/coronavirus/", 15, renderer),
 	streetlight("../images/streetlight.png", renderer), 
 	moon("../images/moon.png", renderer)
 {
@@ -65,7 +64,6 @@ Map::Map(SDL_Renderer* renderer, bool dual) : lines(NUM_LINE), number_of_lines(N
 		
 	}
 
-	virus.setTrap(&lines[300]);
 
 	//type
 	for (int i = INITIAL_POS - 10; i < INITIAL_POS + 22; ++i)
@@ -81,11 +79,13 @@ Map::Map(SDL_Renderer* renderer, bool dual) : lines(NUM_LINE), number_of_lines(N
 	for(int i=295;i<300;i++)
 		lines[i].setType(TRAPAREA);
 
+	car1->setTrap(&lines[300]);
 	car1->setPosY(lines[INITIAL_POS].getx());
 	car1->setPosition(WIDTH / 2 - car1->getWidth() / 2, HEIGHT - car1->getHeight() + 20);
 	car1->turn(0);
 
 	if (car2) {
+		car1->setTrap(&lines[300]);
 		car2->setPosition(WIDTH / 2 - car2->getWidth() / 2, HEIGHT - car2->getHeight() + 20);
 		car2->setPosY(lines[INITIAL_POS].getx());
 		car2->turn(0);
@@ -95,9 +95,13 @@ Map::Map(SDL_Renderer* renderer, bool dual) : lines(NUM_LINE), number_of_lines(N
 }
 
 Map::~Map() {
-	delete[]car1;
-	if (car2)
-		delete[]car2;
+	delete car1;
+	car1 = NULL;
+	if (car2 != NULL) {
+		delete car2;
+		cout << "delete car2" << endl;
+		car2 = NULL;
+	}
 }
 
 void Map::quit() {
@@ -105,7 +109,6 @@ void Map::quit() {
 	car1->quit();
 	if (dualMode)
 		car2->quit();
-	virus.quit();
 	streetlight.close();
 	std::cout << "[Map] Map closed" << endl;
 }
@@ -166,56 +169,51 @@ void Map::draw(SDL_Renderer* renderer)
 		//road type 
 		switch (lines[i].getType())
 		{
-		case NORMAL:
-		case TRAPAREA:
-			rumble = (i >> 2) & 1 ? 0xffffffff : 0xff000000;
-			road = (i >> 2) & 1 ? 0xff6b6b6b : 0xff696969;
-			drawQuad(renderer, { rumble, p.getX(), p.getY(), p.getW() * 1.2, l.getX(), l.getY(), l.getW() * 1.2 });
-			drawQuad(renderer, { road, p.getX(), p.getY(), p.getW(), l.getX(), l.getY(), l.getW() });
+			case NORMAL:
+			case TRAPAREA:
+				rumble = (i >> 2) & 1 ? 0xffffffff : 0xff000000;
+				road = (i >> 2) & 1 ? 0xff6b6b6b : 0xff696969;
+				drawQuad(renderer, { rumble, p.getX(), p.getY(), p.getW() * 1.2, l.getX(), l.getY(), l.getW() * 1.2 });
+				drawQuad(renderer, { road, p.getX(), p.getY(), p.getW(), l.getX(), l.getY(), l.getW() });
 
-			if ((i >> 3) & 1) {
-				drawQuad(renderer, { laneLine, p.getX(), p.getY(), p.getW() * LANELINE_WIDTH / ROAD_WIDTH, l.getX(), l.getY(),l.getW() * LANELINE_WIDTH / ROAD_WIDTH });
+				if ((i >> 3) & 1) {
+					drawQuad(renderer, { laneLine, p.getX(), p.getY(), p.getW() * LANELINE_WIDTH / ROAD_WIDTH, l.getX(), l.getY(),l.getW() * LANELINE_WIDTH / ROAD_WIDTH });
+				}
+				break;
+
+			case ENDPOINT:
+			{
+				double width_scale = 1.2;
+				for (int j = 0; j <= 7; ++j) {
+
+					width_scale = 1.2 * (15 - (j << 1)) / 15;
+					rumble = ((i >> 2) + j) & 1 ? 0xffffffff : 0xff000000;
+
+					drawQuad(renderer, { rumble,p.getX(), p.getY(), p.getW() * width_scale, l.getX(), l.getY(), l.getW() * width_scale });
+				}
 			}
 			break;
 
-		case ENDPOINT:
-		{
-			double width_scale = 1.2;
-			for (int j = 0; j <= 7; ++j) {
+			case ACCELERATE_RIGHT:
+			case ACCELERATE_LEFT:
+			{
+				rumble = (i >> 2) & 1 ? 0xffffffff : 0xff000000;
+				road = (i >> 2) & 1 ? 0xff6b6b6b : 0xff696969;
+				Uint32 accRoad = ((i - (colorChange1 >> 3)) >> 1) & 1 ? 0xff00ffff : 0xff0000ff;
 
-				width_scale = 1.2 * (15 - (j << 1)) / 15;
-				rumble = ((i >> 2) + j) & 1 ? 0xffffffff : 0xff000000;
 
-				drawQuad(renderer, { rumble,p.getX(), p.getY(), p.getW() * width_scale, l.getX(), l.getY(), l.getW() * width_scale });
+				int sign = lines[i].getType() == ACCELERATE_RIGHT ? 1 : -1;
+
+				drawQuad(renderer, { rumble, p.getX(), p.getY(), p.getW() * 1.2, l.getX(), l.getY(), l.getW() * 1.2 });
+				drawQuad(renderer, { road, p.getX(), p.getY(), p.getW(), l.getX(), l.getY(), l.getW() });
+
+				if ((i >> 3) & 1) {
+					drawQuad(renderer, { laneLine, p.getX(), p.getY(), p.getW() * LANELINE_WIDTH / ROAD_WIDTH, l.getX(), l.getY(),l.getW() * LANELINE_WIDTH / ROAD_WIDTH });
+				}
+
+				drawQuad(renderer, { accRoad, p.getX() + sign * p.getW() / 2, p.getY(), p.getW() / 2, l.getX() + sign * l.getW() / 2, l.getY(), l.getW() / 2 });
 			}
-		}
-		break;
-
-		case ACCELERATE_RIGHT:
-		case ACCELERATE_LEFT:
-		{
-			rumble = (i >> 2) & 1 ? 0xffffffff : 0xff000000;
-			road = (i >> 2) & 1 ? 0xff6b6b6b : 0xff696969;
-			Uint32 accRoad = ((i - (colorChange1 >> 3)) >> 1) & 1 ? 0xff00ffff : 0xff0000ff;
-
-
-			int sign = lines[i].getType() == ACCELERATE_RIGHT ? 1 : -1;
-
-			drawQuad(renderer, { rumble, p.getX(), p.getY(), p.getW() * 1.2, l.getX(), l.getY(), l.getW() * 1.2 });
-			drawQuad(renderer, { road, p.getX(), p.getY(), p.getW(), l.getX(), l.getY(), l.getW() });
-
-			if ((i >> 3) & 1) {
-				drawQuad(renderer, { laneLine, p.getX(), p.getY(), p.getW() * LANELINE_WIDTH / ROAD_WIDTH, l.getX(), l.getY(),l.getW() * LANELINE_WIDTH / ROAD_WIDTH });
-			}
-
-			drawQuad(renderer, { accRoad, p.getX() + sign * p.getW() / 2, p.getY(), p.getW() / 2, l.getX() + sign * l.getW() / 2, l.getY(), l.getW() / 2 });
-		}
-		break;
-
-		/*case TRAPAREA:
-		{
-
-		}*/
+			break;
 		}
 	}
 	colorChange1 = (colorChange1 + 2) & 31;
@@ -234,7 +232,7 @@ void Map::draw(SDL_Renderer* renderer)
 		//filledCircleColor(renderer, lines[i].getX(), lines[i].getY(), 2, 0xffffffff);
 
 		//virus.draw(renderer, &lines[i]);
-		virus.drawImg(renderer, &lines[i]);		//i changed drawImg in entity to public, so that we can directly use it here
+		car1->getTrap()->drawImg(renderer, &lines[i]);		//i changed drawImg in entity to public, so that we can directly use it here
 		//lines[i].drawActSprite(renderer, 0);
 	}
 
@@ -242,7 +240,7 @@ void Map::draw(SDL_Renderer* renderer)
 	car1->draw(renderer);
 
 	/**************************/
-	virus.drawStain(renderer);	//only draws stain
+	car1->getTrap()->drawStain(renderer);	//only draws stain
 	/**************************/
 
 	if (dualMode) {
@@ -294,56 +292,51 @@ void Map::draw(SDL_Renderer* renderer)
 			//road type 
 			switch (lines[i].getType())
 			{
-			case NORMAL:
-			case TRAPAREA:
-				rumble = (i >> 2) & 1 ? 0xffffffff : 0xff000000;
-				road = (i >> 2) & 1 ? 0xff6b6b6b : 0xff696969;
-				drawQuad(renderer, { rumble, p.getX(), p.getY(), p.getW() * 1.2, l.getX(), l.getY(), l.getW() * 1.2 });
-				drawQuad(renderer, { road, p.getX(), p.getY(), p.getW(), l.getX(), l.getY(), l.getW() });
+				case NORMAL:
+				case TRAPAREA:
+					rumble = (i >> 2) & 1 ? 0xffffffff : 0xff000000;
+					road = (i >> 2) & 1 ? 0xff6b6b6b : 0xff696969;
+					drawQuad(renderer, { rumble, p.getX(), p.getY(), p.getW() * 1.2, l.getX(), l.getY(), l.getW() * 1.2 });
+					drawQuad(renderer, { road, p.getX(), p.getY(), p.getW(), l.getX(), l.getY(), l.getW() });
 
-				if ((i >> 3) & 1) {
-					drawQuad(renderer, { laneLine, p.getX(), p.getY(), p.getW() * LANELINE_WIDTH / ROAD_WIDTH, l.getX(), l.getY(),l.getW() * LANELINE_WIDTH / ROAD_WIDTH });
+					if ((i >> 3) & 1) {
+						drawQuad(renderer, { laneLine, p.getX(), p.getY(), p.getW() * LANELINE_WIDTH / ROAD_WIDTH, l.getX(), l.getY(),l.getW() * LANELINE_WIDTH / ROAD_WIDTH });
+					}
+					break;
+
+				case ENDPOINT:
+				{
+					double width_scale = 1.2;
+					for (int j = 0; j <= 7; ++j) {
+
+						width_scale = 1.2 * (15 - (j << 1)) / 15;
+						rumble = ((i >> 2) + j) & 1 ? 0xffffffff : 0xff000000;
+
+						drawQuad(renderer, { rumble,p.getX(), p.getY(), p.getW() * width_scale, l.getX(), l.getY(), l.getW() * width_scale });
+					}
 				}
 				break;
 
-			case ENDPOINT:
-			{
-				double width_scale = 1.2;
-				for (int j = 0; j <= 7; ++j) {
+				case ACCELERATE_RIGHT:
+				case ACCELERATE_LEFT:
+				{
+					rumble = (i >> 2) & 1 ? 0xffffffff : 0xff000000;
+					road = (i >> 2) & 1 ? 0xff6b6b6b : 0xff696969;
+					Uint32 accRoad = ((i - (colorChange2 >> 3)) >> 1) & 1 ? 0xff00ffff : 0xff0000ff;
 
-					width_scale = 1.2 * (15 - (j << 1)) / 15;
-					rumble = ((i >> 2) + j) & 1 ? 0xffffffff : 0xff000000;
 
-					drawQuad(renderer, { rumble,p.getX(), p.getY(), p.getW() * width_scale, l.getX(), l.getY(), l.getW() * width_scale });
+					int sign = lines[i].getType() == ACCELERATE_RIGHT ? 1 : -1;
+
+					drawQuad(renderer, { rumble, p.getX(), p.getY(), p.getW() * 1.2, l.getX(), l.getY(), l.getW() * 1.2 });
+					drawQuad(renderer, { road, p.getX(), p.getY(), p.getW(), l.getX(), l.getY(), l.getW() });
+
+					if ((i >> 3) & 1) {
+						drawQuad(renderer, { laneLine, p.getX(), p.getY(), p.getW() * LANELINE_WIDTH / ROAD_WIDTH, l.getX(), l.getY(),l.getW() * LANELINE_WIDTH / ROAD_WIDTH });
+					}
+
+					drawQuad(renderer, { accRoad, p.getX() + sign * p.getW() / 2, p.getY(), p.getW() / 2, l.getX() + sign * l.getW() / 2, l.getY(), l.getW() / 2 });
 				}
-			}
-			break;
-
-			case ACCELERATE_RIGHT:
-			case ACCELERATE_LEFT:
-			{
-				rumble = (i >> 2) & 1 ? 0xffffffff : 0xff000000;
-				road = (i >> 2) & 1 ? 0xff6b6b6b : 0xff696969;
-				Uint32 accRoad = ((i - (colorChange2 >> 3)) >> 1) & 1 ? 0xff00ffff : 0xff0000ff;
-
-
-				int sign = lines[i].getType() == ACCELERATE_RIGHT ? 1 : -1;
-
-				drawQuad(renderer, { rumble, p.getX(), p.getY(), p.getW() * 1.2, l.getX(), l.getY(), l.getW() * 1.2 });
-				drawQuad(renderer, { road, p.getX(), p.getY(), p.getW(), l.getX(), l.getY(), l.getW() });
-
-				if ((i >> 3) & 1) {
-					drawQuad(renderer, { laneLine, p.getX(), p.getY(), p.getW() * LANELINE_WIDTH / ROAD_WIDTH, l.getX(), l.getY(),l.getW() * LANELINE_WIDTH / ROAD_WIDTH });
-				}
-
-				drawQuad(renderer, { accRoad, p.getX() + sign * p.getW() / 2, p.getY(), p.getW() / 2, l.getX() + sign * l.getW() / 2, l.getY(), l.getW() / 2 });
-			}
-			break;
-
-			/*case TRAPAREA:
-			{
-
-			}*/
+				break;
 			}
 		}
 		colorChange2 = (colorChange2 + 2) & 31;
@@ -362,7 +355,7 @@ void Map::draw(SDL_Renderer* renderer)
 			//filledCircleColor(renderer, lines[i].getX(), lines[i].getY(), 2, 0xffffffff);
 
 			//virus.draw(renderer, &lines[i]);
-			virus.drawImg(renderer, &lines[i]);		//i changed drawImg in entity to public, so that we can directly use it here
+			car2->getTrap()->drawImg(renderer, &lines[i]);		//i changed drawImg in entity to public, so that we can directly use it here
 			//lines[i].drawActSprite(renderer, 0);
 		}
 
@@ -370,7 +363,7 @@ void Map::draw(SDL_Renderer* renderer)
 		car2->draw(renderer);
 
 		/**************************/
-		virus.drawStain(renderer);	//only draws stain
+		car2->getTrap()->drawStain(renderer);	//only draws stain
 		/**************************/
 	}
 }
@@ -474,7 +467,7 @@ Uint32 Map::move(Uint32 interval, void* para)
 
 	//trap
 	if (map->lines[startpos].getType() == TRAPAREA && motion.posY < map->lines[startpos].getx() + TRAP_WIDTH * motion.velM && motion.posY > map->lines[startpos].getx() - TRAP_WIDTH * motion.velM)
-		map->virus.gettrap(STAIN);
+		car->getTrap()->gettrap(STAIN);
 
 
 	if (map->dualMode) {
@@ -574,7 +567,7 @@ Uint32 Map::move(Uint32 interval, void* para)
 
 		//trap
 		if (map->lines[startpos].getType() == TRAPAREA && motion.posY < map->lines[startpos].getx() + TRAP_WIDTH * motion.velM && motion.posY > map->lines[startpos].getx() - TRAP_WIDTH * motion.velM)
-			map->virus.gettrap(STAIN);
+			car->getTrap()->gettrap(STAIN);
 	}
 		
 	
@@ -701,8 +694,6 @@ void Map::startTimer() {
 
 	moveTimer = SDL_AddTimer(MOVE_INTERVAL, move, this);
 	accelerateTimer = SDL_AddTimer(ACCELERATE_INTERVAL, accelerate, this);
-
-	virus.startTimer(TRAP_INTERVAL);
 
 	car1->startTimer(CAR_INTERVAL);
 	if (dualMode)

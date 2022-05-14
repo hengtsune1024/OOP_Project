@@ -14,9 +14,12 @@ Entity::Entity(const char path[], int num_Imag, SDL_Renderer* renderer, int init
 	}
 	state = init_state;
 }
+
 Entity::~Entity() {
-	if (entityImg != NULL)
+	if (entityImg != NULL) {
 		delete[]entityImg;
+		entityImg = NULL;
+	}
 }
 void Entity::setImage(const char path[], int num_Imag, SDL_Renderer* renderer, int init_state) 
 {
@@ -77,6 +80,7 @@ Uint32 Entity::changeData(Uint32 interval, void* param)
 void Entity::quit() {
 	closeImg();
 	SDL_RemoveTimer(entitytimer);
+	
 }
 void Entity::startTimer(Uint32 t) {
 	time = t;

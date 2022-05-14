@@ -49,7 +49,6 @@ class Map
 	Image moon;
 	
 	//trap
-	Trap virus;
 
 	//static member
 	static Uint32 grass;
