@@ -144,9 +144,14 @@ void RacingCar::setRoadType(RoadType rt) {
 
 void RacingCar::brake(int type) 
 {
+	static int preType = 0;
+	if (type == -1)
+		type = preType;
+	else
+		preType = type;
 	//no acc
 	if (type == 0) {
-		int sign = motion.velLinear > 0 ? -1 : (motion.velLinear<1e-6 && motion.velLinear>-1e-6 ? 0 : 1);
+		int sign = motion.velLinear<1e-6 && motion.velLinear>-1e-6 ? 0 : (motion.velLinear > 0 ? -1 : 1);
 		switch (roadtype) {
 			case NORMAL:
 				motion.accLinear = sign * FRICTION_ACC;

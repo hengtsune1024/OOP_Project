@@ -84,7 +84,7 @@ public:
 
 	const Motion& getMotioin() { return motion; }
 
-	void brake(int);
+	void brake(int = -1);
 	void setRoadType(RoadType);
 
 	void setTrap(Line* l) { virus.setTrap(l); }

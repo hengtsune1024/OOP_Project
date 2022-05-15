@@ -562,6 +562,9 @@ Uint32 Map::move(Uint32 interval, void* para)
 		car->getTrap()->gettrap(STAIN);
 
 
+	/********************************************************************************************************/
+	/********************************************************************************************************/
+
 	if (map->dualMode) {
 
 		car = map->car2;
@@ -572,7 +575,7 @@ Uint32 Map::move(Uint32 interval, void* para)
 		car->setRoadDegree(atan((map->lines[startpos + 1].getx() - map->lines[startpos].getx()) / SEGMENT_LENGTH));
 
 		if (map->lines[startpos].getType() == HIGH_FRICTION) {
-			if (motion.roadMod - 0.6 < 1e-6 && motion.roadMod - 0.6 > -1e-6) {
+			if (!car->isOutofRoad() && (motion.roadMod - 0.6 > 1e-6 || motion.roadMod - 0.6 < -1e-6)) {
 				if (motion.roadMod < 0.6)
 					car->setRoadMod(motion.roadMod + 0.1);
 				else
@@ -580,7 +583,7 @@ Uint32 Map::move(Uint32 interval, void* para)
 			}
 		}
 		else if (map->lines[startpos].getType() == LOW_FRICTION) {
-			if (motion.roadMod - 1.3 < 1e-6 && motion.roadMod - 1.3 > -1e-6) {
+			if (!car->isOutofRoad() && (motion.roadMod - 1.3 > 1e-6 || motion.roadMod - 1.3 < -1e-6)) {
 				if (motion.roadMod < 1.3)
 					car->setRoadMod(motion.roadMod + 0.1);
 				else
@@ -588,7 +591,12 @@ Uint32 Map::move(Uint32 interval, void* para)
 			}
 		}
 		else {
-
+			if (motion.roadMod - 1 > 1e-6 || motion.roadMod - 1 < -1e-6) {
+				if (motion.roadMod < 1)
+					car->setRoadMod(motion.roadMod + 0.1);
+				else
+					car->setRoadMod(motion.roadMod - 0.1);
+			}
 		}
 		car->setVelM(car->getRoadMod() * ((sin(motion.roadDegree) * (map->lines[startpos + 1].getx() - map->lines[startpos].getx()) + cos(motion.roadDegree) * SEGMENT_LENGTH) / SEGMENT_LENGTH));
 
@@ -699,8 +707,7 @@ Uint32 Map::accelerate(Uint32 interval, void* para)
 
 	RacingCar* car = map->car1;
 	const Motion& motion = map->car1->getMotioin();
-	double rmod = 1;
-
+	car->brake();
 	if (car->getRushing()) //excpet RushType == NONE(0), other types will go here
 	{
 		double speedDecrease = AFTERRUSH_SPEED_DECREASE;
@@ -711,8 +718,8 @@ Uint32 Map::accelerate(Uint32 interval, void* para)
 
 		car->setVelLinear(motion.velLinear - speedDecrease);
 		//map->velLinear -= speedDecrease;
-		if (motion.velLinear < MAX_FORWARD_SPEED * rmod) {
-			car->setVelLinear(MAX_FORWARD_SPEED * rmod);
+		if (motion.velLinear < MAX_FORWARD_SPEED) {
+			car->setVelLinear(MAX_FORWARD_SPEED);
 			//map->velLinear = MAX_FORWARD_SPEED;
 			if (motion.accLinear == 0)
 				car->brake(0);
@@ -731,12 +738,12 @@ Uint32 Map::accelerate(Uint32 interval, void* para)
 	{
 		car->setVelLinear(motion.velLinear + motion.accLinear);
 		//map->velLinear += motion.accLinear;
-		if (motion.velLinear > MAX_FORWARD_SPEED * rmod) {
-			car->setVelLinear(MAX_FORWARD_SPEED * rmod);
+		if (motion.velLinear > MAX_FORWARD_SPEED) {
+			car->setVelLinear(MAX_FORWARD_SPEED);
 			//map->velLinear = MAX_FORWARD_SPEED;
 		}
-		else if (motion.velLinear < -MAX_BACKWARD_SPEED * rmod) {
-			car->setVelLinear(-MAX_BACKWARD_SPEED * rmod);
+		else if (motion.velLinear < -MAX_BACKWARD_SPEED) {
+			car->setVelLinear(-MAX_BACKWARD_SPEED);
 			//map->velLinear = -MAX_BACKWARD_SPEED;
 		}
 
@@ -755,7 +762,9 @@ Uint32 Map::accelerate(Uint32 interval, void* para)
 
 		car = map->car2;
 		const Motion& motion = map->car2->getMotioin();
+		car->brake();
 
+		cout << motion.accLinear << ' ' << motion.velLinear << "\n";
 		if (car->getRushing()) //excpet RushType == NONE(0), other types will go here
 		{
 			double speedDecrease = AFTERRUSH_SPEED_DECREASE;
@@ -773,7 +782,7 @@ Uint32 Map::accelerate(Uint32 interval, void* para)
 					car->brake(0);
 					//car->setAccLinear(-FRICTION_ACC);
 				//map->accLinear = -FRICTION_ACC;
-				map->car1->rush(NONE);
+				car->rush(NONE);
 			}
 			car->setCamDepth(motion.camDepth + AFTERRUSH_CAMDEPTH_RECOVER);
 			//map->camDepth += AFTERRUSH_CAMDEPTH_RECOVER;
