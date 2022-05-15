@@ -140,10 +140,7 @@ void eventHandler(SDL_Event& e, RenderWindow& w, Map& map, RacingCar* car1, Raci
 			case SDLK_UP:
 			case SDLK_DOWN:
 				if (car2) {
-					if (car2->getVelLinear() > 0)
-						car2->brake(0);
-					else
-						car2->brake(0);
+					car2->brake(0);
 				}
 				break;
 			case SDLK_LEFT:

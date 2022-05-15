@@ -142,7 +142,6 @@ void Map::draw(SDL_Renderer* renderer)
 	const Motion& m = car1->getMotioin();
 
 	int startpos = m.posX / SEGMENT_LENGTH;
-	printf("%d\n", startpos);
 	int camH = m.camHeight + lines[startpos].gety();
 	int maxy = HEIGHT;
 
@@ -749,7 +748,7 @@ Uint32 Map::accelerate(Uint32 interval, void* para)
 				car->brake(0);
 			//car->setAccLinear(-FRICTION_ACC);
 		//map->accLinear = -FRICTION_ACC;
-			map->car1->rush(NONE);
+			car->rush(NONE);
 		}
 		car->setCamDepth(motion.camDepth + AFTERRUSH_CAMDEPTH_RECOVER);
 		//map->camDepth += AFTERRUSH_CAMDEPTH_RECOVER;
@@ -788,7 +787,6 @@ Uint32 Map::accelerate(Uint32 interval, void* para)
 		const Motion& motion = map->car2->getMotioin();
 		car->brake();
 
-		cout << motion.accLinear << ' ' << motion.velLinear << "\n";
 		if (car->getRushing()) //excpet RushType == NONE(0), other types will go here
 		{
 			double speedDecrease = AFTERRUSH_SPEED_DECREASE;
