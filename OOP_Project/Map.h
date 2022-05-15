@@ -6,6 +6,7 @@
 #include "Line.h"
 #include "RacingCar.h"
 #include "Trap.h"
+#include "Tool.h"
 #include <vector>
 #include <cmath>
 using namespace std;
@@ -71,8 +72,8 @@ public:
 
 	void quit();				// quit every member that need to be quit
 	void draw(SDL_Renderer*);	// draw the map, car, and tools, etc.
-	void gettrap(Trap &);
-
+	void rush(RushType);
+	void usetool(ToolType);
 };
 
 // unused code

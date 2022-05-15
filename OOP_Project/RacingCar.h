@@ -1,6 +1,7 @@
 #pragma once
 #include <SDL.h>
 #include <SDL2_gfxPrimitives.h>
+#include "Tool.h"
 #include "Image.h"
 #include "constants.h"
 #include "Line.h"
@@ -47,9 +48,13 @@ class RacingCar
 	RushType isRushing;
 	bool fullEnergy;
 	bool outOfRoad;
+	bool invincible;
 
 	//trap
 	Trap virus;
+
+	//tool
+	Tool tools;
 
 	//road type
 	RoadType roadtype;
@@ -67,6 +72,9 @@ public:
 	void stopTimer();
 	void turn(int); // move the object
 
+	void usetool(ToolType type);
+
+
 	void rush(RushType);
 	RushType getRushing() { return isRushing; }
 	bool getFullEnergy() { return fullEnergy; }
@@ -80,6 +88,7 @@ public:
 	double getAccLinear() { return motion.accLinear; }
 	double getRoadMod() { return motion.roadMod; }
 	Trap* getTrap() { return &virus; }
+	Tool* getTools() { return &tools; }
 	bool isOutofRoad() { return outOfRoad; }
 
 	const Motion& getMotioin() { return motion; }
@@ -88,6 +97,7 @@ public:
 	void setRoadType(RoadType);
 
 	void setTrap(Line* l) { virus.setTrap(l); }
+	void setTool(Line* l) { tools.setTool(l); }
 	void setOutofRoad(bool o) { outOfRoad = o; }
 
 	void setPosX(double x) { motion.posX = x; }

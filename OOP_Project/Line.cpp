@@ -33,23 +33,23 @@ void Line::project(int camX, int camY, int camZ, double camDegree, double camDep
     W = scale * ROAD_WIDTH * WIDTH / 2;*/
 }
 
-void Line::drawSprite(SDL_Renderer * renderer) {
+void Line::drawSprite(SDL_Renderer* renderer) {
     if (sprite == NULL)
         return;
     int w = sprite->getWidth(), h = sprite->getHeight();
     double destX = X - scale * spriteX * WIDTH / 4;
     double destY = Y + 4;
-    double destW = w * W / 150.0 ;
-    double destH = h * W / 150.0 ;
+    double destW = w * W / 150.0;
+    double destH = h * W / 150.0;
 
     destX -= destW * spriteX;
     destY += -destH;
 
     double clipH = destY + destH - clip - 1;
-    if (clipH < 0) 
+    if (clipH < 0)
         clipH = 0;
 
-    if (clipH >= destH) 
+    if (clipH >= destH)
         return;
 
     SDL_Rect src = { 0,0,w,h - h * clipH / destH };
@@ -60,7 +60,7 @@ void Line::drawSprite(SDL_Renderer * renderer) {
     destX += destW * spriteX;
     dst.x = destX;
     sprite->draw(renderer, &src, &dst, true);
-    
+
 }
 
 void Line::drawActSprite(SDL_Renderer* renderer, int state) {
@@ -83,7 +83,7 @@ void Line::drawActSprite(SDL_Renderer* renderer, int state) {
         return;
 
     SDL_Rect src = { 0,0,w,h - h * clipH / destH };
-    SDL_Rect dst = { destX,destY,destW,destH - clipH };
+    SDL_Rect dst = { destX - destW / 2,destY,destW,destH - clipH };
     actsprite[state].draw(renderer, &src, &dst);
 
     //destX = X + scale * spriteX * WIDTH / 2;

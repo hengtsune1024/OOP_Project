@@ -73,6 +73,9 @@ Map::Map(SDL_Renderer* renderer, bool dual) : lines(NUM_LINE), number_of_lines(N
 		//295 - 300
 		else if (i >= 295 && i < 300)
 			lines[i].setType(TRAPAREA);
+		//195 - 200
+		else if (i >= 195 && i < 200)
+			lines[i].setType(TOOLAREA);
 		//400 - 600
 		else if (i >= 400 && i < 600)
 			lines[i].setType(HIGH_FRICTION);
@@ -81,18 +84,21 @@ Map::Map(SDL_Renderer* renderer, bool dual) : lines(NUM_LINE), number_of_lines(N
 			lines[i].setType(LOW_FRICTION);
 		
 	}
-
-
 	//type
 
 	car1->setTrap(&lines[300]);
+	car1->setTool(&lines[200]);
 	car1->setPosition(WIDTH / 2 - car1->getWidth() / 2, HEIGHT - car1->getHeight() + 20);
 	car1->turn(0);
+
+
 
 	if (dualMode) {
 		car1->setPosY(lines[INITIAL_POS].getx() - ROAD_WIDTH / 2);
 
 		car2->setTrap(&lines[300]);
+		car2->setTool(&lines[200]);
+
 		car2->setPosition(WIDTH / 2 - car2->getWidth() / 2, HEIGHT - car2->getHeight() + 20);
 		car2->setPosY(lines[INITIAL_POS].getx() + ROAD_WIDTH / 2);
 		car2->turn(0);
@@ -136,6 +142,7 @@ void Map::draw(SDL_Renderer* renderer)
 	const Motion& m = car1->getMotioin();
 
 	int startpos = m.posX / SEGMENT_LENGTH;
+	printf("%d\n", startpos);
 	int camH = m.camHeight + lines[startpos].gety();
 	int maxy = HEIGHT;
 
@@ -181,6 +188,7 @@ void Map::draw(SDL_Renderer* renderer)
 		{
 			case NORMAL:
 			case TRAPAREA:
+			case TOOLAREA:
 				rumble = (i >> 2) & 1 ? 0xffffffff : 0xff000000;
 				road = (i >> 2) & 1 ? 0xff6b6b6b : 0xff696969;
 				drawQuad(renderer, { rumble, p.getX(), p.getY(), p.getW() * 1.2, l.getX(), l.getY(), l.getW() * 1.2 });
@@ -257,10 +265,11 @@ void Map::draw(SDL_Renderer* renderer)
 		lines[i].drawSprite(renderer);
 		//filledCircleColor(renderer, lines[i].getX(), lines[i].getY(), 2, 0xffffffff);
 
-		//virus.draw(renderer, &lines[i]);
-		car1->getTrap()->drawImg(renderer, &lines[i]);		//i changed drawImg in entity to public, so that we can directly use it here
-		//lines[i].drawActSprite(renderer, 0);
 	}
+	//virus.draw(renderer, &lines[i]);
+	car1->getTrap()->drawImg(renderer, &lines[300]);
+	//lines[i].drawActSprite(renderer, 0);
+	car1->getTools()->drawImg(renderer, &lines[200]);
 
 	//car
 	car1->draw(renderer);
@@ -268,6 +277,8 @@ void Map::draw(SDL_Renderer* renderer)
 	/**************************/
 	car1->getTrap()->drawStain(renderer);	//only draws stain
 	/**************************/
+
+	car1->getTools()->drawmytool(renderer);
 
 	if (dualMode) {
 
@@ -320,6 +331,7 @@ void Map::draw(SDL_Renderer* renderer)
 			{
 				case NORMAL:
 				case TRAPAREA:
+				case TOOLAREA:
 					rumble = (i >> 2) & 1 ? 0xffffffff : 0xff000000;
 					road = (i >> 2) & 1 ? 0xff6b6b6b : 0xff696969;
 					drawQuad(renderer, { rumble, p.getX(), p.getY(), p.getW() * 1.2, l.getX(), l.getY(), l.getW() * 1.2 });
@@ -396,10 +408,13 @@ void Map::draw(SDL_Renderer* renderer)
 			lines[i].drawSprite(renderer);
 			//filledCircleColor(renderer, lines[i].getX(), lines[i].getY(), 2, 0xffffffff);
 
-			//virus.draw(renderer, &lines[i]);
-			car2->getTrap()->drawImg(renderer, &lines[i]);		//i changed drawImg in entity to public, so that we can directly use it here
-			//lines[i].drawActSprite(renderer, 0);
 		}
+		//virus.draw(renderer, &lines[i]);
+		car2->getTrap()->drawImg(renderer, &lines[300]);		//i changed drawImg in entity to public, so that we can directly use it here
+		//lines[i].drawActSprite(renderer, 0);
+
+		car2->getTools()->drawImg(renderer, &lines[200]);
+
 
 		//car
 		car2->draw(renderer);
@@ -408,6 +423,7 @@ void Map::draw(SDL_Renderer* renderer)
 		car2->getTrap()->drawStain(renderer);	//only draws stain
 		/**************************/
 
+		car2->getTools()->drawmytool(renderer);
 
 		SDL_RenderSetViewport(renderer, NULL);
 		thickLineColor(renderer, WIDTH, 0, WIDTH, HEIGHT, 5, 0xff0000ff);
@@ -560,6 +576,9 @@ Uint32 Map::move(Uint32 interval, void* para)
 	//trap
 	if (map->lines[startpos].getType() == TRAPAREA && motion.posY < map->lines[startpos].getx() + TRAP_WIDTH * motion.velM && motion.posY > map->lines[startpos].getx() - TRAP_WIDTH * motion.velM)
 		car->getTrap()->gettrap(STAIN);
+	//tool
+	if (map->lines[startpos].getType() == TOOLAREA && motion.posY < map->lines[startpos].getx() + TOOL_WIDTH * motion.velM && motion.posY > map->lines[startpos].getx() - TOOL_WIDTH * motion.velM)
+		car->getTools()->getTools();
 
 
 	/********************************************************************************************************/
@@ -696,12 +715,17 @@ Uint32 Map::move(Uint32 interval, void* para)
 		//trap
 		if (map->lines[startpos].getType() == TRAPAREA && motion.posY < map->lines[startpos].getx() + TRAP_WIDTH * motion.velM && motion.posY > map->lines[startpos].getx() - TRAP_WIDTH * motion.velM)
 			car->getTrap()->gettrap(STAIN);
+
+		//tool
+		if (map->lines[startpos].getType() == TOOLAREA && motion.posY < map->lines[startpos].getx() + TOOL_WIDTH * motion.velM && motion.posY > map->lines[startpos].getx() - TOOL_WIDTH * motion.velM)
+			car->getTools()->getTools();
+
 	}
 	//cout << map->camDegree - map->roadDegree << endl;
 	return interval;
 }
 
-Uint32 Map::accelerate(Uint32 interval, void* para) 
+Uint32 Map::accelerate(Uint32 interval, void* para)
 {
 	Map* map = (Map*)para;
 
@@ -723,8 +747,8 @@ Uint32 Map::accelerate(Uint32 interval, void* para)
 			//map->velLinear = MAX_FORWARD_SPEED;
 			if (motion.accLinear == 0)
 				car->brake(0);
-				//car->setAccLinear(-FRICTION_ACC);
-			//map->accLinear = -FRICTION_ACC;
+			//car->setAccLinear(-FRICTION_ACC);
+		//map->accLinear = -FRICTION_ACC;
 			map->car1->rush(NONE);
 		}
 		car->setCamDepth(motion.camDepth + AFTERRUSH_CAMDEPTH_RECOVER);
@@ -815,11 +839,10 @@ Uint32 Map::accelerate(Uint32 interval, void* para)
 
 		}
 	}
-		
+
 	//cout << map->accLinear << " " << map->velLinear << endl;
 	return interval;
 }
-
 
 void Map::startTimer() {
 
@@ -829,12 +852,14 @@ void Map::startTimer() {
 	car1->startTimer(CAR_INTERVAL);
 	if (dualMode)
 		car2->startTimer(CAR_INTERVAL);
+
 }
 
 void Map::removeTimer() {
 	SDL_RemoveTimer(moveTimer);
 	SDL_RemoveTimer(accelerateTimer);
 }
+
 
 /*
 void Map::init() {

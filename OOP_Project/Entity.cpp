@@ -39,8 +39,8 @@ void Entity::closeImg() {
 }
 
 void Entity::drawImg(SDL_Renderer* renderer, Line *line) {
-	
-	line->drawActSprite(renderer, state);
+	if (shownflag)
+		line->drawActSprite(renderer, state);
 	/*
 	SDL_Rect* s = &src, * d = &dst;
 	if (s->x == ALL_REGION)
@@ -52,7 +52,8 @@ void Entity::drawImg(SDL_Renderer* renderer, Line *line) {
 }
 
 void Entity::setEntity(Line* line) {
-	line->setActSprite(&entityImg[state], 2.5);
+	shownflag = true;
+	line->setActSprite(entityImg,2.5);
 }
 
 Uint32 Entity::changeData(Uint32 interval, void* param)

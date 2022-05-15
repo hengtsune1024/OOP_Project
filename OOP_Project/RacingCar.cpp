@@ -12,7 +12,7 @@ RacingCar::~RacingCar() {
 }
 
 RacingCar::RacingCar(const char* path, int n, SDL_Renderer* renderer): 
-	virus("../images/coronavirus/", 15, renderer),
+	virus("../images/coronavirus/", 15, renderer),tools("../images/star/", 5, renderer),
 	isRushing(NONE), fullEnergy(true), energy(100.0), healthPoint(100.0), motion(MOTION_INIT)
 {
 	num = n;
@@ -87,6 +87,11 @@ void RacingCar::draw(SDL_Renderer* renderer)
 		roundedBoxColor(renderer, 13, 43, 13 + (WIDTH / 4 - 6) * (healthPoint / 100.0), 57, 2, 0xff0000ff);
 	else
 		roundedBoxColor(renderer, 13, 43, 13 + (WIDTH / 4 - 6) * 0.02, 57, 1, 0xff0000ff);
+
+	//tool column
+	roundedRectangleRGBA(renderer, 25, 80, 60, 115, 1, 255, 0, 255, 255);
+	roundedRectangleRGBA(renderer, 65, 80, 100, 115, 1, 255, 0, 255, 255);
+	roundedRectangleRGBA(renderer, 105, 80, 140, 115, 1, 255, 0, 255, 255);
 
 }
 
@@ -236,6 +241,9 @@ void RacingCar::rush(RushType r)
 			std::cout << "[Map] rush start" << endl;
 			break;
 		case TOOL:
+			motion.velLinear = ACCROAD_RUSHBEGIN_SPEED;
+			motion.camDepth = BEGINRUSH_CAMDEPTH;
+			std::cout << "[Map] rush start" << endl;
 			break;
 		default:
 			break;
@@ -249,7 +257,19 @@ void RacingCar::rush(RushType r)
 	*/
 }
 
-
+void RacingCar::usetool(ToolType type)
+{
+	switch (tools.usetool(type))
+	{
+	case SPEEDUP:
+		rush(TOOL);
+		break;
+	case INVINCIBLE:
+		printf("INVINCIBLE NOW\n");
+		invincible = true;
+		break;
+	}
+}
 
 //previous code
 /*RacingCar::RacingCar() {}

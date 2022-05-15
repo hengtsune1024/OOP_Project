@@ -69,6 +69,16 @@ void eventHandler(SDL_Event& e, RenderWindow& w, Map& map, RacingCar* car1, Raci
 				car1->rush(ENERGY);
 				break;
 
+			case SDLK_1:
+				car1->usetool(SPEEDUP);
+				break;
+			case SDLK_2:
+				car1->usetool(INVINCIBLE);
+				break;
+			case SDLK_3:
+
+				break;
+
 			//car 2
 			case SDLK_UP:
 				if (car2)
@@ -93,6 +103,17 @@ void eventHandler(SDL_Event& e, RenderWindow& w, Map& map, RacingCar* car1, Raci
 			case SDLK_RETURN:
 				car2->rush(ENERGY);
 				break;
+
+			case SDLK_KP_1:
+				car2->usetool(SPEEDUP);
+				break;
+			case SDLK_KP_2:
+				car2->usetool(INVINCIBLE);
+				break;
+			case SDLK_KP_3:
+
+				break;
+
 
 			default:;
 		}
