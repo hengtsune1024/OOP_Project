@@ -266,10 +266,14 @@ void Map::draw(SDL_Renderer* renderer)
 		//filledCircleColor(renderer, lines[i].getX(), lines[i].getY(), 2, 0xffffffff);
 
 	}
+	//roundedRectangleRGBA(renderer, 145, 80, 175, 115, 1, 255, 0, 255, 255);
+
 	//virus.draw(renderer, &lines[i]);
-	car1->getTrap()->drawImg(renderer, &lines[300]);
+	if (startpos <= 300 && startpos > 0)
+		car1->getTrap()->drawImg(renderer, &lines[300]);
 	//lines[i].drawActSprite(renderer, 0);
-	car1->getTools()->drawImg(renderer, &lines[200]);
+	if (startpos <= 200 && startpos > 0)
+		car1->getTools()->drawImg(renderer, &lines[200]);
 
 	//car
 	car1->draw(renderer);
@@ -410,11 +414,11 @@ void Map::draw(SDL_Renderer* renderer)
 
 		}
 		//virus.draw(renderer, &lines[i]);
-		car2->getTrap()->drawImg(renderer, &lines[300]);		//i changed drawImg in entity to public, so that we can directly use it here
+		if (startpos <= 300 && startpos > 0)
+			car2->getTrap()->drawImg(renderer, &lines[300]);
 		//lines[i].drawActSprite(renderer, 0);
-
-		car2->getTools()->drawImg(renderer, &lines[200]);
-
+		if (startpos <= 200 && startpos > 0)
+			car2->getTools()->drawImg(renderer, &lines[200]);
 
 		//car
 		car2->draw(renderer);
@@ -553,6 +557,8 @@ Uint32 Map::move(Uint32 interval, void* para)
 	//tool
 	if (map->lines[startpos].getType() == TOOLAREA && motion.posY < map->lines[startpos].getx() + TOOL_WIDTH * motion.velM && motion.posY > map->lines[startpos].getx() - TOOL_WIDTH * motion.velM)
 		car->getTools()->getTools();
+
+	if (map->lines[startpos].getType() == OBSTACLEAREA && motion.posY < map->lines[startpos].getx() + TOOL_WIDTH * motion.velM && motion.posY > map->lines[startpos].getx() - TOOL_WIDTH * motion.velM)
 
 
 	if (map->dualMode) {

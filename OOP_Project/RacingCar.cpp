@@ -92,7 +92,6 @@ void RacingCar::draw(SDL_Renderer* renderer)
 	roundedRectangleRGBA(renderer, 25, 80, 60, 115, 1, 255, 0, 255, 255);
 	roundedRectangleRGBA(renderer, 65, 80, 100, 115, 1, 255, 0, 255, 255);
 	roundedRectangleRGBA(renderer, 105, 80, 140, 115, 1, 255, 0, 255, 255);
-
 }
 
 Uint32 RacingCar::changeData(Uint32 interval, void* param)
