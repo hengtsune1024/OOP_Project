@@ -57,10 +57,6 @@ class Map
 	static SDL_Rect viewPort1;
 	static SDL_Rect viewPort2;
 
-	//tool
-	Tool tools;
-
-
 public:
 
 	Map();					// default constructor (initialize nothing)

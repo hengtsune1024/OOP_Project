@@ -74,12 +74,12 @@ enum RushType {
 enum TrapType {
 	STAIN, DIZZY, SPEEDDOWN
 };
-enum ToolType {
+/*enum ToolType {
 	SPEEDUP, INVINCIBLE
-};
+};*/
 
 enum ToolType {
-	ACCELERATE_SHORT, ACCELERATE_LONG, INVINCIBLE
+	SPEEDUP,INVINCIBLE, ACCELERATE_SHORT, ACCELERATE_LONG
 };
 
 /*

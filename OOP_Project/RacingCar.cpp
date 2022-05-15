@@ -12,7 +12,7 @@ RacingCar::~RacingCar() {
 }
 
 RacingCar::RacingCar(const char* path, int n, SDL_Renderer* renderer): 
-	virus("../images/coronavirus/", 15, renderer),
+	virus("../images/coronavirus/", 15, renderer),tools("../images/star/", 5, renderer),
 	isRushing(NONE), fullEnergy(true), energy(100.0), healthPoint(100.0), motion(MOTION_INIT)
 {
 	num = n;
@@ -236,6 +236,9 @@ void RacingCar::rush(RushType r)
 			std::cout << "[Map] rush start" << endl;
 			break;
 		case TOOL:
+			motion.velLinear = ACCROAD_RUSHBEGIN_SPEED;
+			motion.camDepth = BEGINRUSH_CAMDEPTH;
+			std::cout << "[Map] rush start" << endl;
 			break;
 		default:
 			break;
@@ -249,7 +252,19 @@ void RacingCar::rush(RushType r)
 	*/
 }
 
-
+void RacingCar::usetool(ToolType type)
+{
+	switch (tools.usetool(type))
+	{
+	case SPEEDUP:
+		rush(TOOL);
+		break;
+	case INVINCIBLE:
+		printf("INVINCIBLE NOW\n");
+		invincible = true;
+		break;
+	}
+}
 
 //previous code
 /*RacingCar::RacingCar() {}

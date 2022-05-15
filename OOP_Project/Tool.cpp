@@ -65,16 +65,16 @@ int Tool::usetool(ToolType type) {
 		if (Tool1)
 		{
 			Tool1 = 0;
-			return 1;
+			return SPEEDUP;
 		}
 		break;
 	case INVINCIBLE:
 		if (Tool2)
 		{
 			Tool2 = 0;
-			return 1;
+			return INVINCIBLE;
 		}
 		break;
 	}
-	return 0;
+	return -1;
 }
