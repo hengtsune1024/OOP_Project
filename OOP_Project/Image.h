@@ -12,6 +12,8 @@ class Image
 	int width;		//圖片寬高
 	int height;
 
+	int alpha;
+
 public:
 	Image() {}
 	Image(const char* path, SDL_Renderer* renderer);	//圖片初始化
@@ -20,5 +22,7 @@ public:
 	void draw(SDL_Renderer* renderer, SDL_Rect* src, SDL_Rect* dst, bool flip = false);
 	int getWidth() { return width; }
 	int getHeight() { return height; }
+	void setAlpha(int a) { alpha = a; }
+	int getAlpha() { return alpha; }
 };
 

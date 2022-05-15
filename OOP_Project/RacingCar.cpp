@@ -74,6 +74,11 @@ void RacingCar::draw(SDL_Renderer* renderer)
 	else
 		roundedBoxColor(renderer, 13, 43, 13 + (WIDTH / 4 - 6) * 0.02, 57, 1, 0xff0000ff);
 
+	//tool column
+	roundedRectangleRGBA(renderer, 25, 80, 60, 115, 1, 255, 0, 255, 255);
+	roundedRectangleRGBA(renderer, 65, 80, 100, 115, 1, 255, 0, 255, 255);
+	roundedRectangleRGBA(renderer, 105, 80, 140, 115, 1, 255, 0, 255, 255);
+
 }
 
 Uint32 RacingCar::changeData(Uint32 interval, void* param)

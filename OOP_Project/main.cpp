@@ -70,6 +70,17 @@ void eventHandler(SDL_Event& e, RenderWindow& w, Map& m) {
 				cout << "[Main] Press button SPACE" << endl;
 				m.rush(ENERGY);
 				break;
+
+			case SDLK_1:
+				m.usetool(SPEEDUP);
+				break;
+			case SDLK_2:
+				m.usetool(INVINCIBLE);
+				break;
+			case SDLK_3:
+
+				break;
+
 		}
 	}
 	else if (e.type == SDL_KEYUP && e.key.repeat == 0) {

@@ -1,8 +1,6 @@
 #pragma once
 #include "Entity.h"
 
-
-
 class Trap :
     public Entity
 {
@@ -12,9 +10,6 @@ class Trap :
 	int numImage;  
 	int state;
 	*/
-	char path[100];
-	int x;
-	int y;
 	int staintime;
 	Image stain;
 
@@ -25,12 +20,9 @@ public:
 
 	void setTrap(Line *line);
 
-	int getWidth();
-	int getHeight();
 	//void draw(SDL_Renderer* renderer, Line*);
-	void gettrap(TrapType);
 
+	void gettrap(TrapType);
 	void drawStain(SDL_Renderer* renderer);
-	
 };
 

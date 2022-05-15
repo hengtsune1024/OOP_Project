@@ -1,6 +1,7 @@
 #pragma once
 #include <SDL.h>
 #include <SDL2_gfxPrimitives.h>
+#include "Tool.h"
 #include "Image.h"
 #include "constants.h"
 
@@ -29,6 +30,7 @@ class RacingCar
 	RushType isRushing;
 	bool fullEnergy;
 
+
 public:
 	RacingCar();
 	RacingCar(const char* path, int n, SDL_Renderer* renderer);
@@ -45,6 +47,7 @@ public:
 	RushType getRushing() { return isRushing; }
 	bool getFullEnergy() { return fullEnergy; }
 	double getEnergy() { return energy; }
+
 
 };
 

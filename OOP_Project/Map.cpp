@@ -6,7 +6,7 @@ velAngular(0), velLinear(0), roadDegree(0), camDegree(0), accLinear(0), camHeigh
 {}
 
 Map::Map(SDL_Renderer* renderer) : car("../images/RacingCar/racingcar", 13, renderer), lines(NUM_LINE), velM(1), virus("../images/coronavirus/", 15, renderer),
-	streetlight("../images/streetlight.png", renderer), moon("../images/moon.png", renderer),
+	streetlight("../images/streetlight.png", renderer), moon("../images/moon.png", renderer), tools("../images/star/", 5, renderer),
 	number_of_lines(NUM_LINE), camDepth(DEFAULT_CAMERA_DEPTH), posX(INITIAL_POS* SEGMENT_LENGTH), 
 	velAngular(0), velLinear(0), roadDegree(0), camDegree(0), accLinear(0), camHeight(CAMERA_HEIGHT)
 {
@@ -55,6 +55,8 @@ Map::Map(SDL_Renderer* renderer) : car("../images/RacingCar/racingcar", 13, rend
 
 	virus.setTrap(&lines[300]);
 
+	tools.setTool(&lines[200]);
+
 	//type
 	for (int i = INITIAL_POS - 10; i < INITIAL_POS + 22; ++i)
 		lines[i].setType(ENDPOINT);
@@ -66,8 +68,14 @@ Map::Map(SDL_Renderer* renderer) : car("../images/RacingCar/racingcar", 13, rend
 	for (int i = 1800; i < 1800 + ACCROAD_LENGHT; ++i)
 		lines[i].setType(ACCELERATE_LEFT);
 	
-	for(int i=295;i<300;i++)
+	for (int i = 295; i < 300; i++)
 		lines[i].setType(TRAPAREA);
+
+	for (int i = 195; i < 200; i++)
+		lines[i].setType(TOOLAREA);
+
+	for (int i = 245; i < 250; i++)
+		lines[i].setType(OBSTACLEAREA);
 
 	posY = lines[INITIAL_POS].getx();
 	std::cout << "[Map] Map initialized" << endl;
@@ -84,6 +92,7 @@ void Map::quit() {
 	removeTimer();
 	car.quit();
 	virus.quit();
+	tools.quit();
 	streetlight.close();
 	std::cout << "[Map] Map closed" << endl;
 }
@@ -117,6 +126,10 @@ void Map::rush(RushType type)
 			std::cout << "[Map] rush start" << endl;
 			break;
 		case TOOL:
+			velLinear = ACCROAD_RUSHBEGIN_SPEED;
+			camDepth = BEGINRUSH_CAMDEPTH;
+			car.rush(TOOL);
+			std::cout << "[Map] rush start" << endl;
 			break;
 		default:
 			break;
@@ -172,6 +185,8 @@ void Map::draw(SDL_Renderer* renderer)
 		{
 			case NORMAL:
 			case TRAPAREA:
+			case TOOLAREA:
+			case OBSTACLEAREA:
 				rumble = (i >> 2) & 1 ? 0xffffffff : 0xff000000;
 				road = (i >> 2) & 1 ? 0xff6b6b6b : 0xff696969;
 				drawQuad(renderer, { rumble, p.getX(), p.getY(), p.getW() * 1.2, l.getX(), l.getY(), l.getW() * 1.2 });
@@ -238,11 +253,9 @@ void Map::draw(SDL_Renderer* renderer)
 		lines[i].drawSprite(renderer);
 		//filledCircleColor(renderer, lines[i].getX(), lines[i].getY(), 2, 0xffffffff);
 		
-		//virus.draw(renderer, &lines[i]);
-		virus.drawImg(renderer, &lines[i]);		//i changed drawImg in entity to public, so that we can directly use it here
-		//lines[i].drawActSprite(renderer, 0);
+		virus.drawImg(renderer, &lines[300]);		//i changed drawImg in entity to public, so that we can directly use it here
+		tools.drawImg(renderer, &lines[200]);
 	}
-
 	//car
 	car.draw(renderer);
 
@@ -250,6 +263,7 @@ void Map::draw(SDL_Renderer* renderer)
 	virus.drawStain(renderer);	//only draws stain
 	/**************************/
 
+	tools.drawmytool(renderer);
 
 }
 
@@ -261,7 +275,8 @@ Uint32 Map::move(Uint32 interval, void* para) {
 	mp->roadDegree = atan((mp->lines[startpos + 1].getx() - mp->lines[startpos].getx()) / SEGMENT_LENGTH);
 
 	mp->velM = (sin(mp->roadDegree) * (mp->lines[startpos + 1].getx() - mp->lines[startpos].getx()) + cos(mp->roadDegree) * SEGMENT_LENGTH) / SEGMENT_LENGTH;
-	
+	//mp->velM = 1;
+
 	//speed punishment
 	double punish = 1;
 		//cout << mp->lines[startpos + 1].getx() - mp->lines[startpos].getx() << " " << velM << " ";
@@ -342,7 +357,20 @@ Uint32 Map::move(Uint32 interval, void* para) {
 	if (mp->lines[startpos].getType() == TRAPAREA && mp->posY < mp->lines[startpos].getx() + TRAP_WIDTH * mp->velM && mp->posY > mp->lines[startpos].getx() - TRAP_WIDTH * mp->velM)
 		mp->virus.gettrap(STAIN);
 
-	
+	//tool
+	if (mp->lines[startpos].getType() == TOOLAREA && mp->posY < mp->lines[startpos].getx() + TOOL_WIDTH * mp->velM && mp->posY > mp->lines[startpos].getx() - TOOL_WIDTH * mp->velM)
+	{
+		mp->tools.getTools();
+		printf("Get Tool\n");
+	}
+
+	//obstacle
+	if (mp->lines[startpos].getType() == OBSTACLEAREA && mp->posY < mp->lines[startpos].getx() + TOOL_WIDTH * mp->velM && mp->posY > mp->lines[startpos].getx() - TOOL_WIDTH * mp->velM)
+	{
+		mp->velLinear = -mp->velLinear;
+		printf("Touch Obstacle\n");
+	}
+
 	
 	//cout << mp->camDegree - mp->roadDegree << endl;
 	return interval;
@@ -386,26 +414,37 @@ Uint32 Map::accelerate(Uint32 interval, void* para)
 			mp->velLinear = 0;
 			mp->accLinear = 0;
 		}
-
 	}
 	//cout << mp->accLinear << " " << mp->velLinear << endl;
 	return interval;
 }
 
+void Map::usetool(ToolType type) {
+	switch (type)
+	{
+	case SPEEDUP:
+		if(tools.usetool(SPEEDUP))
+			rush(TOOL);
+		break;
+	case INVINCIBLE:
+		if (tools.usetool(INVINCIBLE))
+			printf("INVINCIBLE NOW\n");
+		break;
+	}
+}
 
-
-void Map::turn(int d)
-{
+void Map::turn(int d) {
 	car.turn(d);
 }
 
-void Map::startTimer() {
+void Map::startTimer() { 
 
 	moveTimer = SDL_AddTimer(MOVE_INTERVAL, move, this);
 	accelerateTimer = SDL_AddTimer(ACCELERATE_INTERVAL, accelerate, this);
 
 	virus.startTimer(TRAP_INTERVAL);
 	car.startTimer(CAR_INTERVAL);
+	tools.startTimer(50);
 }
 
 void Map::removeTimer() {

@@ -1,5 +1,4 @@
 #include "Trap.h"
-
 Trap::Trap() {
 
 }
@@ -7,9 +6,8 @@ Trap::~Trap() {
 
 }
 Trap::Trap(const char* path, int n, SDL_Renderer* renderer) :stain("../images/stain.png", renderer)
-
 {
-	staintime = 0;
+	staintime = SDL_GetTicks64() - STAIN_INTERVAL;
 	setImage(path, n, renderer, 0);
 }
 
@@ -23,33 +21,27 @@ void Trap::draw(SDL_Renderer* renderer, Line *line) {
 }
 */
 void Trap::drawStain(SDL_Renderer* renderer) {
-	if (staintime != 0)
+	if (SDL_GetTicks64() - staintime < STAIN_INTERVAL)
 	{
-		//stain.draw(renderer, { NULL }, { NULL });
 		stain.draw(renderer, NULL, NULL);
-		staintime--;
+		shownflag = false;
 	}
+	else
+		shownflag = true;
 }
 
 void Trap::gettrap(TrapType type) {
 	switch (type)
 	{
 		case STAIN:
-			staintime = 500;
+			if (shownflag == true)
+				staintime = SDL_GetTicks64();
 			break;
 		case DIZZY:
 
 			break;
-		case LOST:
+		case SPEEDDOWN:
 
 			break;
-
 	}
 }
-int Trap::getWidth() {
-	return 0;
-}
-int Trap::getHeight() {
-	return 0;
-}
-

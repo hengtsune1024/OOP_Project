@@ -6,6 +6,7 @@
 #include "Line.h"
 #include "RacingCar.h"
 #include "Trap.h"
+#include "Tool.h"
 #include <vector>
 #include <cmath>
 using namespace std;
@@ -63,6 +64,10 @@ class Map
 	//trap
 	Trap virus;
 
+	//tool
+	Tool tools;
+
+
 public:
 
 	Map();					// default constructor (initialize nothing)
@@ -88,7 +93,7 @@ public:
 	void quit();				// quit every member that need to be quit
 	void draw(SDL_Renderer*);	// draw the map, car, and tools, etc.
 	void rush(RushType);
-	void gettrap(Trap &);
+	void usetool(ToolType);
 };
 
 // unused code
