@@ -26,19 +26,10 @@ struct Quad {
 
 class Map
 {
-	//projection
-	double posX;			// x position in 3D world (moving forward and backword)
-	double posY;			// y position in 3D world (moving right and left)
-	double velLinear;		// linear velocity 
-	double velAngular;		// angular velocity 
-	double accLinear;		// linear acceleration 
-	double camDegree;		// camera degree (in radius, x-axis is 0)
-	double roadDegree;		// the degree from x-axis to the road vector (from current segment to the next segment) 
-	double camDepth;
-
-	double velM;
-
-	double camHeight;
+	//cars
+	bool dualMode;
+	RacingCar* car1;
+	RacingCar* car2;
 
 	//road
 	vector<Line> lines;						// road segments constituting the whole road
@@ -54,15 +45,17 @@ class Map
 
 	void removeTimer();							// remove all timers
 
-	//car
-	RacingCar car;								// the car in the map
-
 	//images
 	Image streetlight;
 	Image moon;
-	
-	//trap
-	Trap virus;
+
+	//static member
+	static Uint32 grass;
+	static Uint32 rumble;
+	static Uint32 road;
+	static Uint32 laneLine;
+	static SDL_Rect viewPort1;
+	static SDL_Rect viewPort2;
 
 	//tool
 	Tool tools;
@@ -71,25 +64,16 @@ class Map
 public:
 
 	Map();					// default constructor (initialize nothing)
-	Map(SDL_Renderer*);		// initialize all members except timers
+	Map(SDL_Renderer*, bool = false);		// initialize all members except timers
 	~Map();
 
 	// getters
-	double getPosX() { return posX; }
-	double getPosY() { return posY; }
-	double getVelLinear() { return velLinear; }
-	double getVelAngular() { return velAngular; }
-	double getAccLinear() { return accLinear; }
+	RacingCar* getCar1() { return car1; }
+	RacingCar* getCar2() { return car2; }
 
 	// timer
 	void startTimer();
 
-	// setters
-	void setVelLinear(double v) { velLinear = v; }
-	void setVelAngular(double v) { velAngular = v; }
-	void setAccLinear(double a) { accLinear = a; }
-	void turn(int);
-	  
 	void quit();				// quit every member that need to be quit
 	void draw(SDL_Renderer*);	// draw the map, car, and tools, etc.
 	void rush(RushType);
@@ -98,5 +82,30 @@ public:
 
 // unused code
 /*
+	
+	void setVelLinear(double v) { velLinear = v; }
+	void setVelAngular(double v) { velAngular = v; }
+	void setAccLinear(double a) { accLinear = a; }
+	double getPosX() { return posX; }
+	double getPosY() { return posY; }
+	double getVelLinear() { return velLinear; }
+	double getVelAngular() { return velAngular; }
+	double getAccLinear() { return accLinear; }
+	
+	
+	double posX;			// x position in 3D world (moving forward and backword)
+	double posY;			// y position in 3D world (moving right and left)
+	double velLinear;		// linear velocity 
+	double velAngular;		// angular velocity 
+	double accLinear;		// linear acceleration 
+	double camDegree;		// camera degree (in radius, x-axis is 0)
+	double roadDegree;		// the degree from x-axis to the road vector (from current segment to the next segment) 
+	double camDepth;
+	double velM;
+	double camHeight;
+
+	//void turn(int);
+	//void rush(RushType);
+	
 
 */

@@ -6,15 +6,17 @@
 #include "Map.h" 
 #include "RacingCar.h"
 
-void eventHandler(SDL_Event&, RenderWindow&, Map&);
+void eventHandler(SDL_Event&, RenderWindow&, Map&, RacingCar*, RacingCar* = NULL);
 
-int main(int argc, char* argv[]) {
+int main(int argc, char* argv[]) 
+{
+	bool dual = true;
 	System sdl;
 	RenderWindow window;
 	sdl.init();
-	window.init();
+	window.init(dual);
 	
-	Map map(window.GetRenderer());
+	Map map(window.GetRenderer(), dual);
 	
 	SDL_Event e;
 	bool quit = false;
@@ -28,8 +30,9 @@ int main(int argc, char* argv[]) {
 				quit = true;
 				break;
 			}
-			eventHandler(e, window, map);
+			eventHandler(e, window, map, map.getCar1(), map.getCar2());
 		}
+
 		window.clear();
 		map.draw(window.GetRenderer());
 		window.display();
@@ -41,34 +44,54 @@ int main(int argc, char* argv[]) {
 	return 0;
 }
 
-void eventHandler(SDL_Event& e, RenderWindow& w, Map& m) {
-	if (e.type == SDL_KEYDOWN && e.key.repeat == 0) {
-		switch (e.key.keysym.sym) {
-			case SDLK_UP:
+void eventHandler(SDL_Event& e, RenderWindow& w, Map& map, RacingCar* car1, RacingCar* car2) 
+{
+	if (e.type == SDL_KEYDOWN && e.key.repeat == 0)
+	{
+		switch (e.key.keysym.sym) 
+		{
+			//car 1
 			case SDLK_w:
-				cout << "[Main] Press button UP" << endl;
-				m.setAccLinear(ACCELERATION);
+				car1->brake(1);
 				break;
-			case SDLK_DOWN:
 			case SDLK_s:
-				cout << "[Main] Press button DOWN" << endl;
-				m.setAccLinear(-ACCELERATION);
+				car1->brake(2);
 				break;
-			case SDLK_LEFT:
 			case SDLK_a:
-				cout << "[Main] Press button LEFT" << endl;
-				m.setVelAngular(m.getVelAngular() - ROTATE);
-				m.turn(-1);
+				car1->setVelAngular(car1->getVelAngular() - ROTATE);
+				car1->turn(-1);
 				break;
-			case SDLK_RIGHT:
 			case SDLK_d:
-				cout << "[Main] Press button RIGHT" << endl;
-				m.setVelAngular(m.getVelAngular() + ROTATE);
-				m.turn(1);
+				car1->setVelAngular(car1->getVelAngular() + ROTATE);
+				car1->turn(1);
 				break;
 			case SDLK_SPACE:
-				cout << "[Main] Press button SPACE" << endl;
-				m.rush(ENERGY);
+				car1->rush(ENERGY);
+				break;
+
+			//car 2
+			case SDLK_UP:
+				if (car2)
+					car2->brake(1);
+				break;
+			case SDLK_DOWN:
+				if (car2)
+					car2->brake(2);
+				break;
+			case SDLK_LEFT:
+				if (car2) {
+					car2->setVelAngular(car2->getVelAngular() - ROTATE);
+					car2->turn(-1);
+				}
+				break;
+			case SDLK_RIGHT:
+				if (car2) {
+					car2->setVelAngular(car2->getVelAngular() + ROTATE);
+					car2->turn(1);
+				}
+				break;
+			case SDLK_RETURN:
+				car2->rush(ENERGY);
 				break;
 
 			case SDLK_1:
@@ -81,29 +104,55 @@ void eventHandler(SDL_Event& e, RenderWindow& w, Map& m) {
 
 				break;
 
+
+			default:;
 		}
 	}
-	else if (e.type == SDL_KEYUP && e.key.repeat == 0) {
-		switch (e.key.keysym.sym) {
-			case SDLK_UP:
-			case SDLK_w:
-			case SDLK_DOWN:
+	else if (e.type == SDL_KEYUP && e.key.repeat == 0)
+	{
+		switch (e.key.keysym.sym) 
+		{
+			//car 1
 			case SDLK_s:
-				if (m.getVelLinear() > 0)
-					m.setAccLinear(-FRICTION_ACC);
+			case SDLK_w:
+				if (car1->getVelLinear() > 0)
+					car1->brake(0);
 				else
-					m.setAccLinear(FRICTION_ACC);
+					car1->brake(0);
+				break;
+			case SDLK_a:
+				car1->setVelAngular(car1->getVelAngular() + ROTATE);
+				car1->turn(0);
+				break;
+			case SDLK_d:
+				car1->setVelAngular(car1->getVelAngular() - ROTATE);
+				car1->turn(0);
+				break;
+
+			//car 2
+			case SDLK_UP:
+			case SDLK_DOWN:
+				if (car2) {
+					if (car2->getVelLinear() > 0)
+						car2->brake(0);
+					else
+						car2->brake(0);
+				}
 				break;
 			case SDLK_LEFT:
-			case SDLK_a:
-				m.setVelAngular(m.getVelAngular() + ROTATE);
-				m.turn(0);
+				if (car2) {
+					car2->setVelAngular(car2->getVelAngular() + ROTATE);
+					car2->turn(0);
+				}
 				break;
 			case SDLK_RIGHT:
-			case SDLK_d:
-				m.setVelAngular(m.getVelAngular() - ROTATE);
-				m.turn(0);
+				if (car2) {
+					car2->setVelAngular(car2->getVelAngular() - ROTATE);
+					car2->turn(0);
+				}
 				break;
+
+			default:;
 		}
 	}
 }

@@ -1,8 +1,19 @@
 #include "RacingCar.h"
-RacingCar::RacingCar():isRushing(NONE), fullEnergy(true), energy(100.0), healthPoint(100.0)
+RacingCar::RacingCar():
+	isRushing(NONE), fullEnergy(true), energy(100.0), healthPoint(100.0), 
+	motion(MOTION_INIT), roadtype(NORMAL), outOfRoad(false)
 {}
+
+RacingCar::~RacingCar() {
+	if (image != NULL) {
+		delete[]image;
+		image = NULL;
+	}
+}
+
 RacingCar::RacingCar(const char* path, int n, SDL_Renderer* renderer): 
-	isRushing(NONE), fullEnergy(true), energy(100.0), healthPoint(100.0)
+	virus("../images/coronavirus/", 15, renderer),
+	isRushing(NONE), fullEnergy(true), energy(100.0), healthPoint(100.0), motion(MOTION_INIT)
 {
 	num = n;
 	image = new Image[num];
@@ -20,15 +31,18 @@ RacingCar::RacingCar(const char* path, int n, SDL_Renderer* renderer):
 
 void RacingCar::quit()
 {
+	// Remove timer in case the call back was not called	
+	SDL_RemoveTimer(cartimer);
+	SDL_RemoveTimer(chargeTimer);
+
 	// Free loaded image	
 	for (int i = 0; i < num; i++)
 	{
 		image[i].close();
 	}
 
-	// Remove timer in case the call back was not called	
-	SDL_RemoveTimer(cartimer);
-	SDL_RemoveTimer(chargeTimer);
+	virus.quit();
+
 }
 
 void RacingCar::setPosition(int xx, int yy)
@@ -114,7 +128,7 @@ void RacingCar::startTimer(Uint32 t)
 {
 	time = t;
 	cartimer = SDL_AddTimer(time, changeData, this); // Set Timer callback
-
+	virus.startTimer(TRAP_INTERVAL);
 	chargeTimer = SDL_AddTimer(CHARGE_INTERVAL, charge, this);
 }
 
@@ -126,6 +140,59 @@ void RacingCar::turn(int d)
 {
 	direct = d;
 } 
+
+void RacingCar::setRoadType(RoadType rt) {
+	if (rt == NORMAL || rt == HIGH_FRICTION || rt == LOW_FRICTION) {
+		roadtype = rt;
+	}
+}
+
+void RacingCar::brake(int type) 
+{
+	//no acc
+	if (type == 0) {
+		int sign = motion.velLinear > 0 ? -1 : (motion.velLinear<1e-6 && motion.velLinear>-1e-6 ? 0 : 1);
+		switch (roadtype) {
+			case NORMAL:
+				motion.accLinear = sign * FRICTION_ACC;
+				break;
+			case HIGH_FRICTION:
+				motion.accLinear = sign * HIGH_FRICTION_ACC;
+				break;
+			case LOW_FRICTION:
+				motion.accLinear = sign * LOW_FRICTION_ACC;
+				break;
+		}
+	}
+	//foward
+	else if (type == 1) {
+		switch (roadtype) {
+			case NORMAL:
+				motion.accLinear = ACCELERATION - FRICTION_ACC;
+				break;
+			case HIGH_FRICTION:
+				motion.accLinear = ACCELERATION - HIGH_FRICTION_ACC;
+				break;
+			case LOW_FRICTION:
+				motion.accLinear = ACCELERATION - LOW_FRICTION_ACC;
+				break;
+		}
+	}
+	//backward
+	else if (type == 2) {
+		switch (roadtype) {
+			case NORMAL:
+				motion.accLinear = -ACCELERATION + FRICTION_ACC;
+				break;
+			case HIGH_FRICTION:
+				motion.accLinear = -ACCELERATION + HIGH_FRICTION_ACC;
+				break;
+			case LOW_FRICTION:
+				motion.accLinear = -ACCELERATION + LOW_FRICTION_ACC;
+				break;
+		}
+	}
+}
 
 Uint32 RacingCar::charge(Uint32 interval, void* para) {
 
@@ -144,13 +211,42 @@ Uint32 RacingCar::charge(Uint32 interval, void* para) {
 	return interval;
 }
 
-void RacingCar::rush(RushType r) {
+void RacingCar::rush(RushType r) 
+{
+	isRushing = r;
+	switch (r)
+	{
+		case ENERGY:
+			if (fullEnergy) {
+				motion.velLinear = ENERGY_RUSHBEGIN_SPEED;
+				motion.camDepth = BEGINRUSH_CAMDEPTH;
+				fullEnergy = false;
+				energy = 0;
+				std::cout << "[Map] rush start" << endl;
+			}
+			else {
+				std::cout << "[Map] not enough energy :" << energy << endl;
+			}
+			break;
 
+		case ACCROAD:
+			motion.velLinear = ACCROAD_RUSHBEGIN_SPEED;
+			motion.camDepth = BEGINRUSH_CAMDEPTH;
+			//car.rush(ACCROAD);
+			std::cout << "[Map] rush start" << endl;
+			break;
+		case TOOL:
+			break;
+		default:
+			break;
+	}
+	/*
 	isRushing = r;
 	if (r == ENERGY) {
 		fullEnergy = false;
 		energy = 0;
 	}
+	*/
 }
 
 

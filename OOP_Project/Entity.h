@@ -17,7 +17,8 @@ class Entity
 
 public:
 	Entity();
-	virtual ~Entity();
+	Entity(const char path[], int num_Imag, SDL_Renderer* renderer, int init_state);
+	~Entity();
 
 	void quit();
 	void startTimer(Uint32 t);

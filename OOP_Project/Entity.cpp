@@ -1,10 +1,25 @@
 #include "Entity.h"
 
 Entity::Entity() {
-	entityImg = NULL;
-}
-Entity::~Entity() {
 
+}
+
+Entity::Entity(const char path[], int num_Imag, SDL_Renderer* renderer, int init_state) {
+	numImage = num_Imag;
+	entityImg = new Image[numImage];
+	for (int i = 0; i < numImage; ++i) {
+		char _path[100];
+		sprintf_s(_path, "%s%02d.png", path, i + 1);
+		entityImg[i].set(_path, renderer);
+	}
+	state = init_state;
+}
+
+Entity::~Entity() {
+	if (entityImg != NULL) {
+		delete[]entityImg;
+		entityImg = NULL;
+	}
 }
 void Entity::setImage(const char path[], int num_Imag, SDL_Renderer* renderer, int init_state) 
 {
@@ -66,6 +81,7 @@ Uint32 Entity::changeData(Uint32 interval, void* param)
 void Entity::quit() {
 	closeImg();
 	SDL_RemoveTimer(entitytimer);
+	
 }
 void Entity::startTimer(Uint32 t) {
 	time = t;

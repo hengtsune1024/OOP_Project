@@ -2,6 +2,7 @@
 Trap::Trap() {
 
 }
+
 Trap::~Trap() {
 
 }
