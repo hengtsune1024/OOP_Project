@@ -143,13 +143,15 @@ void Map::draw(SDL_Renderer* renderer)
 
 	int startpos = m.posX / SEGMENT_LENGTH;
 	int camH = m.camHeight + lines[startpos].gety();
+	if (car1->isInAir())
+		camH = m.camHeight + car1->baseHeight;
 	int maxy = HEIGHT;
 
 	//road and ground
 	laneLine = 0xffffffff;
 	static int colorChange1 = 0;
 
-	boxColor(renderer, 0, HEIGHT / 2, WIDTH, HEIGHT, 0xff10c810);
+	//boxColor(renderer, 0, HEIGHT / 2, WIDTH, HEIGHT, 0xff10c810);
 	double moonW = moon.getWidth();
 
 	SDL_Rect dst = { (1 - sin(m.camDegree) * 1.2) * WIDTH / 2 - moonW / 2,30,moonW,moon.getHeight() };
@@ -266,9 +268,11 @@ void Map::draw(SDL_Renderer* renderer)
 
 	}
 	//virus.draw(renderer, &lines[i]);
-	car1->getTrap()->drawImg(renderer, &lines[300]);
+	if (startpos + 300 > 300 && startpos < 300)
+		car1->getTrap()->drawImg(renderer, &lines[300]);
 	//lines[i].drawActSprite(renderer, 0);
-	car1->getTools()->drawImg(renderer, &lines[200]);
+	if (startpos + 300 > 200 && startpos < 200)
+		car1->getTools()->drawImg(renderer, &lines[200]);
 
 	//car
 	car1->draw(renderer);
@@ -409,10 +413,12 @@ void Map::draw(SDL_Renderer* renderer)
 
 		}
 		//virus.draw(renderer, &lines[i]);
-		car2->getTrap()->drawImg(renderer, &lines[300]);		//i changed drawImg in entity to public, so that we can directly use it here
+		if (startpos + 300 > 300 && startpos < 300)
+			car2->getTrap()->drawImg(renderer, &lines[300]);		//i changed drawImg in entity to public, so that we can directly use it here
 		//lines[i].drawActSprite(renderer, 0);
 
-		car2->getTools()->drawImg(renderer, &lines[200]);
+		if (startpos + 300 > 300 && startpos < 300)
+			car2->getTools()->drawImg(renderer, &lines[200]);
 
 
 		//car
@@ -436,8 +442,27 @@ Uint32 Map::move(Uint32 interval, void* para)
 	RacingCar* car = map->car1;
 	const Motion& motion = map->car1->getMotioin();
 
-	//velocity modification
 	int startpos = motion.posX / SEGMENT_LENGTH;
+
+	//perpendicular
+	car->setCamHeight(motion.camHeight + motion.velPerpen);
+	cout << car->isInAir() << endl;
+	if (car->isInAir() && (motion.camHeight + car->baseHeight) - (CAMERA_HEIGHT + map->lines[startpos].gety()) < -1e-6) {
+		car->setCamHeight(CAMERA_HEIGHT);
+		cout << "set camH to default" << endl;
+		car->setInAir(false);
+	}
+	else if (!car->isInAir()) {
+		if (motion.camHeight - CAMERA_HEIGHT > 1e-6) {
+			car->setInAir(true);
+			car->baseHeight = map->lines[startpos].gety();
+		}
+		else {
+			car->setCamHeight(CAMERA_HEIGHT);
+		}
+	}
+
+	//velocity modification
 	car->setRoadDegree(atan((map->lines[startpos + 1].getx() - map->lines[startpos].getx()) / SEGMENT_LENGTH));
 	
 	//speed punishment
@@ -563,7 +588,7 @@ Uint32 Map::move(Uint32 interval, void* para)
 	}
 
 	//special road
-	if (car->getRushing() != ACCROAD && (map->lines[startpos].getType() == ACCELERATE_LEFT || map->lines[startpos].getType() == ACCELERATE_RIGHT)) {
+	if (!car->isInAir() && car->getRushing() != ACCROAD && (map->lines[startpos].getType() == ACCELERATE_LEFT || map->lines[startpos].getType() == ACCELERATE_RIGHT)) {
 		if (map->lines[startpos].getType() == ACCELERATE_LEFT && (motion.posY < map->lines[startpos].getx() && motion.posY > map->lines[startpos].getx() - ROAD_WIDTH * motion.velM)) {
 			car->rush(ACCROAD);
 		}
@@ -573,11 +598,13 @@ Uint32 Map::move(Uint32 interval, void* para)
 	}
 
 	//trap
-	if (map->lines[startpos].getType() == TRAPAREA && motion.posY < map->lines[startpos].getx() + TRAP_WIDTH * motion.velM && motion.posY > map->lines[startpos].getx() - TRAP_WIDTH * motion.velM)
+	if (!car->isInAir() && map->lines[startpos].getType() == TRAPAREA && motion.posY < map->lines[startpos].getx() + TRAP_WIDTH * motion.velM && motion.posY > map->lines[startpos].getx() - TRAP_WIDTH * motion.velM)
 		car->getTrap()->gettrap(STAIN);
 	//tool
-	if (map->lines[startpos].getType() == TOOLAREA && motion.posY < map->lines[startpos].getx() + TOOL_WIDTH * motion.velM && motion.posY > map->lines[startpos].getx() - TOOL_WIDTH * motion.velM)
+	if (!car->isInAir() && map->lines[startpos].getType() == TOOLAREA && motion.posY < map->lines[startpos].getx() + TOOL_WIDTH * motion.velM && motion.posY > map->lines[startpos].getx() - TOOL_WIDTH * motion.velM)
 		car->getTools()->getTools();
+
+	
 
 
 	/********************************************************************************************************/

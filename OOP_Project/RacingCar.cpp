@@ -1,7 +1,7 @@
 #include "RacingCar.h"
-RacingCar::RacingCar():
-	isRushing(NONE), fullEnergy(true), energy(100.0), healthPoint(100.0), 
-	motion(MOTION_INIT), roadtype(NORMAL), outOfRoad(false)
+RacingCar::RacingCar() :
+	isRushing(NONE), fullEnergy(true), energy(100.0), healthPoint(100.0),
+	motion(MOTION_INIT), roadtype(NORMAL), outOfRoad(false), inAir(false)
 {}
 
 RacingCar::~RacingCar() {
@@ -13,7 +13,7 @@ RacingCar::~RacingCar() {
 
 RacingCar::RacingCar(const char* path, int n, SDL_Renderer* renderer): 
 	virus("../images/coronavirus/", 15, renderer),tools("../images/star/", 5, renderer),
-	isRushing(NONE), fullEnergy(true), energy(100.0), healthPoint(100.0), motion(MOTION_INIT)
+	isRushing(NONE), fullEnergy(true), energy(100.0), healthPoint(100.0), motion(MOTION_INIT), accState(0)
 {
 	num = n;
 	image = new Image[num];
@@ -149,13 +149,10 @@ void RacingCar::setRoadType(RoadType rt) {
 
 void RacingCar::brake(int type) 
 {
-	/*
-	static int preType = 0;
 	if (type == -1)
-		type = preType;
+		type = accState;
 	else
-		preType = type;
-	*/
+		accState = type;
 	//no acc
 	if (type == 0) {
 		int sign = motion.velLinear<1e-6 && motion.velLinear>-1e-6 ? 0 : (motion.velLinear > 0 ? -1 : 1);

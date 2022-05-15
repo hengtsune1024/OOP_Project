@@ -13,6 +13,7 @@ struct Motion {
 	double posX;			// x position in 3D world (moving forward and backword)
 	double posY;			// y position in 3D world (moving right and left)
 	double velLinear;		// linear velocity 
+	double velPerpen;
 	double velAngular;		// angular velocity 
 	double accLinear;		// linear acceleration 
 	double camDegree;		// camera degree (in radius, x-axis is 0)
@@ -49,6 +50,8 @@ class RacingCar
 	bool fullEnergy;
 	bool outOfRoad;
 	bool invincible;
+	int accState;
+	bool inAir;
 
 	//trap
 	Trap virus;
@@ -59,7 +62,9 @@ class RacingCar
 	//road type
 	RoadType roadtype;
 
+
 public:
+	double baseHeight; //only used when in air
 	RacingCar();
 	RacingCar(const char* path, int n, SDL_Renderer* renderer);
 	~RacingCar();
@@ -90,10 +95,19 @@ public:
 	Trap* getTrap() { return &virus; }
 	Tool* getTools() { return &tools; }
 	bool isOutofRoad() { return outOfRoad; }
+	bool isInAir() { return inAir; }
+
+	double getCamHeight() { return motion.camHeight; }
+	void setCamHeight(double ch) { motion.camHeight = ch; }
+
+	double getVelPerpen() { return motion.velPerpen; }
+	void setVelPerpen(double vp) { motion.velPerpen = vp; }
+
+	void setInAir(bool ia) { inAir = ia; }
 
 	const Motion& getMotioin() { return motion; }
 
-	void brake(int = -1);
+	void brake(int = -1);		//car accelerating
 	void setRoadType(RoadType);
 
 	void setTrap(Line* l) { virus.setTrap(l); }
