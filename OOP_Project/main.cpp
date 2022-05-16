@@ -7,11 +7,10 @@
 #include "RacingCar.h"
 
 void eventHandler(SDL_Event&, RenderWindow&, Map&, RacingCar*, RacingCar* = NULL);
-bool dual = true;
 
 int main(int argc, char* argv[]) 
 {
-	
+	bool dual = true;
 	System sdl;
 	RenderWindow window;
 	sdl.init();
@@ -73,10 +72,11 @@ void eventHandler(SDL_Event& e, RenderWindow& w, Map& map, RacingCar* car1, Raci
 			case SDLK_e:
 				car1->setVelPerpen(car1->getVelPerpen() + 300);
 				break;
+			/*
 			case SDLK_q:
 				car1->setVelPerpen(car1->getVelPerpen() - 300);
 				break;
-
+			*/
 			case SDLK_1:
 				car1->usetool(SPEEDUP);
 				break;
@@ -86,10 +86,6 @@ void eventHandler(SDL_Event& e, RenderWindow& w, Map& map, RacingCar* car1, Raci
 			case SDLK_3:
 
 				break;
-			case SDLK_0:
-				dual = true;
-				break;
-
 			//car 2
 			case SDLK_UP:
 				if (car2)
@@ -115,6 +111,13 @@ void eventHandler(SDL_Event& e, RenderWindow& w, Map& map, RacingCar* car1, Raci
 				car2->rush(ENERGY);
 				break;
 
+			case SDLK_o:
+				car2->setVelPerpen(car2->getVelPerpen() + 300);
+				break;
+				/*
+			case SDLK_l:
+				car2->setVelPerpen(car2->getVelPerpen() - 300);
+				*/
 			case SDLK_KP_1:
 				car2->usetool(SPEEDUP);
 				break;
@@ -175,6 +178,12 @@ void eventHandler(SDL_Event& e, RenderWindow& w, Map& map, RacingCar* car1, Raci
 				}
 				break;
 
+			case SDLK_o:
+				car2->setVelPerpen(car2->getVelPerpen() - 300);
+				break;
+			case SDLK_l:
+				car2->setVelPerpen(car2->getVelPerpen() + 300);
+				break;
 			default:;
 		}
 	}

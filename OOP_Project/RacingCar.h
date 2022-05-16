@@ -63,13 +63,14 @@ class RacingCar
 	Obstacle rock;
 
 	//road type
-	RoadType roadtype;
+	unsigned long long roadtype;
+	Line* currentPos;
 
 
 public:
 	double baseHeight; //only used when in air
 	RacingCar();
-	RacingCar(const char* path, int n, SDL_Renderer* renderer);
+	RacingCar(const char* path, int n, SDL_Renderer* renderer, Line*);
 	~RacingCar();
 	void quit();
 	void setPosition(int xx, int yy);
@@ -101,6 +102,9 @@ public:
 	bool isOutofRoad() { return outOfRoad; }
 	bool isInAir() { return inAir; }
 
+	Line* getCurrentPos() { return currentPos; }
+	void setCurrentPos(Line* l) { currentPos = l; }
+
 	double getCamHeight() { return motion.camHeight; }
 	void setCamHeight(double ch) { motion.camHeight = ch; }
 
@@ -112,7 +116,7 @@ public:
 	const Motion& getMotioin() { return motion; }
 
 	void brake(int = -1);		//car accelerating
-	void setRoadType(RoadType);
+	void setRoadType(unsigned long long);
 
 	void setTrap(Line* l) { virus.setTrap(l); }
 	void setTool(Line* l) { tools.setTool(l); }
