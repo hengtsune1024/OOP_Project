@@ -509,7 +509,6 @@ Uint32 Map::move(Uint32 interval, void* para)
 
 	car->setVelM(car->getRoadMod() * (sin(motion.roadDegree) * (map->lines[startpos + 1].getx() - map->lines[startpos].getx()) + cos(motion.roadDegree) * SEGMENT_LENGTH) / SEGMENT_LENGTH);
 
-
 	//set car road type
 	car->setRoadType(type);
 	/*
@@ -594,7 +593,7 @@ Uint32 Map::move(Uint32 interval, void* para)
 	if (!car->isInAir()) {
 		//special road
 		type = map->lines[startpos].getType();
-		if (!car->isInAir() && car->getRushing() != ACCROAD && ((type & ACCELERATE_LEFT) || (type & ACCELERATE_RIGHT))) {
+		if (car->getRushing() != ACCROAD && ((type & ACCELERATE_LEFT) || (type & ACCELERATE_RIGHT))) {
 			if ((type & ACCELERATE_LEFT) && (motion.posY < map->lines[startpos].getx() && motion.posY > map->lines[startpos].getx() - ROAD_WIDTH * motion.velM)) {
 				car->rush(ACCROAD);
 			}
@@ -602,22 +601,23 @@ Uint32 Map::move(Uint32 interval, void* para)
 				car->rush(ACCROAD);
 			}
 		}
-	}
-	//trap
-	if (!car->isInAir() && (type & TRAPAREA) && motion.posY < map->lines[startpos].getx() + TRAP_WIDTH * motion.velM && motion.posY > map->lines[startpos].getx() - TRAP_WIDTH * motion.velM)
-		car->getTrap()->gettrap(STAIN);
-	//tool
-	if (!car->isInAir() && (type & TOOLAREA) && motion.posY < map->lines[startpos].getx() + TOOL_WIDTH * motion.velM && motion.posY > map->lines[startpos].getx() - TOOL_WIDTH * motion.velM)
-		car->getTools()->getTools();
+		//trap
+		if ((type & TRAPAREA) && motion.posY < map->lines[startpos].getx() + TRAP_WIDTH * motion.velM && motion.posY > map->lines[startpos].getx() - TRAP_WIDTH * motion.velM)
+			car->getTrap()->gettrap(STAIN);
+		//tool
+		if ((type & TOOLAREA) && motion.posY < map->lines[startpos].getx() + TOOL_WIDTH * motion.velM && motion.posY > map->lines[startpos].getx() - TOOL_WIDTH * motion.velM)
+			car->getTools()->getTools();
 
-	if (!car->isInAir() && (type & OBSTACLEAREA) && motion.posY < map->lines[startpos].getx() + TOOL_WIDTH * motion.velM && motion.posY > map->lines[startpos].getx() - TOOL_WIDTH * motion.velM)
+		if ((type & OBSTACLEAREA) && motion.posY < map->lines[startpos].getx() + TOOL_WIDTH * motion.velM && motion.posY > map->lines[startpos].getx() - TOOL_WIDTH * motion.velM)
+		{
+			car->touchobstacle();
+			//printf("Touch Obstacle\n");
+		}
+	}
+	
+	cout << motion.velLinear <<' '<<motion.accLinear << endl;
+	if (map->dualMode) 
 	{
-		car->touchobstacle();
-		//printf("Touch Obstacle\n");
-	}
-
-	if (map->dualMode) {
-
 		car = map->car2;
 		const Motion& motion = map->car2->getMotioin();
 
@@ -653,7 +653,7 @@ Uint32 Map::move(Uint32 interval, void* para)
 
 		//speed punishment
 		punish = 1.0;
-
+		//cout << map->lines[startpos + 1].getx() - map->lines[startpos].getx() << " " << velM << " ";
 		if (motion.posY > map->lines[startpos].getx() + ROAD_WIDTH * motion.velM || motion.posY < map->lines[startpos].getx() - ROAD_WIDTH * motion.velM) {
 			punish = (ROAD_WIDTH * motion.velM) / (motion.posY - map->lines[startpos].getx());
 			if (punish < 0)
@@ -690,7 +690,6 @@ Uint32 Map::move(Uint32 interval, void* para)
 		}
 
 		car->setVelM(car->getRoadMod() * (sin(motion.roadDegree) * (map->lines[startpos + 1].getx() - map->lines[startpos].getx()) + cos(motion.roadDegree) * SEGMENT_LENGTH) / SEGMENT_LENGTH);
-
 
 		//set car road type
 		car->setRoadType(type);
@@ -758,10 +757,11 @@ Uint32 Map::move(Uint32 interval, void* para)
 				//map->camDegree = motion.roadDegree + MAX_ROTATE_DEGREE / motion.velM;
 			}
 		}
+
 		if (!car->isInAir()) {
 			//special road
 			type = map->lines[startpos].getType();
-			if (!car->isInAir() && car->getRushing() != ACCROAD && ((type & ACCELERATE_LEFT) || (type & ACCELERATE_RIGHT))) {
+			if (car->getRushing() != ACCROAD && ((type & ACCELERATE_LEFT) || (type & ACCELERATE_RIGHT))) {
 				if ((type & ACCELERATE_LEFT) && (motion.posY < map->lines[startpos].getx() && motion.posY > map->lines[startpos].getx() - ROAD_WIDTH * motion.velM)) {
 					car->rush(ACCROAD);
 				}
@@ -769,19 +769,18 @@ Uint32 Map::move(Uint32 interval, void* para)
 					car->rush(ACCROAD);
 				}
 			}
-		}
-		//trap
-		if (!car->isInAir() && map->lines[startpos].getType() == TRAPAREA && motion.posY < map->lines[startpos].getx() + TRAP_WIDTH * motion.velM && motion.posY > map->lines[startpos].getx() - TRAP_WIDTH * motion.velM)
-			car->getTrap()->gettrap(STAIN);
-		//tool
-		if (!car->isInAir() && map->lines[startpos].getType() == TOOLAREA && motion.posY < map->lines[startpos].getx() + TOOL_WIDTH * motion.velM && motion.posY > map->lines[startpos].getx() - TOOL_WIDTH * motion.velM)
-			car->getTools()->getTools();
-
-		//obstacle
-		if (!car->isInAir() && (type & OBSTACLEAREA) && motion.posY < map->lines[startpos].getx() + TOOL_WIDTH * motion.velM && motion.posY > map->lines[startpos].getx() - TOOL_WIDTH * motion.velM)
-		{
-			car->touchobstacle();
-			printf("Touch Obstacle\n");
+			//trap
+			if ((type & TRAPAREA) && motion.posY < map->lines[startpos].getx() + TRAP_WIDTH * motion.velM && motion.posY > map->lines[startpos].getx() - TRAP_WIDTH * motion.velM)
+				car->getTrap()->gettrap(STAIN);
+			//tool
+			if ((type & TOOLAREA) && motion.posY < map->lines[startpos].getx() + TOOL_WIDTH * motion.velM && motion.posY > map->lines[startpos].getx() - TOOL_WIDTH * motion.velM)
+				car->getTools()->getTools();
+			//obstacle
+			if ((type & OBSTACLEAREA) && motion.posY < map->lines[startpos].getx() + TOOL_WIDTH * motion.velM && motion.posY > map->lines[startpos].getx() - TOOL_WIDTH * motion.velM)
+			{
+				car->touchobstacle();
+				//printf("Touch Obstacle\n");
+			}
 		}
 
 	}
@@ -849,8 +848,8 @@ Uint32 Map::accelerate(Uint32 interval, void* para)
 
 		car = map->car2;
 		const Motion& motion = map->car2->getMotioin();
-		car->brake();
 
+		car->brake();
 		if (car->getRushing()) //excpet RushType == NONE(0), other types will go here
 		{
 			double speedDecrease = AFTERRUSH_SPEED_DECREASE;
@@ -897,7 +896,6 @@ Uint32 Map::accelerate(Uint32 interval, void* para)
 				//map->velLinear = 0;
 				//map->accLinear = 0;
 			}
-
 		}
 	}
 
