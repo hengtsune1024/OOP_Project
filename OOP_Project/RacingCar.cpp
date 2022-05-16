@@ -124,6 +124,7 @@ Uint32 RacingCar::changeData(Uint32 interval, void* param)
 		return 0;
 	}
 }
+
 void RacingCar::startTimer(Uint32 t)
 {
 	time = t;
@@ -162,7 +163,7 @@ void RacingCar::brake(int type)
 	if (type == 0) {
 		int sign = motion.velLinear<1e-6 && motion.velLinear>-1e-6 ? 0 : (motion.velLinear > 0 ? -1 : 1);
 		double acc;
-		if (roadtype & NORMAL) {
+		if ((roadtype & NORMAL) || outOfRoad) {
 			motion.accLinear = sign * FRICTION_ACC;
 			acc = FRICTION_ACC;
 		}
@@ -201,7 +202,7 @@ void RacingCar::brake(int type)
 	}
 	//foward
 	else if (type == 1) {
-		if (roadtype & NORMAL) {
+		if ((roadtype & NORMAL) || outOfRoad) {
 			motion.accLinear = ACCELERATION - FRICTION_ACC;
 		}
 		else if (roadtype & HIGH_FRICTION) {
@@ -216,7 +217,7 @@ void RacingCar::brake(int type)
 	}
 	//backward
 	else if (type == 2) {
-		if (roadtype & NORMAL) {
+		if ((roadtype & NORMAL) || outOfRoad) {
 			motion.accLinear = -ACCELERATION + FRICTION_ACC;
 		}
 		else if (roadtype & HIGH_FRICTION) {
