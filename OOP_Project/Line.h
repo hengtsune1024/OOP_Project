@@ -12,7 +12,8 @@ class Line
     double scale;   // needed in projection
     double spriteX;
     double clip;
-    RoadType type;    
+    double slope;
+    unsigned long long type;
     Image* sprite;
     Image* actsprite;
 
@@ -27,13 +28,13 @@ public:
     double getY() { return Y; }
     double getW() { return W; }
     double getCurve() { return curve; }
-    RoadType getType() { return type; }
+    unsigned long long getType() { return type; }
 
     void setz(double _z) { z = _z; }
     void sety(double _y) { y = _y; }
     void setx(double _x) { x = _x; }
     void setCurve(double c) { curve = c; }
-    void setType(RoadType t) { type = t; }
+    void addType(RoadType t) { type |= t; }
     void setAll(double _x, double _y, double _z, double _c) { z = _z; x = _x; y = _y; curve = _c; }
     void setSprite(Image* i, double sX) { sprite = i; spriteX = sX; }
     void setClip(double c) { clip = c; }

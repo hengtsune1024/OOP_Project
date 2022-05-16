@@ -60,7 +60,7 @@ class RacingCar
 	Tool tools;
 
 	//road type
-	RoadType roadtype;
+	unsigned long long roadtype;
 
 
 public:
@@ -108,7 +108,7 @@ public:
 	const Motion& getMotioin() { return motion; }
 
 	void brake(int = -1);		//car accelerating
-	void setRoadType(RoadType);
+	void setRoadType(unsigned long long);
 
 	void setTrap(Line* l) { virus.setTrap(l); }
 	void setTool(Line* l) { tools.setTool(l); }

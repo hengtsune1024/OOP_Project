@@ -11,6 +11,7 @@ Uint32 Map::road;
 Uint32 Map::laneLine;
 SDL_Rect Map::viewPort1 = { 0,0,WIDTH,HEIGHT };
 SDL_Rect Map::viewPort2 = { WIDTH,0,WIDTH,HEIGHT };
+unsigned long long Map::type = 0;
 
 Map::Map() : lines(NUM_LINE), number_of_lines(NUM_LINE)
 {}
@@ -41,10 +42,14 @@ Map::Map(SDL_Renderer* renderer, bool dual) : lines(NUM_LINE), number_of_lines(N
 		
 			
 		// y, default = 0
-		if (i > 300 && i < 1054)		//range of road up and down
+		//range of road up and down
+		if (i > 300 && i < 1054) {
 			lines[i].sety(sin((i - 300) / 30.0) * CAMERA_HEIGHT);
-		else if (i > 1200 && i < 2896)
+
+		}
+		else if (i > 1200 && i < 2896){
 			lines[i].sety(sin((i - 1200) / 20.0) * (CAMERA_HEIGHT * 0.6));
+		}
 
 		// x
 		x += dx;
@@ -63,25 +68,27 @@ Map::Map(SDL_Renderer* renderer, bool dual) : lines(NUM_LINE), number_of_lines(N
 
 		//20 - 52
 		if ((i >= INITIAL_POS - 10 && i < INITIAL_POS + 22) || (i >= FINAL_POS - 12 && i < FINAL_POS + 20))
-			lines[i].setType(ENDPOINT);
+			lines[i].addType(ENDPOINT);
 		//650 - 670
 		else if (i >= 650 && i < 650 + ACCROAD_LENGHT)
-			lines[i].setType(ACCELERATE_RIGHT);
+			lines[i].addType(ACCELERATE_RIGHT);
 		//1800 - 1820
 		else if (i >= 1800 && i < 1800 + ACCROAD_LENGHT)
-			lines[i].setType(ACCELERATE_LEFT);
+			lines[i].addType(ACCELERATE_LEFT);
 		//295 - 300
 		else if (i >= 295 && i < 300)
-			lines[i].setType(TRAPAREA);
+			lines[i].addType(TRAPAREA);
 		//195 - 200
 		else if (i >= 195 && i < 200)
-			lines[i].setType(TOOLAREA);
+			lines[i].addType(TOOLAREA);
 		//400 - 600
 		else if (i >= 400 && i < 600)
-			lines[i].setType(HIGH_FRICTION);
+			lines[i].addType(HIGH_FRICTION);
 		//700 - 900
 		else if (i >= 700 && i <= 900)
-			lines[i].setType(LOW_FRICTION);
+			lines[i].addType(LOW_FRICTION);
+		else
+			lines[i].addType(NORMAL);
 		
 	}
 	//type
@@ -135,7 +142,6 @@ void Map::drawQuad(SDL_Renderer* renderer, Quad q) {
 	filledPolygonColor(renderer, vx, vy, 4, q.color);
 }
 
-
 void Map::draw(SDL_Renderer* renderer) 
 {
 	SDL_RenderSetViewport(renderer, &viewPort1);
@@ -184,71 +190,57 @@ void Map::draw(SDL_Renderer* renderer)
 		grass = (i >> 2) & 1 ? 0xff10c810 : 0xff009A00;
 		drawQuad(renderer, { grass,  WIDTH / 2, p.getY(), WIDTH / 2, WIDTH / 2, l.getY(), WIDTH / 2 });
 
-		//road type 
-		switch (lines[i].getType())
-		{
-			case NORMAL:
-			case TRAPAREA:
-			case TOOLAREA:
-				rumble = (i >> 2) & 1 ? 0xffffffff : 0xff000000;
-				road = (i >> 2) & 1 ? 0xff6b6b6b : 0xff696969;
-				drawQuad(renderer, { rumble, p.getX(), p.getY(), p.getW() * 1.2, l.getX(), l.getY(), l.getW() * 1.2 });
-				drawQuad(renderer, { road, p.getX(), p.getY(), p.getW(), l.getX(), l.getY(), l.getW() });
+		//road type
+		type = lines[i].getType();
+		//cout << type << endl;
+		if ((type & NORMAL) || (type & TRAPAREA) || (type & TOOLAREA)) {
+			rumble = (i >> 2) & 1 ? 0xffffffff : 0xff000000;
+			road = (i >> 2) & 1 ? 0xff6b6b6b : 0xff696969;
+			drawQuad(renderer, { rumble, p.getX(), p.getY(), p.getW() * 1.2, l.getX(), l.getY(), l.getW() * 1.2 });
+			drawQuad(renderer, { road, p.getX(), p.getY(), p.getW(), l.getX(), l.getY(), l.getW() });
 
-				if ((i >> 3) & 1) {
-					drawQuad(renderer, { laneLine, p.getX(), p.getY(), p.getW() * LANELINE_WIDTH / ROAD_WIDTH, l.getX(), l.getY(),l.getW() * LANELINE_WIDTH / ROAD_WIDTH });
-				}
-				break;
-
-			case LOW_FRICTION:
-				rumble = (i >> 2) & 1 ? 0xffffffff : 0xff000000;
-				road = (i >> 2) & 1 ? 0xffffff80 : 0xffffffff;
-				drawQuad(renderer, { rumble, p.getX(), p.getY(), p.getW() * 1.2, l.getX(), l.getY(), l.getW() * 1.2 });
-				drawQuad(renderer, { road, p.getX(), p.getY(), p.getW(), l.getX(), l.getY(), l.getW() });
-
-				break;
-
-			case HIGH_FRICTION:
-				rumble = (i >> 2) & 1 ? 0xffffffff : 0xff000000;
-				road = (i >> 2) & 1 ? 0xff00499A : 0xff00346E;
-				drawQuad(renderer, { rumble, p.getX(), p.getY(), p.getW() * 1.2, l.getX(), l.getY(), l.getW() * 1.2 });
-				drawQuad(renderer, { road, p.getX(), p.getY(), p.getW(), l.getX(), l.getY(), l.getW() });
-
-				break;
-
-			case ENDPOINT:
-			{
-				double width_scale = 1.2;
-				for (int j = 0; j <= 7; ++j) {
-
-					width_scale = 1.2 * (15 - (j << 1)) / 15;
-					rumble = ((i >> 2) + j) & 1 ? 0xffffffff : 0xff000000;
-
-					drawQuad(renderer, { rumble,p.getX(), p.getY(), p.getW() * width_scale, l.getX(), l.getY(), l.getW() * width_scale });
-				}
+			if ((i >> 3) & 1) {
+				drawQuad(renderer, { laneLine, p.getX(), p.getY(), p.getW() * LANELINE_WIDTH / ROAD_WIDTH, l.getX(), l.getY(),l.getW() * LANELINE_WIDTH / ROAD_WIDTH });
 			}
-			break;
+		}
+		else if ((type & LOW_FRICTION)) {
+			rumble = (i >> 2) & 1 ? 0xffffffff : 0xff000000;
+			road = (i >> 2) & 1 ? 0xffffff80 : 0xffffffff;
+			drawQuad(renderer, { rumble, p.getX(), p.getY(), p.getW() * 1.2, l.getX(), l.getY(), l.getW() * 1.2 });
+			drawQuad(renderer, { road, p.getX(), p.getY(), p.getW(), l.getX(), l.getY(), l.getW() });
+		}
+		else if ((type & HIGH_FRICTION)) {
+			rumble = (i >> 2) & 1 ? 0xffffffff : 0xff000000;
+			road = (i >> 2) & 1 ? 0xff00499A : 0xff00346E;
+			drawQuad(renderer, { rumble, p.getX(), p.getY(), p.getW() * 1.2, l.getX(), l.getY(), l.getW() * 1.2 });
+			drawQuad(renderer, { road, p.getX(), p.getY(), p.getW(), l.getX(), l.getY(), l.getW() });
+		}
+		else if ((type & ENDPOINT)) {
+			double width_scale = 1.2;
+			for (int j = 0; j <= 7; ++j) {
 
-			case ACCELERATE_RIGHT:
-			case ACCELERATE_LEFT:
-			{
-				rumble = (i >> 2) & 1 ? 0xffffffff : 0xff000000;
-				road = (i >> 2) & 1 ? 0xff6b6b6b : 0xff696969;
-				Uint32 accRoad = ((i - (colorChange1 >> 3)) >> 1) & 1 ? 0xff00ffff : 0xff0000ff;
+				width_scale = 1.2 * (15 - (j << 1)) / 15;
+				rumble = ((i >> 2) + j) & 1 ? 0xffffffff : 0xff000000;
 
-
-				int sign = lines[i].getType() == ACCELERATE_RIGHT ? 1 : -1;
-
-				drawQuad(renderer, { rumble, p.getX(), p.getY(), p.getW() * 1.2, l.getX(), l.getY(), l.getW() * 1.2 });
-				drawQuad(renderer, { road, p.getX(), p.getY(), p.getW(), l.getX(), l.getY(), l.getW() });
-
-				if ((i >> 3) & 1) {
-					drawQuad(renderer, { laneLine, p.getX(), p.getY(), p.getW() * LANELINE_WIDTH / ROAD_WIDTH, l.getX(), l.getY(),l.getW() * LANELINE_WIDTH / ROAD_WIDTH });
-				}
-
-				drawQuad(renderer, { accRoad, p.getX() + sign * p.getW() / 2, p.getY(), p.getW() / 2, l.getX() + sign * l.getW() / 2, l.getY(), l.getW() / 2 });
+				drawQuad(renderer, { rumble,p.getX(), p.getY(), p.getW() * width_scale, l.getX(), l.getY(), l.getW() * width_scale });
 			}
-			break;
+		}
+		else if ((type & ACCELERATE_RIGHT) || (type & ACCELERATE_LEFT)) {
+			rumble = (i >> 2) & 1 ? 0xffffffff : 0xff000000;
+			road = (i >> 2) & 1 ? 0xff6b6b6b : 0xff696969;
+			Uint32 accRoad = ((i - (colorChange1 >> 3)) >> 1) & 1 ? 0xff00ffff : 0xff0000ff;
+
+
+			int sign = (type & ACCELERATE_RIGHT) ? 1 : -1;
+
+			drawQuad(renderer, { rumble, p.getX(), p.getY(), p.getW() * 1.2, l.getX(), l.getY(), l.getW() * 1.2 });
+			drawQuad(renderer, { road, p.getX(), p.getY(), p.getW(), l.getX(), l.getY(), l.getW() });
+
+			if ((i >> 3) & 1) {
+				drawQuad(renderer, { laneLine, p.getX(), p.getY(), p.getW() * LANELINE_WIDTH / ROAD_WIDTH, l.getX(), l.getY(),l.getW() * LANELINE_WIDTH / ROAD_WIDTH });
+			}
+
+			drawQuad(renderer, { accRoad, p.getX() + sign * p.getW() / 2, p.getY(), p.getW() / 2, l.getX() + sign * l.getW() / 2, l.getY(), l.getW() / 2 });
 		}
 	}
 	colorChange1 = (colorChange1 + 2) & 31;
@@ -332,11 +324,8 @@ void Map::draw(SDL_Renderer* renderer)
 			drawQuad(renderer, { grass,  WIDTH / 2, p.getY(), WIDTH / 2, WIDTH / 2, l.getY(), WIDTH / 2 });
 
 			//road type 
-			switch (lines[i].getType())
-			{
-			case NORMAL:
-			case TRAPAREA:
-			case TOOLAREA:
+			type = lines[i].getType();
+			if ((type & NORMAL) || (type & TRAPAREA) || (type & TOOLAREA)) {
 				rumble = (i >> 2) & 1 ? 0xffffffff : 0xff000000;
 				road = (i >> 2) & 1 ? 0xff6b6b6b : 0xff696969;
 				drawQuad(renderer, { rumble, p.getX(), p.getY(), p.getW() * 1.2, l.getX(), l.getY(), l.getW() * 1.2 });
@@ -345,26 +334,20 @@ void Map::draw(SDL_Renderer* renderer)
 				if ((i >> 3) & 1) {
 					drawQuad(renderer, { laneLine, p.getX(), p.getY(), p.getW() * LANELINE_WIDTH / ROAD_WIDTH, l.getX(), l.getY(),l.getW() * LANELINE_WIDTH / ROAD_WIDTH });
 				}
-				break;
-
-			case LOW_FRICTION:
+			}
+			else if ((type & LOW_FRICTION)) {
 				rumble = (i >> 2) & 1 ? 0xffffffff : 0xff000000;
 				road = (i >> 2) & 1 ? 0xffffff80 : 0xffffffff;
 				drawQuad(renderer, { rumble, p.getX(), p.getY(), p.getW() * 1.2, l.getX(), l.getY(), l.getW() * 1.2 });
 				drawQuad(renderer, { road, p.getX(), p.getY(), p.getW(), l.getX(), l.getY(), l.getW() });
-
-				break;
-
-			case HIGH_FRICTION:
+			}
+			else if ((type & HIGH_FRICTION)) {
 				rumble = (i >> 2) & 1 ? 0xffffffff : 0xff000000;
 				road = (i >> 2) & 1 ? 0xff00499A : 0xff00346E;
 				drawQuad(renderer, { rumble, p.getX(), p.getY(), p.getW() * 1.2, l.getX(), l.getY(), l.getW() * 1.2 });
 				drawQuad(renderer, { road, p.getX(), p.getY(), p.getW(), l.getX(), l.getY(), l.getW() });
-
-				break;
-
-			case ENDPOINT:
-			{
+			}
+			else if ((type & ENDPOINT)) {
 				double width_scale = 1.2;
 				for (int j = 0; j <= 7; ++j) {
 
@@ -374,17 +357,13 @@ void Map::draw(SDL_Renderer* renderer)
 					drawQuad(renderer, { rumble,p.getX(), p.getY(), p.getW() * width_scale, l.getX(), l.getY(), l.getW() * width_scale });
 				}
 			}
-			break;
-
-			case ACCELERATE_RIGHT:
-			case ACCELERATE_LEFT:
-			{
+			else if ((type & ACCELERATE_RIGHT) || (type & ACCELERATE_LEFT)) {
 				rumble = (i >> 2) & 1 ? 0xffffffff : 0xff000000;
 				road = (i >> 2) & 1 ? 0xff6b6b6b : 0xff696969;
 				Uint32 accRoad = ((i - (colorChange1 >> 3)) >> 1) & 1 ? 0xff00ffff : 0xff0000ff;
 
 
-				int sign = lines[i].getType() == ACCELERATE_RIGHT ? 1 : -1;
+				int sign = (type & ACCELERATE_RIGHT) ? 1 : -1;
 
 				drawQuad(renderer, { rumble, p.getX(), p.getY(), p.getW() * 1.2, l.getX(), l.getY(), l.getW() * 1.2 });
 				drawQuad(renderer, { road, p.getX(), p.getY(), p.getW(), l.getX(), l.getY(), l.getW() });
@@ -394,8 +373,6 @@ void Map::draw(SDL_Renderer* renderer)
 				}
 
 				drawQuad(renderer, { accRoad, p.getX() + sign * p.getW() / 2, p.getY(), p.getW() / 2, l.getX() + sign * l.getW() / 2, l.getY(), l.getW() / 2 });
-			}
-			break;
 			}
 		}
 		colorChange1 = (colorChange1 + 2) & 31;
@@ -475,8 +452,8 @@ Uint32 Map::move(Uint32 interval, void* para)
 	else {
 		car->setOutofRoad(false);
 	}
-
-	if (map->lines[startpos].getType() == HIGH_FRICTION) {
+	type = map->lines[startpos].getType();
+	if ((type & HIGH_FRICTION)) {
 		if (!car->isOutofRoad() && (motion.roadMod - 0.6 > 1e-6 || motion.roadMod - 0.6 < -1e-6)) {
 			if (motion.roadMod < 0.6)
 				car->setRoadMod(motion.roadMod + 0.1);
@@ -484,7 +461,7 @@ Uint32 Map::move(Uint32 interval, void* para)
 				car->setRoadMod(motion.roadMod - 0.1);
 		}
 	}
-	else if (map->lines[startpos].getType() == LOW_FRICTION) {
+	else if ((type & LOW_FRICTION)) {
 		if (!car->isOutofRoad() && (motion.roadMod - 1.3 > 1e-6 || motion.roadMod - 1.3 < -1e-6)) {
 			if (motion.roadMod < 1.3)
 				car->setRoadMod(motion.roadMod + 0.1);
@@ -505,7 +482,7 @@ Uint32 Map::move(Uint32 interval, void* para)
 
 
 	//set car road type
-	car->setRoadType(map->lines[startpos].getType());
+	car->setRoadType(type);
 	/*
 	//speed punishment
 	double punish = 1.0;
@@ -586,20 +563,21 @@ Uint32 Map::move(Uint32 interval, void* para)
 	}
 
 	//special road
-	if (!car->isInAir() && car->getRushing() != ACCROAD && (map->lines[startpos].getType() == ACCELERATE_LEFT || map->lines[startpos].getType() == ACCELERATE_RIGHT)) {
-		if (map->lines[startpos].getType() == ACCELERATE_LEFT && (motion.posY < map->lines[startpos].getx() && motion.posY > map->lines[startpos].getx() - ROAD_WIDTH * motion.velM)) {
+	type = map->lines[startpos].getType();
+	if (!car->isInAir() && car->getRushing() != ACCROAD && ((type & ACCELERATE_LEFT) || (type & ACCELERATE_RIGHT))) {
+		if ((type & ACCELERATE_LEFT) && (motion.posY < map->lines[startpos].getx() && motion.posY > map->lines[startpos].getx() - ROAD_WIDTH * motion.velM)) {
 			car->rush(ACCROAD);
 		}
-		else if (map->lines[startpos].getType() == ACCELERATE_RIGHT && (motion.posY > map->lines[startpos].getx() && motion.posY < map->lines[startpos].getx() + ROAD_WIDTH * motion.velM)) {
+		else if ((type & ACCELERATE_RIGHT) && (motion.posY > map->lines[startpos].getx() && motion.posY < map->lines[startpos].getx() + ROAD_WIDTH * motion.velM)) {
 			car->rush(ACCROAD);
 		}
 	}
 
 	//trap
-	if (!car->isInAir() && map->lines[startpos].getType() == TRAPAREA && motion.posY < map->lines[startpos].getx() + TRAP_WIDTH * motion.velM && motion.posY > map->lines[startpos].getx() - TRAP_WIDTH * motion.velM)
+	if (!car->isInAir() && (type & TRAPAREA) && motion.posY < map->lines[startpos].getx() + TRAP_WIDTH * motion.velM && motion.posY > map->lines[startpos].getx() - TRAP_WIDTH * motion.velM)
 		car->getTrap()->gettrap(STAIN);
 	//tool
-	if (!car->isInAir() && map->lines[startpos].getType() == TOOLAREA && motion.posY < map->lines[startpos].getx() + TOOL_WIDTH * motion.velM && motion.posY > map->lines[startpos].getx() - TOOL_WIDTH * motion.velM)
+	if (!car->isInAir() && (type & TOOLAREA) && motion.posY < map->lines[startpos].getx() + TOOL_WIDTH * motion.velM && motion.posY > map->lines[startpos].getx() - TOOL_WIDTH * motion.velM)
 		car->getTools()->getTools();
 
 	
@@ -940,5 +918,71 @@ void Map::turn(int d)
 {
 	car.turn(d);
 }
+
+switch (lines[i].getType())
+		{
+			case NORMAL:
+			case TRAPAREA:
+			case TOOLAREA:
+				rumble = (i >> 2) & 1 ? 0xffffffff : 0xff000000;
+				road = (i >> 2) & 1 ? 0xff6b6b6b : 0xff696969;
+				drawQuad(renderer, { rumble, p.getX(), p.getY(), p.getW() * 1.2, l.getX(), l.getY(), l.getW() * 1.2 });
+				drawQuad(renderer, { road, p.getX(), p.getY(), p.getW(), l.getX(), l.getY(), l.getW() });
+
+				if ((i >> 3) & 1) {
+					drawQuad(renderer, { laneLine, p.getX(), p.getY(), p.getW() * LANELINE_WIDTH / ROAD_WIDTH, l.getX(), l.getY(),l.getW() * LANELINE_WIDTH / ROAD_WIDTH });
+				}
+				break;
+
+			case LOW_FRICTION:
+				rumble = (i >> 2) & 1 ? 0xffffffff : 0xff000000;
+				road = (i >> 2) & 1 ? 0xffffff80 : 0xffffffff;
+				drawQuad(renderer, { rumble, p.getX(), p.getY(), p.getW() * 1.2, l.getX(), l.getY(), l.getW() * 1.2 });
+				drawQuad(renderer, { road, p.getX(), p.getY(), p.getW(), l.getX(), l.getY(), l.getW() });
+
+				break;
+
+			case HIGH_FRICTION:
+				rumble = (i >> 2) & 1 ? 0xffffffff : 0xff000000;
+				road = (i >> 2) & 1 ? 0xff00499A : 0xff00346E;
+				drawQuad(renderer, { rumble, p.getX(), p.getY(), p.getW() * 1.2, l.getX(), l.getY(), l.getW() * 1.2 });
+				drawQuad(renderer, { road, p.getX(), p.getY(), p.getW(), l.getX(), l.getY(), l.getW() });
+
+				break;
+
+			case ENDPOINT:
+			{
+				double width_scale = 1.2;
+				for (int j = 0; j <= 7; ++j) {
+
+					width_scale = 1.2 * (15 - (j << 1)) / 15;
+					rumble = ((i >> 2) + j) & 1 ? 0xffffffff : 0xff000000;
+
+					drawQuad(renderer, { rumble,p.getX(), p.getY(), p.getW() * width_scale, l.getX(), l.getY(), l.getW() * width_scale });
+				}
+			}
+			break;
+
+			case ACCELERATE_RIGHT:
+			case ACCELERATE_LEFT:
+			{
+				rumble = (i >> 2) & 1 ? 0xffffffff : 0xff000000;
+				road = (i >> 2) & 1 ? 0xff6b6b6b : 0xff696969;
+				Uint32 accRoad = ((i - (colorChange1 >> 3)) >> 1) & 1 ? 0xff00ffff : 0xff0000ff;
+
+
+				int sign = lines[i].getType() == ACCELERATE_RIGHT ? 1 : -1;
+
+				drawQuad(renderer, { rumble, p.getX(), p.getY(), p.getW() * 1.2, l.getX(), l.getY(), l.getW() * 1.2 });
+				drawQuad(renderer, { road, p.getX(), p.getY(), p.getW(), l.getX(), l.getY(), l.getW() });
+
+				if ((i >> 3) & 1) {
+					drawQuad(renderer, { laneLine, p.getX(), p.getY(), p.getW() * LANELINE_WIDTH / ROAD_WIDTH, l.getX(), l.getY(),l.getW() * LANELINE_WIDTH / ROAD_WIDTH });
+				}
+
+				drawQuad(renderer, { accRoad, p.getX() + sign * p.getW() / 2, p.getY(), p.getW() / 2, l.getX() + sign * l.getW() / 2, l.getY(), l.getW() / 2 });
+			}
+			break;
+		}
 }*/
 

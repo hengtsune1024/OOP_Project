@@ -56,6 +56,7 @@ class Map
 	static Uint32 laneLine;
 	static SDL_Rect viewPort1;
 	static SDL_Rect viewPort2;
+	static unsigned long long type;
 
 public:
 

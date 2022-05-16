@@ -13,7 +13,7 @@ RacingCar::~RacingCar() {
 
 RacingCar::RacingCar(const char* path, int n, SDL_Renderer* renderer): 
 	virus("../images/coronavirus/", 15, renderer),tools("../images/star/", 5, renderer),
-	isRushing(NONE), fullEnergy(true), energy(100.0), healthPoint(100.0), motion(MOTION_INIT), accState(0)
+	isRushing(NONE), fullEnergy(true), energy(100.0), healthPoint(100.0), motion(MOTION_INIT), accState(0), roadtype(NORMAL)
 {
 	num = n;
 	image = new Image[num];
@@ -141,8 +141,8 @@ void RacingCar::turn(int d)
 	direct = d;
 } 
 
-void RacingCar::setRoadType(RoadType rt) {
-	if (rt == NORMAL || rt == HIGH_FRICTION || rt == LOW_FRICTION) {
+void RacingCar::setRoadType(unsigned long long rt) {
+	if ((rt & NORMAL) || (rt & HIGH_FRICTION) || (rt & LOW_FRICTION)) {
 		roadtype = rt;
 	}
 }
@@ -156,44 +156,38 @@ void RacingCar::brake(int type)
 	//no acc
 	if (type == 0) {
 		int sign = motion.velLinear<1e-6 && motion.velLinear>-1e-6 ? 0 : (motion.velLinear > 0 ? -1 : 1);
-		switch (roadtype) {
-			case NORMAL:
-				motion.accLinear = sign * FRICTION_ACC;
-				break;
-			case HIGH_FRICTION:
-				motion.accLinear = sign * HIGH_FRICTION_ACC;
-				break;
-			case LOW_FRICTION:
-				motion.accLinear = sign * LOW_FRICTION_ACC;
-				break;
+		if ((roadtype & NORMAL)) {
+			motion.accLinear = sign * FRICTION_ACC;
+		}
+		else if ((roadtype & HIGH_FRICTION)) {
+			motion.accLinear = sign * HIGH_FRICTION_ACC;
+		}
+		else if ((roadtype & LOW_FRICTION)) {
+			motion.accLinear = sign * LOW_FRICTION_ACC;
 		}
 	}
 	//foward
 	else if (type == 1) {
-		switch (roadtype) {
-			case NORMAL:
-				motion.accLinear = ACCELERATION - FRICTION_ACC;
-				break;
-			case HIGH_FRICTION:
-				motion.accLinear = ACCELERATION - HIGH_FRICTION_ACC;
-				break;
-			case LOW_FRICTION:
-				motion.accLinear = ACCELERATION - LOW_FRICTION_ACC;
-				break;
+		if ((roadtype & NORMAL)) {
+			motion.accLinear = ACCELERATION - FRICTION_ACC;
+		}
+		else if ((roadtype & HIGH_FRICTION)) {
+			motion.accLinear = ACCELERATION - HIGH_FRICTION_ACC;
+		}
+		else if ((roadtype & LOW_FRICTION)) {
+			motion.accLinear = ACCELERATION - LOW_FRICTION_ACC;
 		}
 	}
 	//backward
 	else if (type == 2) {
-		switch (roadtype) {
-			case NORMAL:
-				motion.accLinear = -ACCELERATION + FRICTION_ACC;
-				break;
-			case HIGH_FRICTION:
-				motion.accLinear = -ACCELERATION + HIGH_FRICTION_ACC;
-				break;
-			case LOW_FRICTION:
-				motion.accLinear = -ACCELERATION + LOW_FRICTION_ACC;
-				break;
+		if ((roadtype & NORMAL)) {
+			motion.accLinear = -ACCELERATION + FRICTION_ACC;
+		}
+		else if ((roadtype & HIGH_FRICTION)) {
+			motion.accLinear = -ACCELERATION + HIGH_FRICTION_ACC;
+		}
+		else if ((roadtype & LOW_FRICTION)) {
+			motion.accLinear = -ACCELERATION + LOW_FRICTION_ACC;
 		}
 	}
 }
@@ -376,4 +370,39 @@ void RacingCar::init() {
 	map->setCar(this);
 	cout << "[RacingCar] Car initialized" << endl;
 }
+
+
+		switch (roadtype) {
+			case NORMAL:
+				motion.accLinear = sign * FRICTION_ACC;
+				break;
+			case HIGH_FRICTION:
+				motion.accLinear = sign * HIGH_FRICTION_ACC;
+				break;
+			case LOW_FRICTION:
+				motion.accLinear = sign * LOW_FRICTION_ACC;
+				break;
+		}
+		switch (roadtype) {
+			case NORMAL:
+				motion.accLinear = ACCELERATION - FRICTION_ACC;
+				break;
+			case HIGH_FRICTION:
+				motion.accLinear = ACCELERATION - HIGH_FRICTION_ACC;
+				break;
+			case LOW_FRICTION:
+				motion.accLinear = ACCELERATION - LOW_FRICTION_ACC;
+				break;
+		}
+		switch (roadtype) {
+			case NORMAL:
+				motion.accLinear = -ACCELERATION + FRICTION_ACC;
+				break;
+			case HIGH_FRICTION:
+				motion.accLinear = -ACCELERATION + HIGH_FRICTION_ACC;
+				break;
+			case LOW_FRICTION:
+				motion.accLinear = -ACCELERATION + LOW_FRICTION_ACC;
+				break;
+		}
 */
