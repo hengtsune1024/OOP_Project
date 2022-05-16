@@ -12,7 +12,7 @@ RacingCar::~RacingCar() {
 }
 
 RacingCar::RacingCar(const char* path, int n, SDL_Renderer* renderer): 
-	virus("../images/coronavirus/", 15, renderer),tools("../images/star/", 5, renderer),
+	virus("../images/coronavirus/", 15, renderer),tools("../images/star/", 5, renderer),rock("../images/rock/", 1, renderer),
 	isRushing(NONE), fullEnergy(true), energy(100.0), healthPoint(100.0), motion(MOTION_INIT), accState(0)
 {
 	num = n;
@@ -269,6 +269,16 @@ void RacingCar::usetool(ToolType type)
 	}
 }
 
+void RacingCar::touchobstacle()
+{
+	if (!rock.istouching())
+	{
+		if (!invincible)
+			healthPoint -= motion.velLinear > 0 ? motion.velLinear / 100 : motion.velLinear / -100;
+		cout << healthPoint << endl;
+		motion.velLinear = -motion.velLinear;
+	}
+}
 //previous code
 /*RacingCar::RacingCar() {}
 

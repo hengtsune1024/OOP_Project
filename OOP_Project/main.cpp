@@ -7,10 +7,11 @@
 #include "RacingCar.h"
 
 void eventHandler(SDL_Event&, RenderWindow&, Map&, RacingCar*, RacingCar* = NULL);
+bool dual = true;
 
 int main(int argc, char* argv[]) 
 {
-	bool dual = false;
+	
 	System sdl;
 	RenderWindow window;
 	sdl.init();
@@ -84,6 +85,9 @@ void eventHandler(SDL_Event& e, RenderWindow& w, Map& map, RacingCar* car1, Raci
 				break;
 			case SDLK_3:
 
+				break;
+			case SDLK_0:
+				dual = true;
 				break;
 
 			//car 2

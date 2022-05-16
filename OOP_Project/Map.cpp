@@ -76,6 +76,9 @@ Map::Map(SDL_Renderer* renderer, bool dual) : lines(NUM_LINE), number_of_lines(N
 		//195 - 200
 		else if (i >= 195 && i < 200)
 			lines[i].setType(TOOLAREA);
+		//248 - 250
+		else if (i >= 245 && i < 250)
+			lines[i].setType(OBSTACLEAREA);
 		//400 - 600
 		else if (i >= 400 && i < 600)
 			lines[i].setType(HIGH_FRICTION);
@@ -88,6 +91,7 @@ Map::Map(SDL_Renderer* renderer, bool dual) : lines(NUM_LINE), number_of_lines(N
 
 	car1->setTrap(&lines[300]);
 	car1->setTool(&lines[200]);
+	car1->setObstacle(&lines[250]);
 	car1->setPosition(WIDTH / 2 - car1->getWidth() / 2, HEIGHT - car1->getHeight() + 20);
 	car1->turn(0);
 
@@ -98,6 +102,7 @@ Map::Map(SDL_Renderer* renderer, bool dual) : lines(NUM_LINE), number_of_lines(N
 
 		car2->setTrap(&lines[300]);
 		car2->setTool(&lines[200]);
+		car2->setObstacle(&lines[250]);
 
 		car2->setPosition(WIDTH / 2 - car2->getWidth() / 2, HEIGHT - car2->getHeight() + 20);
 		car2->setPosY(lines[INITIAL_POS].getx() + ROAD_WIDTH / 2);
@@ -190,6 +195,7 @@ void Map::draw(SDL_Renderer* renderer)
 			case NORMAL:
 			case TRAPAREA:
 			case TOOLAREA:
+			case OBSTACLEAREA:
 				rumble = (i >> 2) & 1 ? 0xffffffff : 0xff000000;
 				road = (i >> 2) & 1 ? 0xff6b6b6b : 0xff696969;
 				drawQuad(renderer, { rumble, p.getX(), p.getY(), p.getW() * 1.2, l.getX(), l.getY(), l.getW() * 1.2 });
@@ -271,6 +277,10 @@ void Map::draw(SDL_Renderer* renderer)
 	if (startpos <= 300 && startpos > 0)
 		car1->getTrap()->drawImg(renderer, &lines[300]);
 	//lines[i].drawActSprite(renderer, 0);
+	
+	if (startpos <= 250 && startpos > 0)
+		car1->getObstacle()->drawImg(renderer, &lines[250]);
+
 	if (startpos <= 200 && startpos > 0)
 		car1->getTools()->drawImg(renderer, &lines[200]);
 
@@ -335,6 +345,7 @@ void Map::draw(SDL_Renderer* renderer)
 				case NORMAL:
 				case TRAPAREA:
 				case TOOLAREA:
+				case OBSTACLEAREA:
 					rumble = (i >> 2) & 1 ? 0xffffffff : 0xff000000;
 					road = (i >> 2) & 1 ? 0xff6b6b6b : 0xff696969;
 					drawQuad(renderer, { rumble, p.getX(), p.getY(), p.getW() * 1.2, l.getX(), l.getY(), l.getW() * 1.2 });
@@ -416,6 +427,10 @@ void Map::draw(SDL_Renderer* renderer)
 		if (startpos <= 300 && startpos > 0)
 			car2->getTrap()->drawImg(renderer, &lines[300]);
 		//lines[i].drawActSprite(renderer, 0);
+		if (startpos <= 250 && startpos > 0)
+			car2->getObstacle()->drawImg(renderer, &lines[250]);
+
+
 		if (startpos <= 200 && startpos > 0)
 			car2->getTools()->drawImg(renderer, &lines[200]);
 
@@ -444,7 +459,7 @@ Uint32 Map::move(Uint32 interval, void* para)
 
 	//perpendicular
 	car->setCamHeight(motion.camHeight + motion.velPerpen);
-	cout << car->isInAir() << endl;
+	//cout << car->isInAir() << endl;
 	if (car->isInAir() && (motion.camHeight + car->baseHeight) - (CAMERA_HEIGHT + map->lines[startpos].gety()) < -1e-6) {
 		car->setCamHeight(CAMERA_HEIGHT);
 		cout << "set camH to default" << endl;
@@ -603,7 +618,10 @@ Uint32 Map::move(Uint32 interval, void* para)
 		car->getTools()->getTools();
 
 	if (map->lines[startpos].getType() == OBSTACLEAREA && motion.posY < map->lines[startpos].getx() + TOOL_WIDTH * motion.velM && motion.posY > map->lines[startpos].getx() - TOOL_WIDTH * motion.velM)
-
+	{
+		car->touchobstacle();
+		//printf("Touch Obstacle\n");
+	}
 
 	if (map->dualMode) {
 
@@ -740,6 +758,13 @@ Uint32 Map::move(Uint32 interval, void* para)
 		//tool
 		if (map->lines[startpos].getType() == TOOLAREA && motion.posY < map->lines[startpos].getx() + TOOL_WIDTH * motion.velM && motion.posY > map->lines[startpos].getx() - TOOL_WIDTH * motion.velM)
 			car->getTools()->getTools();
+
+		//obstacle
+		if (map->lines[startpos].getType() == OBSTACLEAREA && motion.posY < map->lines[startpos].getx() + TOOL_WIDTH * motion.velM && motion.posY > map->lines[startpos].getx() - TOOL_WIDTH * motion.velM)
+		{
+			car->touchobstacle();
+			printf("Touch Obstacle\n");
+		}
 
 	}
 	//cout << map->camDegree - map->roadDegree << endl;

@@ -6,6 +6,7 @@
 #include "constants.h"
 #include "Line.h"
 #include "Trap.h"
+#include "Obstacle.h"
 
 class Map;
 
@@ -59,6 +60,8 @@ class RacingCar
 	//tool
 	Tool tools;
 
+	Obstacle rock;
+
 	//road type
 	RoadType roadtype;
 
@@ -94,6 +97,7 @@ public:
 	double getRoadMod() { return motion.roadMod; }
 	Trap* getTrap() { return &virus; }
 	Tool* getTools() { return &tools; }
+	Obstacle* getObstacle() { return &rock; }
 	bool isOutofRoad() { return outOfRoad; }
 	bool isInAir() { return inAir; }
 
@@ -112,6 +116,7 @@ public:
 
 	void setTrap(Line* l) { virus.setTrap(l); }
 	void setTool(Line* l) { tools.setTool(l); }
+	void setObstacle(Line* l) { rock.setObstacle(l); }
 	void setOutofRoad(bool o) { outOfRoad = o; }
 
 	void setPosX(double x) { motion.posX = x; }
@@ -124,6 +129,8 @@ public:
 	void setRoadDegree(double rd) { motion.roadDegree = rd; }
 	void setVelM(double vm) { motion.velM = vm; }
 	void setRoadMod(double rm) { motion.roadMod = rm; }
+
+	void touchobstacle();
 
 };
 
