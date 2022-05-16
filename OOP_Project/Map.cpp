@@ -89,7 +89,7 @@ Map::Map(SDL_Renderer* renderer, bool dual) : lines(NUM_LINE), number_of_lines(N
 		//195 - 200
 		else if (i >= 195 && i < 200)
 			lines[i].addType(TOOLAREA);
-		//248 - 250
+		//245 - 255
 		else if (i >= 245 && i < 250)
 			lines[i].addType(OBSTACLEAREA);
 		//400 - 600

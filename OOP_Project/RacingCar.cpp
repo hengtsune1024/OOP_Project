@@ -252,7 +252,6 @@ Uint32 RacingCar::charge(Uint32 interval, void* para) {
 
 void RacingCar::rush(RushType r) 
 {
-	isRushing = r;
 	switch (r)
 	{
 		case ENERGY:
@@ -261,6 +260,7 @@ void RacingCar::rush(RushType r)
 				motion.camDepth = BEGINRUSH_CAMDEPTH;
 				fullEnergy = false;
 				energy = 0;
+				isRushing = r;
 				std::cout << "[Map] rush start" << endl;
 			}
 			else {
@@ -269,12 +269,14 @@ void RacingCar::rush(RushType r)
 			break;
 
 		case ACCROAD:
+			isRushing = r;
 			motion.velLinear = ACCROAD_RUSHBEGIN_SPEED;
 			motion.camDepth = BEGINRUSH_CAMDEPTH;
 			//car.rush(ACCROAD);
 			std::cout << "[Map] rush start" << endl;
 			break;
 		case TOOL:
+			isRushing = r; 
 			motion.velLinear = ACCROAD_RUSHBEGIN_SPEED;
 			motion.camDepth = BEGINRUSH_CAMDEPTH;
 			std::cout << "[Map] rush start" << endl;
@@ -313,6 +315,11 @@ void RacingCar::touchobstacle()
 			healthPoint -= motion.velLinear > 0 ? motion.velLinear / 100 : motion.velLinear / -100;
 		cout << healthPoint << endl;
 		motion.velLinear = -motion.velLinear;
+		if (isRushing)
+		{
+			isRushing = NONE;
+			motion.velLinear = -MAX_BACKWARD_SPEED;
+		}
 	}
 }
 //previous code
