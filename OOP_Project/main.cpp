@@ -10,7 +10,7 @@ void eventHandler(SDL_Event&, RenderWindow&, Map&, RacingCar*, RacingCar* = NULL
 
 int main(int argc, char* argv[]) 
 {
-	bool dual = false;
+	bool dual = true;
 	System sdl;
 	RenderWindow window;
 	sdl.init();
@@ -152,12 +152,13 @@ void eventHandler(SDL_Event& e, RenderWindow& w, Map& map, RacingCar* car1, Raci
 				break;
 
 			case SDLK_e:
-				car1->setVelPerpen(car1->getVelPerpen() - 300);
+				car1->setVelPerpen(0);
 				break;
+				/*
 			case SDLK_q:
 				car1->setVelPerpen(car1->getVelPerpen() + 300);
 				break;
-
+				*/
 
 			//car 2
 			case SDLK_UP:
@@ -180,11 +181,13 @@ void eventHandler(SDL_Event& e, RenderWindow& w, Map& map, RacingCar* car1, Raci
 				break;
 
 			case SDLK_o:
-				car2->setVelPerpen(car2->getVelPerpen() - 300);
+				car2->setVelPerpen(0);
 				break;
+				/*
 			case SDLK_l:
 				car2->setVelPerpen(car2->getVelPerpen() + 300);
 				break;
+				*/
 			default:;
 		}
 	}

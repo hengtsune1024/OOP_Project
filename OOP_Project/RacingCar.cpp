@@ -154,6 +154,10 @@ void RacingCar::brake(int type)
 		type = accState;
 	else
 		accState = type;
+	if (inAir) {
+		motion.accLinear = 0;
+		return;
+	}
 	//no acc
 	if (type == 0) {
 		int sign = motion.velLinear<1e-6 && motion.velLinear>-1e-6 ? 0 : (motion.velLinear > 0 ? -1 : 1);
