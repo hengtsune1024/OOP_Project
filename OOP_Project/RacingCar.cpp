@@ -11,9 +11,10 @@ RacingCar::~RacingCar() {
 	}
 }
 
-RacingCar::RacingCar(const char* path, int n, SDL_Renderer* renderer): 
+RacingCar::RacingCar(const char* path, int n, SDL_Renderer* renderer, Line* initpos): 
 	virus("../images/coronavirus/", 15, renderer),tools("../images/star/", 5, renderer),
-	isRushing(NONE), fullEnergy(true), energy(100.0), healthPoint(100.0), motion(MOTION_INIT), accState(0), roadtype(NORMAL)
+	isRushing(NONE), fullEnergy(true), energy(100.0), healthPoint(100.0), motion(MOTION_INIT), accState(0), roadtype(NORMAL),
+	currentPos(initpos)
 {
 	num = n;
 	image = new Image[num];
@@ -156,40 +157,76 @@ void RacingCar::brake(int type)
 	//no acc
 	if (type == 0) {
 		int sign = motion.velLinear<1e-6 && motion.velLinear>-1e-6 ? 0 : (motion.velLinear > 0 ? -1 : 1);
-		if ((roadtype & NORMAL)) {
+		double acc;
+		if (roadtype & NORMAL) {
 			motion.accLinear = sign * FRICTION_ACC;
+			acc = FRICTION_ACC;
 		}
-		else if ((roadtype & HIGH_FRICTION)) {
+		else if (roadtype & HIGH_FRICTION) {
 			motion.accLinear = sign * HIGH_FRICTION_ACC;
+			acc = HIGH_FRICTION_ACC;
 		}
-		else if ((roadtype & LOW_FRICTION)) {
+		else if (roadtype & LOW_FRICTION) {
 			motion.accLinear = sign * LOW_FRICTION_ACC;
+			acc = LOW_FRICTION_ACC;
+		}
+		if ((roadtype & INCLINE_BACKWARD) || (roadtype & INCLINE_FORWARD)) {
+			double slope = -INCLINE_ACC * currentPos->getSlope() / SEGMENT_LENGTH;
+			if (sign){
+				motion.accLinear += slope;
+				if ((motion.accLinear + motion.velLinear) * sign > 0) {
+					motion.accLinear = 0;
+					motion.velLinear = 0;
+				}
+			}
+			else if (slope > acc || slope < -acc)
+				motion.accLinear = slope > 0 ? slope - acc : slope + acc;
+			else {
+				motion.accLinear = 0;
+				motion.velLinear = 0;
+			}
+			/*
+			if ((sign && ((slope < 0 && motion.accLinear + slope < 0) || (slope > 0 && motion.accLinear + slope > 0))) || (sign == 0 && (slope > FRICTION_ACC || slope < -FRICTION_ACC)))
+				motion.accLinear += slope;
+			else {
+				motion.accLinear = 0;
+				if(motion.velLinear)
+				motion.velLinear = 0;
+			}*/
 		}
 	}
 	//foward
 	else if (type == 1) {
-		if ((roadtype & NORMAL)) {
+		if (roadtype & NORMAL) {
 			motion.accLinear = ACCELERATION - FRICTION_ACC;
 		}
-		else if ((roadtype & HIGH_FRICTION)) {
+		else if (roadtype & HIGH_FRICTION) {
 			motion.accLinear = ACCELERATION - HIGH_FRICTION_ACC;
 		}
-		else if ((roadtype & LOW_FRICTION)) {
+		else if (roadtype & LOW_FRICTION) {
 			motion.accLinear = ACCELERATION - LOW_FRICTION_ACC;
+		}
+		if ((roadtype & INCLINE_BACKWARD) || (roadtype & INCLINE_FORWARD)) {
+			motion.accLinear -= INCLINE_ACC * currentPos->getSlope() / SEGMENT_LENGTH;
 		}
 	}
 	//backward
 	else if (type == 2) {
-		if ((roadtype & NORMAL)) {
+		if (roadtype & NORMAL) {
 			motion.accLinear = -ACCELERATION + FRICTION_ACC;
 		}
-		else if ((roadtype & HIGH_FRICTION)) {
+		else if (roadtype & HIGH_FRICTION) {
 			motion.accLinear = -ACCELERATION + HIGH_FRICTION_ACC;
 		}
-		else if ((roadtype & LOW_FRICTION)) {
+		else if (roadtype & LOW_FRICTION) {
 			motion.accLinear = -ACCELERATION + LOW_FRICTION_ACC;
 		}
+		if ((roadtype & INCLINE_BACKWARD) || (roadtype & INCLINE_FORWARD)) {
+			motion.accLinear -= INCLINE_ACC * currentPos->getSlope() / SEGMENT_LENGTH;
+		}
 	}
+
+	cout << motion.accLinear << ',' << motion.velLinear << endl;
 }
 
 Uint32 RacingCar::charge(Uint32 interval, void* para) {

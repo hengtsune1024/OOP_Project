@@ -26,15 +26,16 @@ struct Quad {
 
 class Map
 {
-	//cars
-	bool dualMode;
-	RacingCar* car1;
-	RacingCar* car2;
 
 	//road
 	vector<Line> lines;						// road segments constituting the whole road
 	int number_of_lines;					// the number of road segments
 	void drawQuad(SDL_Renderer*, Quad);		// draw a road segment
+
+	//cars
+	bool dualMode;
+	RacingCar* car1;
+	RacingCar* car2;
 
 	//timers
 	SDL_TimerID moveTimer;						// car moving timer

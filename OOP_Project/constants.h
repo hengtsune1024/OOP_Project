@@ -45,6 +45,7 @@
 #define FRICTION_ACC 20
 #define HIGH_FRICTION_ACC 60
 #define LOW_FRICTION_ACC 5
+#define INCLINE_ACC 150
 
 //rotation
 #define ROTATE 0.04			//car camera rotation

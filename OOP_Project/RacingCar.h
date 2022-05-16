@@ -61,12 +61,13 @@ class RacingCar
 
 	//road type
 	unsigned long long roadtype;
+	Line* currentPos;
 
 
 public:
 	double baseHeight; //only used when in air
 	RacingCar();
-	RacingCar(const char* path, int n, SDL_Renderer* renderer);
+	RacingCar(const char* path, int n, SDL_Renderer* renderer, Line*);
 	~RacingCar();
 	void quit();
 	void setPosition(int xx, int yy);
@@ -96,6 +97,9 @@ public:
 	Tool* getTools() { return &tools; }
 	bool isOutofRoad() { return outOfRoad; }
 	bool isInAir() { return inAir; }
+
+	Line* getCurrentPos() { return currentPos; }
+	void setCurrentPos(Line* l) { currentPos = l; }
 
 	double getCamHeight() { return motion.camHeight; }
 	void setCamHeight(double ch) { motion.camHeight = ch; }

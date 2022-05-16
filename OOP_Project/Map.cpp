@@ -17,8 +17,8 @@ Map::Map() : lines(NUM_LINE), number_of_lines(NUM_LINE)
 {}
 
 Map::Map(SDL_Renderer* renderer, bool dual) : lines(NUM_LINE), number_of_lines(NUM_LINE), dualMode(dual),
-	car1(new RacingCar("../images/RacingCar/racingcar", 13, renderer)),
-	car2(dual ? new RacingCar("../images/RacingCar/racingcar", 13, renderer) : NULL),
+	car1(new RacingCar("../images/RacingCar/racingcar", 13, renderer, &lines[INITIAL_POS])),
+	car2(dual ? new RacingCar("../images/RacingCar/racingcar", 13, renderer, &lines[INITIAL_POS]) : NULL),
 	streetlight("../images/streetlight.png", renderer), 
 	moon("../images/moon.png", renderer)
 {
@@ -45,10 +45,18 @@ Map::Map(SDL_Renderer* renderer, bool dual) : lines(NUM_LINE), number_of_lines(N
 		//range of road up and down
 		if (i > 300 && i < 1054) {
 			lines[i].sety(sin((i - 300) / 30.0) * CAMERA_HEIGHT);
-
+			lines[i].setSlope(lines[i].gety() - lines[i - 1].gety());
 		}
 		else if (i > 1200 && i < 2896){
 			lines[i].sety(sin((i - 1200) / 20.0) * (CAMERA_HEIGHT * 0.6));
+			lines[i].setSlope(lines[i].gety() - lines[i - 1].gety());
+		}
+
+		if (lines[i].getSlope() > 1e-6) {
+			lines[i].addType(INCLINE_BACKWARD);
+		}
+		else if (lines[i].getSlope() < -1e-6) {
+			lines[i].addType(INCLINE_FORWARD);
 		}
 
 		// x
@@ -192,7 +200,6 @@ void Map::draw(SDL_Renderer* renderer)
 
 		//road type
 		type = lines[i].getType();
-		//cout << type << endl;
 		if ((type & NORMAL) || (type & TRAPAREA) || (type & TOOLAREA)) {
 			rumble = (i >> 2) & 1 ? 0xffffffff : 0xff000000;
 			road = (i >> 2) & 1 ? 0xff6b6b6b : 0xff696969;
@@ -420,6 +427,7 @@ Uint32 Map::move(Uint32 interval, void* para)
 	const Motion& motion = map->car1->getMotioin();
 
 	int startpos = motion.posX / SEGMENT_LENGTH;
+	car->setCurrentPos(&(map->lines[startpos]));
 
 	//perpendicular
 	car->setCamHeight(motion.camHeight + motion.velPerpen);
@@ -592,6 +600,7 @@ Uint32 Map::move(Uint32 interval, void* para)
 		const Motion& motion = map->car2->getMotioin();
 
 		startpos = motion.posX / SEGMENT_LENGTH;
+		car->setCurrentPos(&(map->lines[startpos]));
 
 		//perpendicular
 		car->setCamHeight(motion.camHeight + motion.velPerpen);
@@ -788,18 +797,17 @@ Uint32 Map::accelerate(Uint32 interval, void* para)
 			car->setVelLinear(-MAX_BACKWARD_SPEED);
 			//map->velLinear = -MAX_BACKWARD_SPEED;
 		}
-
-		if (((motion.accLinear < 0 && motion.accLinear >= -HIGH_FRICTION_ACC) && motion.velLinear < 0) || ((motion.accLinear > 0 && motion.accLinear <= HIGH_FRICTION_ACC) && motion.velLinear > 0)) {
+		bool incline = (car->getCurrentPos()->getType() & INCLINE_BACKWARD) || (car->getCurrentPos()->getType() & INCLINE_FORWARD);
+		if (!incline && (((motion.accLinear < 0 && motion.accLinear >= -HIGH_FRICTION_ACC - 50) && motion.velLinear < 0) || ((motion.accLinear > 0 && motion.accLinear <= HIGH_FRICTION_ACC + 50) && motion.velLinear > 0))) {
 			car->setVelLinear(0);
 			car->brake(0);
 			//car->setAccLinear(0);
-			// 
 			//map->velLinear = 0;
 			//map->accLinear = 0;
 		}
 
 	}
-
+	//cout << car->getAccLinear() << endl;
 	if (map->dualMode) {
 
 		car = map->car2;
