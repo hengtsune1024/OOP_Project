@@ -534,7 +534,7 @@ Uint32 Map::accelerate(Uint32 interval, void* para)
 	int times = map->dualMode ? 2 : 1;
 
 	do {
-		const Motion& motion = map->car1->getMotion();
+		const Motion& motion = car->getMotion();
 		car->brake();
 		if (car->getRushing()) //excpet RushType == NONE(0), other types will go here
 		{
