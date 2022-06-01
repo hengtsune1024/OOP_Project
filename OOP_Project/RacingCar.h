@@ -113,7 +113,7 @@ public:
 
 	void setInAir(bool ia) { inAir = ia; }
 
-	const Motion& getMotioin() { return motion; }
+	const Motion& getMotion() { return motion; }
 
 	void brake(int = -1);		//car accelerating
 	void setRoadType(unsigned long long);
