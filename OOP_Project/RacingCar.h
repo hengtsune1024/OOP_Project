@@ -13,16 +13,16 @@ class Map;
 struct Motion {
 	double posX;			// x position in 3D world (moving forward and backword)
 	double posY;			// y position in 3D world (moving right and left)
-	double velLinear;		// linear velocity 
-	double velPerpen;
-	double velAngular;		// angular velocity 
-	double accLinear;		// linear acceleration 
-	double camDegree;		// camera degree (in radius, x-axis is 0)
+	double velLinear;		// total xy linear velocity 
+	double velPerpen;		// z-direction velocity (moving up and down)
+	double velAngular;		// angular velocity on xy-plane
+	double accLinear;		// linear acceleration on xy-plane
+	double camDegree;		// camera degree (in rad, x-axis is 0)
 	double roadDegree;		// the degree from x-axis to the road vector (from current segment to the next segment) 
-	double camDepth;
-	double velM;
-	double roadMod;
-	double camHeight;
+	double camDepth;		// camera depth
+	double velM;			// velocity modification
+	double roadMod;			// road modification (for friction to change gradually between different roadTypes)
+	double camHeight;		// camera height from the road
 };
 
 class RacingCar
