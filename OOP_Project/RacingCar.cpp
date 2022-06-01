@@ -17,7 +17,13 @@ RacingCar::RacingCar(const char* path, int n, SDL_Renderer* renderer, Line* init
 	currentPos(initpos)
 {
 	num = n;
-	image = new Image[num];
+	try {
+		image = new Image[num];
+	}
+	catch (bad_alloc& b) {
+		cerr << "[RacingCar] new image error: " << b.what() << endl;
+		exit(1);
+	}
 
 	for (int i = 0; i < num; i++)
 	{
