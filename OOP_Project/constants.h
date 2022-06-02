@@ -15,6 +15,7 @@
 #define FINAL_POS 4200
 
 //camera
+#define FIELD_OF_VIEW 45
 #define DEFAULT_CAMERA_DEPTH 0.96
 #define CAMERA_HEIGHT 2000
 #define BEGINRUSH_CAMDEPTH 0.2
