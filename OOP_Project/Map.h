@@ -7,6 +7,7 @@
 #include "RacingCar.h"
 #include "Trap.h"
 #include "Tool.h"
+#include "Engine.h"
 #include <vector>
 #include <cmath>
 using namespace std;
@@ -50,6 +51,9 @@ class Map
 	Image streetlight;
 	Image moon;
 
+	//3D object
+	Engine engine;
+
 	//static member
 	static Uint32 grass;
 	static Uint32 rumble;
@@ -68,6 +72,7 @@ public:
 	// getters
 	RacingCar* getCar1() { return car1; }
 	RacingCar* getCar2() { return car2; }
+	Engine* getEngine() { return &engine; }
 
 	// timer
 	void startTimer();

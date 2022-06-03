@@ -6,21 +6,23 @@
 #include <algorithm>
 #include "Point3D.h"
 #include "Triangle.h"
+#include "Image3D.h"
+
 
 class Object3D
 {
+protected:
 	char objFile[20];
-	double scale;
 	Point3D position;
 	Point3D rotation;
 	std::vector<Triangle*> triangles;
 	Engine engine;
-	//Image img;
+	Image3D img;
 
 public:
-	Object3D(const char* objectFile, const char* textureFile, double scale);
-	~Object3D();
-	void Load();
+	Object3D(const char* objectFile, const char* textureFile);
+	virtual ~Object3D();
+	virtual void Load();
 	void Logic(double elapsedTime);
 	void draw(SDL_Renderer*);
 };

@@ -2,11 +2,12 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <time.h>
+#include "Object3D.h"
 #include "Entity.h"
+#include "Cube.h"
 using namespace std;
 
-class Tool :
-	public Entity
+class Tool : public Entity
 {
 	/*
 	in entity
@@ -22,6 +23,7 @@ class Tool :
 	Image tool1img;
 	Image tool2img;
 
+	Cube cube;
 
 public:
 	Tool();

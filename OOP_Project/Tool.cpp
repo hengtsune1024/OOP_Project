@@ -5,7 +5,8 @@ Tool::Tool() {
 Tool::~Tool() {
 
 }
-Tool::Tool(const char* path, int n, SDL_Renderer* renderer) :tool1img("../images/star.png", renderer), tool2img("../images/star.png", renderer), Tool1(0), Tool2(0)
+Tool::Tool(const char* path, int n, SDL_Renderer* renderer) : Tool1(0), Tool2(0),
+	tool1img("../images/star.png", renderer), tool2img("../images/star.png", renderer), cube()
 {
 	gettime = SDL_GetTicks64() - STAIN_INTERVAL;
 	setImage(path, n, renderer, 0);

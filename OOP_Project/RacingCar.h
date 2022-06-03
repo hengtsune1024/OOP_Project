@@ -68,6 +68,7 @@ class RacingCar
 
 
 public:
+
 	double baseHeight; //only used when in air
 	RacingCar();
 	RacingCar(const char* path, int n, SDL_Renderer* renderer, Line*);

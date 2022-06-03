@@ -1,9 +1,9 @@
 #include "Object3D.h"
 
-Object3D::Object3D(const char* objectFile, const char* textureFile, double scale)
+Object3D::Object3D(const char* objectFile, const char* textureFile)
 {
 	strcpy_s(objFile, objectFile);
-	this->scale = scale;
+	//this->scale = scale;
 
 	position = { 0,2000,6000 };
 	rotation = { 0,0,0 };

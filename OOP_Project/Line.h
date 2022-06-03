@@ -17,6 +17,7 @@ class Line
     Image* sprite;
     Image* actsprite;
 
+
 public:
 
     Line();
