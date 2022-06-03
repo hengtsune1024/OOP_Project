@@ -1,6 +1,6 @@
-#include "Obgect3D.h"
+#include "Object3D.h"
 
-Obgect3D::Obgect3D(const char* objectFile, const char* textureFile, double scale)
+Object3D::Object3D(const char* objectFile, const char* textureFile, double scale)
 {
 	strcpy_s(objFile, objectFile);
 	this->scale = scale;
@@ -16,19 +16,24 @@ Obgect3D::Obgect3D(const char* objectFile, const char* textureFile, double scale
 	img.width = img.surface->w;
 	img.height = img.surface->h;
 }
+Object3D::~Object3D() {
+	for (int i = 0; i < triangles.size(); ++i)
+		delete[]triangles[i];
+	SDL_FreeSurface(img.surface);
+}
 
-void Obgect3D::Load()
+void Object3D::Load()
 {
 	
 }
 
 
-void Obgect3D::Logic(double elapsedTime)
+void Object3D::Logic(double elapsedTime)
 {
 	rotation.y += 1 * elapsedTime;
 }
 
-void Obgect3D::draw(SDL_Renderer* renderer)
+void Object3D::draw(SDL_Renderer* renderer)
 {
 	Uint32* bmp = engine.getPixels();
 	memset(bmp, 0, WIDTH * HEIGHT * 4);

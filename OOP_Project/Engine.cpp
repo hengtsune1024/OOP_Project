@@ -2,14 +2,14 @@
 
 Engine::Engine()
 {
-	FILE* f = fopen("../image/tmp.bmp", "ab");
+	FILE* f = fopen("../images/tmp.bmp", "ab");
 	fseek(f, 54, SEEK_SET);
 	Uint32 tmp = 0;
 	fwrite(&tmp, sizeof(tmp), WIDTH * HEIGHT, f);
 	fclose(f);
 
 	Z0 = (WIDTH / 2.0) / tan((FIELD_OF_VIEW / 2.0) * 3.1415926535 / 180.0);
-	img = SDL_LoadBMP("../image/tmp.bmp");
+	img = SDL_LoadBMP("../images/tmp.bmp");
 	pixels = (Uint32*)img->pixels;
 }
 Engine::~Engine()
