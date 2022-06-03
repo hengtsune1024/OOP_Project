@@ -2,7 +2,8 @@
 
 Engine::Engine()
 {
-	FILE* f = fopen("../images/tmp.bmp", "ab");
+	FILE* f;
+	fopen_s(&f, "../images/tmp.bmp", "ab");
 	fseek(f, 54, SEEK_SET);
 	Uint32 tmp = 0;
 	fwrite(&tmp, sizeof(tmp), WIDTH * HEIGHT, f);
@@ -27,7 +28,7 @@ Point3D Engine::Translate(const Point3D& original, const Point3D& translation)
 	toReturn.w = original.w;
 	return toReturn;
 }
-Point3D Engine::Rotate(const Point3D& original, const Point3D& rotation)
+Point3D Engine::Rotate(const Point3D& original, Point3D rotation)
 {
 	Point3D toReturn;
 	toReturn.x = original.x * (cos(rotation.z) * cos(rotation.y)) +
@@ -47,19 +48,28 @@ Point3D Engine::Rotate(const Point3D& original, const Point3D& rotation)
 Point3D Engine::ApplyPerspective(const Point3D& original)
 {
 	Point3D toReturn;
+	/*
 	toReturn.x = original.x * Z0 / (Z0 + original.z);
 	toReturn.y = original.y * Z0 / (Z0 + original.z);
 	toReturn.z = original.z;
 	toReturn.u = original.u * Z0 / (Z0 + original.z);
 	toReturn.v = original.v * Z0 / (Z0 + original.z);
+	toReturn.w = original.w * Z0 / (Z0 + original.z);*/
+
+	toReturn.x = original.x * DEFAULT_CAMERA_DEPTH / original.z * WIDTH / 2;
+	toReturn.y = original.y * DEFAULT_CAMERA_DEPTH / original.z * HEIGHT / 2;
+	toReturn.z = original.z;
+	toReturn.u = original.u * Z0 / (Z0 + original.z);
+	toReturn.v = original.v * Z0 / (Z0 + original.z);
 	toReturn.w = original.w * Z0 / (Z0 + original.z);
+
 	return toReturn;
 }
 Point3D Engine::CenterScreen(const Point3D& original)
 {
 	Point3D toReturn;
 	toReturn.x = original.x + WIDTH / 2;
-	toReturn.y = original.y + HEIGHT / 2;
+	toReturn.y = -original.y + HEIGHT / 2;
 	toReturn.z = original.z;
 	toReturn.u = original.u;
 	toReturn.v = original.v;

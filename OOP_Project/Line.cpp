@@ -18,7 +18,6 @@ void Line::project(int camX, int camY, int camZ, double camDegree, double camDep
         W = 0;
         return;
     }
-
     scale = camDepth / _z;
 
     X = (1 + scale * _x) * WIDTH / 2;

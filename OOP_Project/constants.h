@@ -1,5 +1,6 @@
 #pragma once
 
+#define CUBE_SIZE 1000
 //window
 #define WIDTH 600				//window width and height
 #define HEIGHT 600

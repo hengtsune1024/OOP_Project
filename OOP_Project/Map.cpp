@@ -1,5 +1,5 @@
 #include "Map.h"
-
+#define POS 500
 Uint32 Map::grass;
 Uint32 Map::rumble;
 Uint32 Map::road;
@@ -8,14 +8,14 @@ SDL_Rect Map::viewPort1 = { 0,0,WIDTH,HEIGHT };
 SDL_Rect Map::viewPort2 = { WIDTH,0,WIDTH,HEIGHT };
 unsigned long long Map::type = 0;
 
-Map::Map() : lines(NUM_LINE), number_of_lines(NUM_LINE)
+Map::Map() : lines(NUM_LINE), number_of_lines(NUM_LINE), cube(NULL, "../images/crate.bmp")
 {}
 
 Map::Map(SDL_Renderer* renderer, bool dual) : lines(NUM_LINE), number_of_lines(NUM_LINE), dualMode(dual),
 	car1(new RacingCar("../images/RacingCar/racingcar", 13, renderer, &lines[INITIAL_POS])),
 	car2(dual ? new RacingCar("../images/RacingCar/racingcar", 13, renderer, &lines[INITIAL_POS]) : NULL),
 	streetlight("../images/streetlight.png", renderer), 
-	moon("../images/moon.png", renderer)
+	moon("../images/moon.png", renderer), cube(NULL, "../images/crate.bmp")
 {
 	double x = 0, dx = 0;
 
@@ -109,7 +109,8 @@ Map::Map(SDL_Renderer* renderer, bool dual) : lines(NUM_LINE), number_of_lines(N
 	car1->setObstacle(&lines[250]);
 	car1->setPosition(WIDTH / 2 - car1->getWidth() / 2, HEIGHT - car1->getHeight() + 20);
 	car1->turn(0);
-
+	
+	cube.setPos({ lines[POS].getx(),lines[POS].gety()+CUBE_SIZE,lines[POS].getz(),0,0,0 });
 
 
 	if (dualMode) {
@@ -166,9 +167,10 @@ void Map::draw(SDL_Renderer* renderer)
 
 		const Motion& m = car->getMotion();
 		startpos = m.posX / SEGMENT_LENGTH;
-		camH = m.camHeight + lines[startpos].gety();
 		if (car->isInAir())
 			camH = m.camHeight + car->baseHeight;
+		else
+			camH = m.camHeight + lines[startpos].gety();
 		maxy = HEIGHT;
 
 		//road and ground
@@ -258,9 +260,10 @@ void Map::draw(SDL_Renderer* renderer)
 
 				drawQuad(renderer, { accRoad, p.getX() + sign * p.getW() / 2, p.getY(), p.getW() / 2, l.getX() + sign * l.getW() / 2, l.getY(), l.getW() / 2 });
 			}
+
+			
 		}
 		colorChange1 = (colorChange1 + 2) & 31;
-
 		//sprite
 		for (int i = startpos + 300; i > startpos; --i) {
 
@@ -283,9 +286,9 @@ void Map::draw(SDL_Renderer* renderer)
 		if (startpos <= 250 && startpos > 0)
 			car->getObstacle()->drawImg(renderer, &lines[250]);
 
-		if (startpos <= 200 && startpos > 0)
+		if (startpos <= 200 && startpos > 0) {
 			car->getTools()->drawImg(renderer, &lines[200]);
-
+		}
 		//car
 		car->draw(renderer);
 
@@ -294,6 +297,10 @@ void Map::draw(SDL_Renderer* renderer)
 		/**************************/
 
 		car->getTools()->drawmytool(renderer);
+
+		if (startpos + 300 > POS && cube.getZ() - CUBE_SIZE > m.posX) {
+			cube.draw(renderer, { m.posY,1.0 * camH,m.posX }, m.camDegree);
+		}
 
 		if (dualMode) {
 			car = car2;

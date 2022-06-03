@@ -22,18 +22,16 @@ void Triangle::calculateWorldPoints(const Point3D& rotation, const Point3D& posi
 		worldPoints[i] = engine->Translate(worldPoints[i], position);
 }
 
-void Triangle::calculateCameraPoints(Camera* cam, Engine* engine) {
+void Triangle::calculateCameraPoints(Point3D pos, double camDeg, Engine* engine) {
 
 	//translation
-	Point3D tmpcam = cam->getPos();
-	tmpcam.x = -tmpcam.x, tmpcam.y = -tmpcam.y, tmpcam.z = -tmpcam.z;
-	for (int i = 0; i < 3; ++i)
-		cameraPoints[i] = engine->Translate(worldPoints[i], tmpcam);
+	pos.x = -pos.x, pos.y = -pos.y, pos.z = -pos.z;
+	for (int i = 0; i < 3; ++i){
+		cameraPoints[i] = engine->Translate(worldPoints[i], pos);
+	}
 	//rotate
-	tmpcam = cam->getRot();
-	tmpcam.x = -tmpcam.x, tmpcam.y = -tmpcam.y, tmpcam.z = -tmpcam.z;
 	for (int i = 0; i < 3; ++i)
-		cameraPoints[i] = engine->Rotate(cameraPoints[i], tmpcam);
+		cameraPoints[i] = engine->Rotate(cameraPoints[i], { 0,-camDeg,0 });
 
 	//average Z
 	averageZ = (cameraPoints[0].z + cameraPoints[1].z + cameraPoints[2].z) / 3.0;
@@ -44,112 +42,16 @@ void Triangle::calculateDrawPoints(const Point3D& rotation, const Point3D& posit
 	//apply perspective
 	for (int i = 0; i < 3; ++i)
 		drawPoints[i] = engine->ApplyPerspective(cameraPoints[i]);
+		
 	//center screen
 	for (int i = 0; i < 3; ++i)
 		drawPoints[i] = engine->CenterScreen(drawPoints[i]);
+
 	//normal z
-	normalZ = (drawPoints[1].x - drawPoints[0].x) * (drawPoints[2].y - drawPoints[0].y) - (drawPoints[1].y - drawPoints[0].y) * (drawPoints[2].x - drawPoints[0].x);
+	normalZ = -(drawPoints[1].x - drawPoints[0].x) * (drawPoints[2].y - drawPoints[0].y) + (drawPoints[1].y - drawPoints[0].y) * (drawPoints[2].x - drawPoints[0].x);
 }
 
-std::vector<Triangle*> Triangle::GetZClippedTriangles()
-{
-	std::vector<Triangle*> toReturn;
-	toReturn.push_back(new Triangle(cameraPoints[0], cameraPoints[1], cameraPoints[2]));
-
-	int noTriangles;
-	std::vector<Point3D> insidePoints;
-	std::vector<Point3D> outsidePoints;
-
-	// Z
-	noTriangles = toReturn.size();
-	for (int i = 0; i < noTriangles; i++) {
-
-		Triangle* currentTriangle = toReturn.front();
-		toReturn.erase(toReturn.begin());
-
-		insidePoints.clear();
-		outsidePoints.clear();
-
-		bool pointsAreOutside[3];
-		for (int i = 0; i < 3; i++)
-		{
-			pointsAreOutside[i] = currentTriangle->cameraPoints[i].z < 0;
-			if (pointsAreOutside[i])
-				outsidePoints.push_back(currentTriangle->cameraPoints[i]);
-			else
-				insidePoints.push_back(currentTriangle->cameraPoints[i]);
-		}
-		delete currentTriangle;
-		if (outsidePoints.size() == 0)
-		{
-			toReturn.push_back(new Triangle(insidePoints[0], insidePoints[1], insidePoints[2]));
-		}
-		else if (outsidePoints.size() == 1)
-		{
-			Point3D extraPoint1;
-			extraPoint1.x = outsidePoints[0].x + (0 - outsidePoints[0].z) * (insidePoints[0].x - outsidePoints[0].x) / (insidePoints[0].z - outsidePoints[0].z);
-			extraPoint1.y = outsidePoints[0].y + (0 - outsidePoints[0].z) * (insidePoints[0].y - outsidePoints[0].y) / (insidePoints[0].z - outsidePoints[0].z);
-			extraPoint1.z = 0;
-			extraPoint1.u = outsidePoints[0].u + (0 - outsidePoints[0].z) * (insidePoints[0].u - outsidePoints[0].u) / (insidePoints[0].z - outsidePoints[0].z);
-			extraPoint1.v = outsidePoints[0].v + (0 - outsidePoints[0].z) * (insidePoints[0].v - outsidePoints[0].v) / (insidePoints[0].z - outsidePoints[0].z);
-			extraPoint1.w = outsidePoints[0].w + (0 - outsidePoints[0].z) * (insidePoints[0].w - outsidePoints[0].w) / (insidePoints[0].z - outsidePoints[0].z);
-
-			Point3D extraPoint2;
-			extraPoint2.x = outsidePoints[0].x + (0 - outsidePoints[0].z) * (insidePoints[1].x - outsidePoints[0].x) / (insidePoints[1].z - outsidePoints[0].z);
-			extraPoint2.y = outsidePoints[0].y + (0 - outsidePoints[0].z) * (insidePoints[1].y - outsidePoints[0].y) / (insidePoints[1].z - outsidePoints[0].z);
-			extraPoint2.z = 0;
-			extraPoint2.u = outsidePoints[0].u + (0 - outsidePoints[0].z) * (insidePoints[1].u - outsidePoints[0].u) / (insidePoints[1].z - outsidePoints[0].z);
-			extraPoint2.v = outsidePoints[0].v + (0 - outsidePoints[0].z) * (insidePoints[1].v - outsidePoints[0].v) / (insidePoints[1].z - outsidePoints[0].z);
-			extraPoint2.w = outsidePoints[0].w + (0 - outsidePoints[0].z) * (insidePoints[1].w - outsidePoints[0].w) / (insidePoints[1].z - outsidePoints[0].z);
-
-			if (pointsAreOutside[0]) {
-				toReturn.push_back(new Triangle(extraPoint1, insidePoints[0], insidePoints[1]));
-				toReturn.push_back(new Triangle(extraPoint2, extraPoint1, insidePoints[1]));
-			}
-			else if (pointsAreOutside[1]) {
-				toReturn.push_back(new Triangle(extraPoint1, insidePoints[1], insidePoints[0]));
-				toReturn.push_back(new Triangle(extraPoint2, extraPoint1, insidePoints[0]));
-			}
-			else if (pointsAreOutside[2]) {
-				toReturn.push_back(new Triangle(extraPoint1, insidePoints[0], insidePoints[1]));
-				toReturn.push_back(new Triangle(extraPoint2, extraPoint1, insidePoints[1]));
-			}
-		}
-		else if (outsidePoints.size() == 2)
-		{
-			Point3D extraPoint1;
-			extraPoint1.x = outsidePoints[0].x + (0 - outsidePoints[0].z) * (insidePoints[0].x - outsidePoints[0].x) / (insidePoints[0].z - outsidePoints[0].z);
-			extraPoint1.y = outsidePoints[0].y + (0 - outsidePoints[0].z) * (insidePoints[0].y - outsidePoints[0].y) / (insidePoints[0].z - outsidePoints[0].z);
-			extraPoint1.z = 0;
-			extraPoint1.u = outsidePoints[0].u + (0 - outsidePoints[0].z) * (insidePoints[0].u - outsidePoints[0].u) / (insidePoints[0].z - outsidePoints[0].z);
-			extraPoint1.v = outsidePoints[0].v + (0 - outsidePoints[0].z) * (insidePoints[0].v - outsidePoints[0].v) / (insidePoints[0].z - outsidePoints[0].z);
-			extraPoint1.w = outsidePoints[0].w + (0 - outsidePoints[0].z) * (insidePoints[0].w - outsidePoints[0].w) / (insidePoints[0].z - outsidePoints[0].z);
-
-			Point3D extraPoint2;
-			extraPoint2.x = outsidePoints[1].x + (0 - outsidePoints[1].z) * (insidePoints[0].x - outsidePoints[1].x) / (insidePoints[0].z - outsidePoints[1].z);
-			extraPoint2.y = outsidePoints[1].y + (0 - outsidePoints[1].z) * (insidePoints[0].y - outsidePoints[1].y) / (insidePoints[0].z - outsidePoints[1].z);
-			extraPoint2.z = 0;
-			extraPoint2.u = outsidePoints[1].u + (0 - outsidePoints[1].z) * (insidePoints[0].u - outsidePoints[1].u) / (insidePoints[0].z - outsidePoints[1].z);
-			extraPoint2.v = outsidePoints[1].v + (0 - outsidePoints[1].z) * (insidePoints[0].v - outsidePoints[1].v) / (insidePoints[0].z - outsidePoints[1].z);
-			extraPoint2.w = outsidePoints[1].w + (0 - outsidePoints[1].z) * (insidePoints[0].w - outsidePoints[1].w) / (insidePoints[0].z - outsidePoints[1].z);
-
-			if (!pointsAreOutside[0]) {
-				toReturn.push_back(new Triangle(extraPoint2, insidePoints[0], extraPoint1));
-			}
-			else if (!pointsAreOutside[1]) {
-				toReturn.push_back(new Triangle(extraPoint1, insidePoints[0], extraPoint2));
-			}
-			else if (!pointsAreOutside[2]) {
-				toReturn.push_back(new Triangle(extraPoint2, insidePoints[0], extraPoint1));
-			}
-
-		}
-	}
-
-	return toReturn;
-}
-
-void Triangle::draw(Uint32* bitmap, Image& img)
+void Triangle::draw(Uint32* bitmap, Image3D& img)
 {
 	Point3D aux;
 	for (int i = 0; i < 2; ++i)
@@ -543,6 +445,105 @@ std::vector<Triangle*> Triangle::GetClippedTriangles()
 		}
 	}
 
+
+	return toReturn;
+}
+
+
+std::vector<Triangle*> Triangle::GetZClippedTriangles()
+{
+	std::vector<Triangle*> toReturn;
+	toReturn.push_back(new Triangle(cameraPoints[0], cameraPoints[1], cameraPoints[2]));
+
+	int noTriangles;
+	std::vector<Point3D> insidePoints;
+	std::vector<Point3D> outsidePoints;
+
+	// Z
+	noTriangles = toReturn.size();
+	for (int i = 0; i < noTriangles; i++) {
+
+		Triangle* currentTriangle = toReturn.front();
+		toReturn.erase(toReturn.begin());
+
+		insidePoints.clear();
+		outsidePoints.clear();
+
+		bool pointsAreOutside[3];
+		for (int i = 0; i < 3; i++)
+		{
+			pointsAreOutside[i] = currentTriangle->cameraPoints[i].z < 0;
+			if (pointsAreOutside[i])
+				outsidePoints.push_back(currentTriangle->cameraPoints[i]);
+			else
+				insidePoints.push_back(currentTriangle->cameraPoints[i]);
+		}
+		delete currentTriangle;
+		if (outsidePoints.size() == 0)
+		{
+			toReturn.push_back(new Triangle(insidePoints[0], insidePoints[1], insidePoints[2]));
+		}
+		else if (outsidePoints.size() == 1)
+		{
+			Point3D extraPoint1;
+			extraPoint1.x = outsidePoints[0].x + (0 - outsidePoints[0].z) * (insidePoints[0].x - outsidePoints[0].x) / (insidePoints[0].z - outsidePoints[0].z);
+			extraPoint1.y = outsidePoints[0].y + (0 - outsidePoints[0].z) * (insidePoints[0].y - outsidePoints[0].y) / (insidePoints[0].z - outsidePoints[0].z);
+			extraPoint1.z = 0;
+			extraPoint1.u = outsidePoints[0].u + (0 - outsidePoints[0].z) * (insidePoints[0].u - outsidePoints[0].u) / (insidePoints[0].z - outsidePoints[0].z);
+			extraPoint1.v = outsidePoints[0].v + (0 - outsidePoints[0].z) * (insidePoints[0].v - outsidePoints[0].v) / (insidePoints[0].z - outsidePoints[0].z);
+			extraPoint1.w = outsidePoints[0].w + (0 - outsidePoints[0].z) * (insidePoints[0].w - outsidePoints[0].w) / (insidePoints[0].z - outsidePoints[0].z);
+
+			Point3D extraPoint2;
+			extraPoint2.x = outsidePoints[0].x + (0 - outsidePoints[0].z) * (insidePoints[1].x - outsidePoints[0].x) / (insidePoints[1].z - outsidePoints[0].z);
+			extraPoint2.y = outsidePoints[0].y + (0 - outsidePoints[0].z) * (insidePoints[1].y - outsidePoints[0].y) / (insidePoints[1].z - outsidePoints[0].z);
+			extraPoint2.z = 0;
+			extraPoint2.u = outsidePoints[0].u + (0 - outsidePoints[0].z) * (insidePoints[1].u - outsidePoints[0].u) / (insidePoints[1].z - outsidePoints[0].z);
+			extraPoint2.v = outsidePoints[0].v + (0 - outsidePoints[0].z) * (insidePoints[1].v - outsidePoints[0].v) / (insidePoints[1].z - outsidePoints[0].z);
+			extraPoint2.w = outsidePoints[0].w + (0 - outsidePoints[0].z) * (insidePoints[1].w - outsidePoints[0].w) / (insidePoints[1].z - outsidePoints[0].z);
+
+			if (pointsAreOutside[0]) {
+				toReturn.push_back(new Triangle(extraPoint1, insidePoints[0], insidePoints[1]));
+				toReturn.push_back(new Triangle(extraPoint2, extraPoint1, insidePoints[1]));
+			}
+			else if (pointsAreOutside[1]) {
+				toReturn.push_back(new Triangle(extraPoint1, insidePoints[1], insidePoints[0]));
+				toReturn.push_back(new Triangle(extraPoint2, extraPoint1, insidePoints[0]));
+			}
+			else if (pointsAreOutside[2]) {
+				toReturn.push_back(new Triangle(extraPoint1, insidePoints[0], insidePoints[1]));
+				toReturn.push_back(new Triangle(extraPoint2, extraPoint1, insidePoints[1]));
+			}
+		}
+		else if (outsidePoints.size() == 2)
+		{
+			Point3D extraPoint1;
+			extraPoint1.x = outsidePoints[0].x + (0 - outsidePoints[0].z) * (insidePoints[0].x - outsidePoints[0].x) / (insidePoints[0].z - outsidePoints[0].z);
+			extraPoint1.y = outsidePoints[0].y + (0 - outsidePoints[0].z) * (insidePoints[0].y - outsidePoints[0].y) / (insidePoints[0].z - outsidePoints[0].z);
+			extraPoint1.z = 0;
+			extraPoint1.u = outsidePoints[0].u + (0 - outsidePoints[0].z) * (insidePoints[0].u - outsidePoints[0].u) / (insidePoints[0].z - outsidePoints[0].z);
+			extraPoint1.v = outsidePoints[0].v + (0 - outsidePoints[0].z) * (insidePoints[0].v - outsidePoints[0].v) / (insidePoints[0].z - outsidePoints[0].z);
+			extraPoint1.w = outsidePoints[0].w + (0 - outsidePoints[0].z) * (insidePoints[0].w - outsidePoints[0].w) / (insidePoints[0].z - outsidePoints[0].z);
+
+			Point3D extraPoint2;
+			extraPoint2.x = outsidePoints[1].x + (0 - outsidePoints[1].z) * (insidePoints[0].x - outsidePoints[1].x) / (insidePoints[0].z - outsidePoints[1].z);
+			extraPoint2.y = outsidePoints[1].y + (0 - outsidePoints[1].z) * (insidePoints[0].y - outsidePoints[1].y) / (insidePoints[0].z - outsidePoints[1].z);
+			extraPoint2.z = 0;
+			extraPoint2.u = outsidePoints[1].u + (0 - outsidePoints[1].z) * (insidePoints[0].u - outsidePoints[1].u) / (insidePoints[0].z - outsidePoints[1].z);
+			extraPoint2.v = outsidePoints[1].v + (0 - outsidePoints[1].z) * (insidePoints[0].v - outsidePoints[1].v) / (insidePoints[0].z - outsidePoints[1].z);
+			extraPoint2.w = outsidePoints[1].w + (0 - outsidePoints[1].z) * (insidePoints[0].w - outsidePoints[1].w) / (insidePoints[0].z - outsidePoints[1].z);
+
+			if (!pointsAreOutside[0]) {
+				toReturn.push_back(new Triangle(extraPoint2, insidePoints[0], extraPoint1));
+			}
+			else if (!pointsAreOutside[1]) {
+				toReturn.push_back(new Triangle(extraPoint1, insidePoints[0], extraPoint2));
+			}
+			else if (!pointsAreOutside[2]) {
+				toReturn.push_back(new Triangle(extraPoint2, insidePoints[0], extraPoint1));
+			}
+
+		}
+	}
 
 	return toReturn;
 }

@@ -52,7 +52,7 @@ class Map
 	Image moon;
 
 	//3D object
-	Engine engine;
+	Cube cube;
 
 	//static member
 	static Uint32 grass;
@@ -63,6 +63,8 @@ class Map
 	static SDL_Rect viewPort2;
 	static unsigned long long type;
 
+
+
 public:
 
 	Map();					// default constructor (initialize nothing)
@@ -72,7 +74,7 @@ public:
 	// getters
 	RacingCar* getCar1() { return car1; }
 	RacingCar* getCar2() { return car2; }
-	Engine* getEngine() { return &engine; }
+	//Engine* getEngine() { return &engine; }
 
 	// timer
 	void startTimer();

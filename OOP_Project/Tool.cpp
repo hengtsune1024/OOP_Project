@@ -1,12 +1,12 @@
 #include "Tool.h"
-Tool::Tool() {
+Tool::Tool(){
 
 }
 Tool::~Tool() {
 
 }
 Tool::Tool(const char* path, int n, SDL_Renderer* renderer) : Tool1(0), Tool2(0),
-	tool1img("../images/star.png", renderer), tool2img("../images/star.png", renderer), cube()
+	tool1img("../images/star.png", renderer), tool2img("../images/star.png", renderer)
 {
 	gettime = SDL_GetTicks64() - STAIN_INTERVAL;
 	setImage(path, n, renderer, 0);
@@ -14,6 +14,7 @@ Tool::Tool(const char* path, int n, SDL_Renderer* renderer) : Tool1(0), Tool2(0)
 
 void Tool::setTool(Line* line) {
 	setEntity(line);
+	//setPos({ line->getx(),line->gety() + 100 + CUBE_SIZE,line->getz(),0,0,0 });
 }
 /*
 void Trap::draw(SDL_Renderer* renderer, Line *line) {
