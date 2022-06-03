@@ -30,7 +30,7 @@ public:
 	double getNormalZ() { return normalZ; }
 	void draw(Uint32*, Image3D&);
 	void calculateWorldPoints(const Point3D& rotation, const Point3D& position, Engine* engine);
-	void calculateDrawPoints(const Point3D& rotation, const Point3D& position, Engine* engine);
+	void calculateDrawPoints(const Point3D& rotation, const Point3D& position,double camDepth, Engine* engine);
 	void calculateCameraPoints(Point3D pos, double camDeg, Engine* engine);
 	static bool compare(Triangle*, Triangle*);
 	std::vector<Triangle*> GetClippedTriangles();

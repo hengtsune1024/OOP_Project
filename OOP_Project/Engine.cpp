@@ -45,7 +45,7 @@ Point3D Engine::Rotate(const Point3D& original, Point3D rotation)
 	toReturn.w = original.w;
 	return toReturn;
 }
-Point3D Engine::ApplyPerspective(const Point3D& original)
+Point3D Engine::ApplyPerspective(const Point3D& original,double camDepth)
 {
 	Point3D toReturn;
 	/*
@@ -56,8 +56,8 @@ Point3D Engine::ApplyPerspective(const Point3D& original)
 	toReturn.v = original.v * Z0 / (Z0 + original.z);
 	toReturn.w = original.w * Z0 / (Z0 + original.z);*/
 
-	toReturn.x = original.x * DEFAULT_CAMERA_DEPTH / original.z * WIDTH / 2;
-	toReturn.y = original.y * DEFAULT_CAMERA_DEPTH / original.z * HEIGHT / 2;
+	toReturn.x = original.x * camDepth / original.z * WIDTH / 2;
+	toReturn.y = original.y * camDepth / original.z * HEIGHT / 2;
 	toReturn.z = original.z;
 	toReturn.u = original.u * Z0 / (Z0 + original.z);
 	toReturn.v = original.v * Z0 / (Z0 + original.z);

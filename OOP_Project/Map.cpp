@@ -1,5 +1,5 @@
 #include "Map.h"
-#define POS 500
+#define POS 160
 Uint32 Map::grass;
 Uint32 Map::rumble;
 Uint32 Map::road;
@@ -299,7 +299,7 @@ void Map::draw(SDL_Renderer* renderer)
 		car->getTools()->drawmytool(renderer);
 
 		if (startpos + 300 > POS && cube.getZ() - CUBE_SIZE > m.posX) {
-			cube.draw(renderer, { m.posY,1.0 * camH,m.posX }, m.camDegree);
+			cube.draw(renderer, { m.posY,1.0 * camH,m.posX }, m.camDegree, m.camDepth);
 		}
 
 		if (dualMode) {

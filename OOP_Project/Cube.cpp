@@ -42,7 +42,7 @@ Cube::Cube(const char* objectFile, const char* texFile)
 Cube::~Cube() 
 {}
 
-void Cube::draw(SDL_Renderer* renderer,Point3D pos, double camDeg) 
+void Cube::draw(SDL_Renderer* renderer,Point3D pos, double camDeg, double camDepth) 
 {
 	Uint32* bmp = engine.getPixels();
 	memset(bmp, 0, WIDTH * HEIGHT * 4);
@@ -62,7 +62,7 @@ void Cube::draw(SDL_Renderer* renderer,Point3D pos, double camDeg)
 
 
 	for (int i = 0; i < allTriangles.size(); ++i) {
-		allTriangles[i]->calculateDrawPoints(rotation, position, &engine);
+		allTriangles[i]->calculateDrawPoints(rotation, position, camDepth, &engine);
 		if (allTriangles[i]->getNormalZ() < 0) {
 			std::vector<Triangle*> clippedTriangles = allTriangles[i]->GetClippedTriangles();
 			for (int j = 0; j < clippedTriangles.size(); ++j) {

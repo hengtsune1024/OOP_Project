@@ -37,11 +37,11 @@ void Triangle::calculateCameraPoints(Point3D pos, double camDeg, Engine* engine)
 	averageZ = (cameraPoints[0].z + cameraPoints[1].z + cameraPoints[2].z) / 3.0;
 }
 
-void Triangle::calculateDrawPoints(const Point3D& rotation, const Point3D& position, Engine* engine)
+void Triangle::calculateDrawPoints(const Point3D& rotation, const Point3D& position,double camDepth, Engine* engine)
 {
 	//apply perspective
 	for (int i = 0; i < 3; ++i)
-		drawPoints[i] = engine->ApplyPerspective(cameraPoints[i]);
+		drawPoints[i] = engine->ApplyPerspective(cameraPoints[i], camDepth);
 		
 	//center screen
 	for (int i = 0; i < 3; ++i)
