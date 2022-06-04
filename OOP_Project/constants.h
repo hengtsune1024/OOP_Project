@@ -48,8 +48,8 @@
 #define GRAVITY 50
 
 //rotation
-#define ROTATE 0.04			//car camera rotation
-#define MAX_ROTATE_DEGREE 0.52  // 30 degree
+#define ROTATE 0.06			//car camera rotation
+#define MAX_ROTATE_DEGREE 1.047  // 30 degree
 
 //road
 #define ROAD_WIDTH 4000
@@ -61,7 +61,7 @@
 #define TOOL_WIDTH 2000
 
 //racing car
-#define MOTION_INIT {INITIAL_POS * SEGMENT_LENGTH,0,0,0,0,0,0,0,DEFAULT_CAMERA_DEPTH,1,1,CAMERA_HEIGHT}
+#define MOTION_INIT {INITIAL_POS * SEGMENT_LENGTH,0,0,0,0,0,0,0,0,DEFAULT_CAMERA_DEPTH,1,1,CAMERA_HEIGHT}
 #define CAR_WIDTH (0.8 * ROAD_WIDTH)
 #define CAR_LENGTH (1.6 * ROAD_WIDTH)
 #define FRONT_REAR_DISTANCE (0.64 * ROAD_WIDTH)    //wheel width=0.2*CAR_LENGTH=0.32*ROAD_WIDTH

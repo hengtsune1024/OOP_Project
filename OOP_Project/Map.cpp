@@ -405,8 +405,8 @@ Uint32 Map::move(Uint32 interval, void* para)
 		//set car road type
 		car->setRoadType(type);
 		double velX, velY;
-		velX = motion.velLinear * cos(motion.camDegree) * motion.velM * punish;
-		velY = motion.velLinear * sin(motion.camDegree) * motion.velM * punish;
+		velX = motion.velLinear * cos(motion.axleDegree) * motion.velM * punish;
+		velY = motion.velLinear * sin(motion.axleDegree) * motion.velM * punish;
 
 		//move in x-direction
 		car->setPosX(motion.posX + velX);
@@ -437,7 +437,7 @@ Uint32 Map::move(Uint32 interval, void* para)
 
 			double roadD = atan((map->lines[startpos].getx() - map->lines[originpos].getx()) / (map->lines[startpos].getz() - map->lines[originpos].getz()));
 
-			double velProjected = motion.velLinear * cos(roadD - motion.camDegree) * motion.velM * punish;
+			double velProjected = motion.velLinear * cos(roadD - motion.axleDegree) * motion.velM * punish;
 			car->setPosY(motion.posY + velProjected * sin(roadD));
 			car->setPosX(motion.posX + velProjected * cos(roadD));
 			//map->posX += velProjected * cos(roadD);
@@ -453,22 +453,33 @@ Uint32 Map::move(Uint32 interval, void* para)
 
 		}
 
-		//rotate camera
-		car->setCamDegree(motion.camDegree + motion.velAngular / motion.velM);
-		//map->camDegree += motion.velAngular / motion.velM;
+		//rotate car
+		car->setAxleDegree(motion.axleDegree + motion.velAngular / motion.velM);
 
-		if ((motion.camDegree <= motion.roadDegree - MAX_ROTATE_DEGREE / motion.velM && motion.velAngular <= 0) || (motion.camDegree >= motion.roadDegree + MAX_ROTATE_DEGREE / motion.velM && motion.velAngular >= 0)) {
-			car->setCamDegree(motion.camDegree - motion.velAngular / motion.velM);
-			//map->camDegree -= motion.velAngular / motion.velM;
-			if (motion.camDegree <= motion.roadDegree - MAX_ROTATE_DEGREE / motion.velM) {
-				car->setCamDegree(motion.roadDegree - MAX_ROTATE_DEGREE / motion.velM);
-				//map->camDegree = motion.roadDegree - MAX_ROTATE_DEGREE / motion.velM;
+		if ((motion.axleDegree <= motion.roadDegree - MAX_ROTATE_DEGREE / motion.velM && motion.velAngular <= 0) || (motion.axleDegree >= motion.roadDegree + MAX_ROTATE_DEGREE / motion.velM && motion.velAngular >= 0)) {
+			car->setAxleDegree(motion.axleDegree - motion.velAngular / motion.velM);
+			if (motion.axleDegree <= motion.roadDegree - MAX_ROTATE_DEGREE / motion.velM) {
+				car->setAxleDegree(motion.roadDegree - MAX_ROTATE_DEGREE / motion.velM);
 			}
-			else if (motion.camDegree >= motion.roadDegree + MAX_ROTATE_DEGREE / motion.velM) {
-				car->setCamDegree(motion.roadDegree + MAX_ROTATE_DEGREE / motion.velM);
-				//map->camDegree = motion.roadDegree + MAX_ROTATE_DEGREE / motion.velM;
+			else if (motion.axleDegree >= motion.roadDegree + MAX_ROTATE_DEGREE / motion.velM) {
+				car->setAxleDegree(motion.roadDegree + MAX_ROTATE_DEGREE / motion.velM);
 			}
 		}
+
+		//rotate camera
+		if (motion.camDegree > motion.axleDegree) {
+			double rot = 0.0382 * (motion.camDegree - motion.axleDegree) + 0.03;
+			car->setCamDegree(motion.camDegree - rot / motion.velM);
+			if (motion.camDegree < motion.axleDegree)
+				car->setCamDegree(motion.axleDegree);
+		}
+		else if (motion.camDegree < motion.axleDegree) {
+			double rot = 0.0382 * (motion.axleDegree - motion.camDegree) + 0.03;
+			car->setCamDegree(motion.camDegree + rot / motion.velM);
+			if (motion.camDegree > motion.axleDegree)
+				car->setCamDegree(motion.axleDegree);
+		}
+
 
 		//update startpos and type
 		startpos = motion.posX / SEGMENT_LENGTH;
@@ -1102,3 +1113,19 @@ switch (lines[i].getType())
 	velAngular(0), velLinear(0), roadDegree(0), camDegree(0), accLinear(0), camHeight(CAMERA_HEIGHT), velM(1)
 	// {INITIAL_POS* SEGMENT_LENGTH,0,0,0,0,0,0,DEFAULT_CAMERA_DEPTH,1,CAMERA_HEIGHT}
 	*/
+/*
+car->setCamDegree(motion.camDegree + motion.velAngular / motion.velM);
+//map->camDegree += motion.velAngular / motion.velM;
+
+if ((motion.camDegree <= motion.roadDegree - MAX_ROTATE_DEGREE / motion.velM && motion.velAngular <= 0) || (motion.camDegree >= motion.roadDegree + MAX_ROTATE_DEGREE / motion.velM && motion.velAngular >= 0)) {
+	car->setCamDegree(motion.camDegree - motion.velAngular / motion.velM);
+	//map->camDegree -= motion.velAngular / motion.velM;
+	if (motion.camDegree <= motion.roadDegree - MAX_ROTATE_DEGREE / motion.velM) {
+		car->setCamDegree(motion.roadDegree - MAX_ROTATE_DEGREE / motion.velM);
+		//map->camDegree = motion.roadDegree - MAX_ROTATE_DEGREE / motion.velM;
+	}
+	else if (motion.camDegree >= motion.roadDegree + MAX_ROTATE_DEGREE / motion.velM) {
+		car->setCamDegree(motion.roadDegree + MAX_ROTATE_DEGREE / motion.velM);
+		//map->camDegree = motion.roadDegree + MAX_ROTATE_DEGREE / motion.velM;
+	}
+}*/

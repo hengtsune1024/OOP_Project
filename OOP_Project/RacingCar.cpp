@@ -136,19 +136,22 @@ Uint32 RacingCar::changeData(Uint32 interval, void* param)
 		}
 		return interval;
 	}*/
-	/*
+	
 	Point3D rot = p->car3D.getRotation();
-	if (rot.y < p->motion.camDegree) {
-		rot.y += 0.02;
-		if (rot.y > p->motion.camDegree)
-			rot.y = p->motion.camDegree;
+	double dif = p->motion.axleDegree - p->motion.camDegree;
+
+	if (dif < -1e-6) {
+		rot.y -= 0.04;
+		if (rot.y < dif)
+			rot.y = dif;
 	}
-	else if (rot.y > p->motion.camDegree) {
-		rot.y -= 0.02;
-		if (rot.y < p->motion.camDegree)
-			rot.y = p->motion.camDegree;
+	else if (dif > 1e-6) {
+		rot.y += 0.04;
+		if (rot.y > dif)
+			rot.y = dif;
 	}
-	p->car3D.setRotation(rot);*/
+
+	p->car3D.setRotation(rot);
 	return interval;
 }
 

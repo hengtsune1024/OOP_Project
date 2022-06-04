@@ -18,8 +18,9 @@ struct Motion {
 	double velPerpen;		// z-direction velocity (moving up and down)
 	double velAngular;		// angular velocity on xy-plane
 	double accLinear;		// linear acceleration on xy-plane
-	double camDegree;		// camera degree (in rad, x-axis is 0)
-	double roadDegree;		// the degree from x-axis to the road vector (from current segment to the next segment) 
+	double axleDegree;		// angle between car-direction and z-axis(X-axis)
+	double camDegree;		// camera degree (in rad, z-axis(X-axis) is 0)
+	double roadDegree;		// the degree from z-axis(X-axis) to the road vector (from current segment to the next segment) 
 	double camDepth;		// camera depth
 	double velM;			// velocity modification
 	double roadMod;			// road modification (for friction to change gradually between different roadTypes)
@@ -95,6 +96,8 @@ public:
 	double getEnergy() { return energy; }
 
 	BlenderObject* getCar3D() { return &car3D; }
+	double getAxleDegree() { return motion.axleDegree; }
+	void setAxleDegree(double ad) { motion.axleDegree = ad; }
 
 	double getPosX() { return motion.posX; }
 	double getPosY() { return motion.posY; }
