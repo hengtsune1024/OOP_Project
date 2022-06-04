@@ -16,7 +16,7 @@ RacingCar::~RacingCar() {
 RacingCar::RacingCar(const char* path, int n, SDL_Renderer* renderer, Line* initpos) :
 	virus("../images/coronavirus/", 15, renderer), tools("../images/star/", 5, renderer), rock("../images/rock/", 1, renderer),
 	isRushing(NONE), fullEnergy(true), energy(100.0), healthPoint(100.0), motion(MOTION_INIT), accState(0), roadtype(NORMAL),
-	currentPos(initpos), car3D("../images/car1.txt", "../images/car1.bmp", 500)
+	currentPos(initpos), car3D("../images/car1.txt", "../images/car1.bmp", 750), theOtherCar(NULL)
 {
 	/*
 	num = n;
@@ -111,6 +111,12 @@ void RacingCar::draw(SDL_Renderer* renderer,Engine* engine, bool clean)
 	roundedRectangleRGBA(renderer, 105, 80, 140, 115, 1, 255, 0, 255, 255);
 }
 
+void RacingCar::drawOtherCar(SDL_Renderer* renderer, Engine* engine, bool clean, double maxy, double camH) {
+	car3D.draw(renderer,
+		{ motion.posY - theOtherCar->getPosY() ,camH - theOtherCar->getCamHeight() - theOtherCar->getCurrentPos()->gety(),motion.posX - theOtherCar->getPosX() }, 
+		motion.camDegree, motion.camDepth, engine, clean, maxy);
+}
+
 Uint32 RacingCar::changeData(Uint32 interval, void* param)
 {
 	RacingCar* p = (RacingCar*)param;
@@ -141,12 +147,12 @@ Uint32 RacingCar::changeData(Uint32 interval, void* param)
 	double dif = p->motion.axleDegree - p->motion.camDegree;
 
 	if (dif < -1e-6) {
-		rot.y -= 0.04;
+		rot.y -= 0.06;
 		if (rot.y < dif)
 			rot.y = dif;
 	}
 	else if (dif > 1e-6) {
-		rot.y += 0.04;
+		rot.y += 0.06;
 		if (rot.y > dif)
 			rot.y = dif;
 	}

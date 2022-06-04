@@ -115,7 +115,6 @@ Map::Map(SDL_Renderer* renderer, bool dual) : lines(NUM_LINE), number_of_lines(N
 
 	if (dualMode) {
 		car1->setPosY(lines[INITIAL_POS].getx() - ROAD_WIDTH / 2);
-
 		car2->setTrap(&lines[300]);
 		car2->setTool(&lines[200]);
 		car2->setObstacle(&lines[250]);
@@ -123,6 +122,8 @@ Map::Map(SDL_Renderer* renderer, bool dual) : lines(NUM_LINE), number_of_lines(N
 		//car2->setPosition(WIDTH / 2 - car2->getWidth() / 2, HEIGHT - car2->getHeight() + 20);
 		car2->setPosY(lines[INITIAL_POS].getx() + ROAD_WIDTH / 2);
 		car2->turn(0);
+		car1->setOtherCar(car2);
+		car2->setOtherCar(car1);
 	}
 	else {
 		car1->setPosY(lines[INITIAL_POS].getx());
@@ -160,8 +161,9 @@ void Map::draw(SDL_Renderer* renderer)
 {
 	SDL_RenderSetViewport(renderer, &viewPort1);
 	RacingCar* car = car1;
+	RacingCar* otherCar = car2;
 	int times = dualMode ? 2 : 1;
-	int startpos, camH,maxy, moonW;
+	int startpos, camH,maxy, moonW, critz(0);
 
 	do {
 
@@ -171,6 +173,7 @@ void Map::draw(SDL_Renderer* renderer)
 			camH = m.camHeight + car->baseHeight;
 		else
 			camH = m.camHeight + lines[startpos].gety();
+
 		maxy = HEIGHT;
 
 		//road and ground
@@ -204,6 +207,7 @@ void Map::draw(SDL_Renderer* renderer)
 				continue;
 
 			maxy = l.getY();
+			critz = l.getz();
 
 			//grass
 			grass = (i >> 2) & 1 ? 0xff10c810 : 0xff009A00;
@@ -286,17 +290,29 @@ void Map::draw(SDL_Renderer* renderer)
 		if (startpos <= 250 && startpos > 0)
 			car->getObstacle()->drawImg(renderer, &lines[250]);
 
+		bool clean = true;
+		if (otherCar!=NULL && otherCar->getPosX() > m.posX - 50 * SEGMENT_LENGTH && otherCar->getPosX() - m.posX < 300 * SEGMENT_LENGTH) {
+			if (otherCar->getPosX() > critz) {
+				car->drawOtherCar(renderer, &engine, clean, maxy, camH);
+			}
+			else {
+				car->drawOtherCar(renderer, &engine, clean, HEIGHT, camH);
+			}
+
+			clean = false;
+		}
+
 		if (startpos <= 200 && startpos > 0) {
 			car->getTools()->drawImg(renderer, &lines[200]);
 		}
-		bool clean = true;
+
 		if (startpos + 300 > POS && cube.getZ() - CUBE_SIZE > m.posX) {
 			cube.draw(renderer, { m.posY,1.0 * camH,m.posX }, m.camDegree, m.camDepth, & engine, clean);
 			clean = false;
 		}
 
 		//car
-		car->draw(renderer, &engine,clean);
+		car->draw(renderer, &engine, clean);
 
 		/**************************/
 		car->getTrap()->drawStain(renderer);	//only draws stain
@@ -304,12 +320,12 @@ void Map::draw(SDL_Renderer* renderer)
 
 		car->getTools()->drawmytool(renderer);
 
-		
 
 		engine.drawAll(renderer);
 
 		if (dualMode) {
 			car = car2;
+			otherCar = car1;
 			SDL_RenderSetViewport(renderer, &viewPort2);
 		}
 
@@ -332,7 +348,7 @@ Uint32 Map::move(Uint32 interval, void* para)
 
 	do {
 		const Motion& motion = car->getMotion();
-		startpos = motion.posX / SEGMENT_LENGTH;
+		startpos = (motion.posX + 2000) / SEGMENT_LENGTH;
 		car->setCurrentPos(&(map->lines[startpos]));
 
 		//perpendicular (z-direction)
@@ -416,7 +432,7 @@ Uint32 Map::move(Uint32 interval, void* para)
 		/********* Do not move these codes ********/
 
 		//current index of road line
-		startpos = motion.posX / SEGMENT_LENGTH;
+		startpos = (motion.posX + 2000) / SEGMENT_LENGTH;
 
 		//degree between road vector and normal line (same direction as camera degree)
 		car->setRoadDegree(atan((map->lines[startpos + 1].getx() - map->lines[startpos].getx()) / (map->lines[startpos + 1].getz() - map->lines[startpos].getz())));
@@ -431,7 +447,7 @@ Uint32 Map::move(Uint32 interval, void* para)
 			car->setPosY(motion.posY - velY);
 			car->setPosX(motion.posX - velX);
 
-			int originpos = motion.posX / SEGMENT_LENGTH;		//startpos after moving, endpos is original
+			int originpos = (motion.posX + 2000) / SEGMENT_LENGTH;		//startpos after moving, endpos is original
 			if (originpos == startpos)
 				++originpos;
 
@@ -443,7 +459,7 @@ Uint32 Map::move(Uint32 interval, void* para)
 			//map->posX += velProjected * cos(roadD);
 			//map->posY += velProjected * sin(roadD);
 
-			originpos = motion.posX / SEGMENT_LENGTH;
+			originpos = (motion.posX + 2000) / SEGMENT_LENGTH;
 			if (motion.posY < map->lines[originpos].getx() - ROAD_BORDER * motion.velM)
 				car->setPosY(map->lines[originpos].getx() - ROAD_BORDER * motion.velM);
 			//map->posY = map->lines[originpos].getx() - ROAD_BORDER * motion.velM;
@@ -468,13 +484,13 @@ Uint32 Map::move(Uint32 interval, void* para)
 
 		//rotate camera
 		if (motion.camDegree > motion.axleDegree) {
-			double rot = 0.0382 * (motion.camDegree - motion.axleDegree) + 0.03;
+			double rot = 0.06 / 0.78539 * (motion.camDegree - motion.axleDegree) + 0.01;
 			car->setCamDegree(motion.camDegree - rot / motion.velM);
 			if (motion.camDegree < motion.axleDegree)
 				car->setCamDegree(motion.axleDegree);
 		}
 		else if (motion.camDegree < motion.axleDegree) {
-			double rot = 0.0382 * (motion.axleDegree - motion.camDegree) + 0.03;
+			double rot = 0.06 / 0.78539 * (  motion.axleDegree- motion.camDegree) + 0.01;
 			car->setCamDegree(motion.camDegree + rot / motion.velM);
 			if (motion.camDegree > motion.axleDegree)
 				car->setCamDegree(motion.axleDegree);
@@ -482,7 +498,7 @@ Uint32 Map::move(Uint32 interval, void* para)
 
 
 		//update startpos and type
-		startpos = motion.posX / SEGMENT_LENGTH;
+		startpos = (motion.posX + 2000) / SEGMENT_LENGTH;
 		type = map->lines[startpos].getType();
 		car->setRoadType(type);
 

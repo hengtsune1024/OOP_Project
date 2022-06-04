@@ -45,7 +45,7 @@ Cube::~Cube()
 	SDL_FreeSurface(img.surface);
 }
 
-void Cube::draw(SDL_Renderer* renderer,Point3D pos, double camDeg, double camDepth, Engine* engine, bool clean) 
+void Cube::draw(SDL_Renderer* renderer,Point3D pos, double camDeg, double camDepth, Engine* engine, bool clean, double maxy) 
 {
 	Uint32* bmp = engine->getPixels();
 	if (clean) {
@@ -72,7 +72,7 @@ void Cube::draw(SDL_Renderer* renderer,Point3D pos, double camDeg, double camDep
 		if (allTriangles[i]->getNormalZ() < 0) {
 			std::vector<Triangle*> clippedTriangles = allTriangles[i]->GetClippedTriangles();
 			for (int j = 0; j < clippedTriangles.size(); ++j) {
-				clippedTriangles[j]->draw(bmp, img,engine->getZBuffer());
+				clippedTriangles[j]->draw(bmp, img,engine->getZBuffer(),maxy);
 				delete clippedTriangles[j];
 			}
 			delete allTriangles[i];

@@ -70,7 +70,7 @@ class RacingCar
 	Line* currentPos;
 
 	BlenderObject car3D;
-
+	RacingCar* theOtherCar;
 
 public:
 
@@ -83,12 +83,15 @@ public:
 	//int getWidth();
 	//int getHeight();
 	void draw(SDL_Renderer* renderer, Engine* engine, bool clean);
+	void drawOtherCar(SDL_Renderer* renderer, Engine* engine, bool clean, double maxy, double camH);
 	void startTimer(Uint32 t);
 	void stopTimer();
 	void turn(int); // move the object
 
 	void usetool(ToolType type);
 
+	void setOtherCar(RacingCar* c) { theOtherCar = c; }
+	RacingCar* getOtherCar() { return theOtherCar; }
 
 	void rush(RushType);
 	RushType getRushing() { return isRushing; }

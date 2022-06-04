@@ -49,7 +49,7 @@
 
 //rotation
 #define ROTATE 0.06			//car camera rotation
-#define MAX_ROTATE_DEGREE 1.047  // 30 degree
+#define MAX_ROTATE_DEGREE 0.7854  // 30 degree
 
 //road
 #define ROAD_WIDTH 4000
