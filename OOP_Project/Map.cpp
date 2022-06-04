@@ -25,9 +25,9 @@ Map::Map(SDL_Renderer* renderer, bool dual) : lines(NUM_LINE), number_of_lines(N
 		if (i > 100 && i <= 300)		// range of turing road
 			lines[i].setCurve(0.9);
 		else if (i > 300 && i < 600)
-			lines[i].setCurve(8.5);
+			lines[i].setCurve(1.2);
 		else if (i > 700 && i < 1000)
-			lines[i].setCurve(-8.5);
+			lines[i].setCurve(-0.3);
 		else if (i > 1200 && i < 1400)
 			lines[i].setCurve(-1.5);
 		else if (i > 1500 && i < 2000)
