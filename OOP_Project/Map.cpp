@@ -297,7 +297,7 @@ void Map::draw(SDL_Renderer* renderer)
 			clean = false;
 		}
 
-		if (otherCar!=NULL && otherCar->getPosX() > m.posX - 50 * SEGMENT_LENGTH && otherCar->getPosX() - m.posX < 300 * SEGMENT_LENGTH) {
+		if (otherCar != NULL && otherCar->getPosX() > m.posX - 50 * SEGMENT_LENGTH && otherCar->getPosX() - m.posX < 300 * SEGMENT_LENGTH) {
 			if (otherCar->getPosX() > critz) {
 				car->drawOtherCar(renderer, &engine, clean, maxy, camH);
 			}
@@ -313,7 +313,7 @@ void Map::draw(SDL_Renderer* renderer)
 		}
 
 		if (startpos + 300 > POS && cube.getZ() - CUBE_SIZE > m.posX) {
-			cube.draw(pos, m.camDegree, m.camDepth, & engine, clean);
+			cube.draw(pos, cube.getRotation(), m.camDegree, m.camDepth, &engine, clean);
 			clean = false;
 		}
 

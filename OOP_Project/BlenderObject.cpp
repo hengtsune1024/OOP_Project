@@ -41,7 +41,6 @@ void BlenderObject::Load(const char* objectFile)
 		int a, b, c;
 		char s;
 		Point3D p0, p1, p2, p3;
-
 		while (fscanf(f, " %s", sym) != EOF)
 		{
 			if (sym[0] == 'v') // 3D point
@@ -53,6 +52,7 @@ void BlenderObject::Load(const char* objectFile)
 				else if (sym[1] == '\0') {
 					fscanf(f, "%lf%lf%lf", &x, &y, &z);
 					vertices.push_back({ x,y,z,0,0 });
+
 				}
 				else {
 					fscanf(f, " ");
@@ -89,17 +89,16 @@ void BlenderObject::Logic(double elapsedTime)
 	rotation.y += 1 * elapsedTime;
 }*/
 
-void BlenderObject::draw(Point3D pos, double camDeg, double camDepth, Engine* engine, bool clean, double maxy)
+void BlenderObject::draw(Point3D pos, Point3D rot, double camDeg, double camDepth, Engine* engine, bool clean, double maxy)
 {
 	Uint32* bmp = engine->getPixels();
 	if (clean) {
 		memset(bmp, 0, WIDTH * HEIGHT * 4);
 		memset(engine->getZBuffer(), 0, WIDTH * HEIGHT * sizeof(double));
 	}
-
 	std::vector<Triangle*> allTriangles;
 	for (int i = 0; i < triangles.size(); ++i) {
-		triangles[i]->calculateWorldPoints(rotation, position, engine);
+		triangles[i]->calculateWorldPoints(rot, position, engine);
 		triangles[i]->calculateCameraPoints(pos, camDeg, engine);
 
 		std::vector<Triangle*> clippedTriangles = triangles[i]->GetZClippedTriangles();
@@ -109,7 +108,7 @@ void BlenderObject::draw(Point3D pos, double camDeg, double camDepth, Engine* en
 	}
 
 	for (int i = 0; i < allTriangles.size(); ++i) {
-		allTriangles[i]->calculateDrawPoints(rotation, position, camDepth, engine);
+		allTriangles[i]->calculateDrawPoints(rot, position, camDepth, engine);
 		if (allTriangles[i]->getNormalZ() < 0) {
 			std::vector<Triangle*> clippedTriangles = allTriangles[i]->GetClippedTriangles();
 			for (int j = 0; j < clippedTriangles.size(); ++j) {
