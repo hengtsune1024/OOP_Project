@@ -197,11 +197,11 @@ void Triangle::draw(Uint32* bitmap, Image3D& img, double zbuffer[], double maxy)
 		}
 	}
 }
-
+/*
 bool Triangle::compare(Triangle* a, Triangle* b) {
 	return a->averageZ > b->averageZ;
 }
-
+*/
 std::vector<Triangle*> Triangle::GetClippedTriangles()
 {
 	std::vector<Triangle*> toReturn;

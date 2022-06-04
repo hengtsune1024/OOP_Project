@@ -3,7 +3,6 @@
 #include <stdlib.h>
 #include <time.h>
 #include "Entity.h"
-#include "Cube.h"
 using namespace std;
 
 class Tool : public Entity

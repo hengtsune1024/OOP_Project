@@ -5,11 +5,13 @@
 #include "constants.h"
 #include "Line.h"
 #include "RacingCar.h"
+#include "BlenderObject.h"
 #include "Trap.h"
 #include "Tool.h"
 #include "Engine.h"
 #include <vector>
 #include <cmath>
+
 using namespace std;
 
 class RacingCar;
@@ -52,7 +54,8 @@ class Map
 	Image moon;
 
 	//3D object
-	Cube cube;
+	//Cube cube;
+	BlenderObject cube;
 	Engine engine;
 
 	//static member

@@ -8,14 +8,14 @@ SDL_Rect Map::viewPort1 = { 0,0,WIDTH,HEIGHT };
 SDL_Rect Map::viewPort2 = { WIDTH,0,WIDTH,HEIGHT };
 unsigned long long Map::type = 0;
 
-Map::Map() : lines(NUM_LINE), number_of_lines(NUM_LINE), cube(NULL, "../images/crate.bmp")
+Map::Map() : lines(NUM_LINE), number_of_lines(NUM_LINE), cube("../images/cube/cube.txt", "../images/cube/cube.bmp", CUBE_SIZE / 2.457335)
 {}
 
 Map::Map(SDL_Renderer* renderer, bool dual) : lines(NUM_LINE), number_of_lines(NUM_LINE), dualMode(dual),
-	car1(new RacingCar("../images/RacingCar/racingcar", 13, renderer, &lines[INITIAL_POS])),
-	car2(dual ? new RacingCar("../images/RacingCar/racingcar", 13, renderer, &lines[INITIAL_POS]) : NULL),
+	car1(new RacingCar("../images/car/car.txt","../images/car/car.bmp", renderer, &lines[INITIAL_POS])),
+	car2(dual ? new RacingCar("../images/car/car.txt", "../images/car/car.bmp", renderer, &lines[INITIAL_POS]) : NULL),
 	streetlight("../images/streetlight.png", renderer), 
-	moon("../images/moon.png", renderer), cube(NULL, "../images/crate.bmp")
+	moon("../images/moon.png", renderer), cube("../images/cube/cube.txt", "../images/cube/cube.bmp", CUBE_SIZE / 2.457335)
 {
 	double x = 0, dx = 0;
 
@@ -110,8 +110,9 @@ Map::Map(SDL_Renderer* renderer, bool dual) : lines(NUM_LINE), number_of_lines(N
 	//car1->setPosition(WIDTH / 2 - car1->getWidth() / 2, HEIGHT - car1->getHeight() + 20);
 	car1->turn(0);
 	
+	//3d object set position
 	cube.setPos({ lines[POS].getx(),lines[POS].gety()+CUBE_SIZE,lines[POS].getz(),0,0,0 });
-
+	car1->getObstacle()->setPos({ lines[250].getx(),lines[250].gety() + ROCK_SIZE,lines[250].getz(),0,0,0 });
 
 	if (dualMode) {
 		car1->setPosY(lines[INITIAL_POS].getx() - ROAD_WIDTH / 2);
@@ -124,6 +125,8 @@ Map::Map(SDL_Renderer* renderer, bool dual) : lines(NUM_LINE), number_of_lines(N
 		car2->turn(0);
 		car1->setOtherCar(car2);
 		car2->setOtherCar(car1);
+
+		car2->getObstacle()->setPos({ lines[250].getx(),lines[250].gety() + ROCK_SIZE,lines[250].getz(),0,0,0 });
 	}
 	else {
 		car1->setPosY(lines[INITIAL_POS].getx());
@@ -268,7 +271,8 @@ void Map::draw(SDL_Renderer* renderer)
 			
 		}
 		colorChange1 = (colorChange1 + 2) & 31;
-		//sprite
+
+		//sprite lamps
 		for (int i = startpos + 300; i > startpos; --i) {
 
 			if (i >= number_of_lines) {
@@ -282,15 +286,17 @@ void Map::draw(SDL_Renderer* renderer)
 			//filledCircleColor(renderer, lines[i].getX(), lines[i].getY(), 2, 0xffffffff);
 
 		}
-		//virus.draw(renderer, &lines[i]);
+		Point3D pos = { m.posY,1.0 * camH,m.posX };
+
 		if (startpos <= 300 && startpos > 0)
 			car->getTrap()->drawImg(renderer, &lines[300]);
-		//lines[i].drawActSprite(renderer, 0);
-
-		if (startpos <= 250 && startpos > 0)
-			car->getObstacle()->drawImg(renderer, &lines[250]);
 
 		bool clean = true;
+		if (startpos <= 250 && startpos > 0) {
+			car->getObstacle()->drawObject3D(pos, m.camDegree, m.camDepth, &engine, clean);
+			clean = false;
+		}
+
 		if (otherCar!=NULL && otherCar->getPosX() > m.posX - 50 * SEGMENT_LENGTH && otherCar->getPosX() - m.posX < 300 * SEGMENT_LENGTH) {
 			if (otherCar->getPosX() > critz) {
 				car->drawOtherCar(renderer, &engine, clean, maxy, camH);
@@ -307,7 +313,7 @@ void Map::draw(SDL_Renderer* renderer)
 		}
 
 		if (startpos + 300 > POS && cube.getZ() - CUBE_SIZE > m.posX) {
-			cube.draw(renderer, { m.posY,1.0 * camH,m.posX }, m.camDegree, m.camDepth, & engine, clean);
+			cube.draw(pos, m.camDegree, m.camDepth, & engine, clean);
 			clean = false;
 		}
 

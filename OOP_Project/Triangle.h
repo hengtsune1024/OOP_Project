@@ -32,7 +32,7 @@ public:
 	void calculateWorldPoints(const Point3D& rotation, const Point3D& position, Engine* engine);
 	void calculateDrawPoints(const Point3D& rotation, const Point3D& position,double camDepth, Engine* engine);
 	void calculateCameraPoints(Point3D pos, double camDeg, Engine* engine);
-	static bool compare(Triangle*, Triangle*);
+	//static bool compare(Triangle*, Triangle*);
 	std::vector<Triangle*> GetClippedTriangles();
 	std::vector<Triangle*> GetZClippedTriangles();
 };

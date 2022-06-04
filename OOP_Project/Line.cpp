@@ -1,6 +1,6 @@
 #include "Line.h"
 
-Line::Line() :curve(0), x(0), y(0), z(0), type(0), sprite(NULL), clip(0), actsprite(NULL), slope(0)
+Line::Line() :curve(0), x(0), y(0), z(0), type(0), clip(0), slope(0), sprite(NULL), actsprite(NULL)
 {}
 
 Line::~Line() {
@@ -23,13 +23,6 @@ void Line::project(int camX, int camY, int camZ, double camDegree, double camDep
     X = (1 + scale * _x) * WIDTH / 2;
     Y = (1 - scale * _y) * HEIGHT / 2;
     W = scale * ROAD_WIDTH * WIDTH / 2;
-    //if (W > WIDTH)
-    //    W = WIDTH;
-    /*
-    scale = CAMERA_DEPTH / (z - camZ);
-    X = (1 + scale * (x - camX)) * WIDTH / 2;
-    Y = (1 - scale * (y - camY)) * HEIGHT / 2;
-    W = scale * ROAD_WIDTH * WIDTH / 2;*/
 }
 
 void Line::drawSprite(SDL_Renderer* renderer) {
@@ -85,8 +78,18 @@ void Line::drawActSprite(SDL_Renderer* renderer, int state) {
     SDL_Rect dst = { destX - destW / 2,destY,destW,destH - clipH };
     actsprite[state].draw(renderer, &src, &dst);
 
-    //destX = X + scale * spriteX * WIDTH / 2;
-    //destX += destW * spriteX;
-    //dst.x = destX;
-    //actsprite[state].draw(renderer, &src, &dst);
+   
 }
+
+//if (W > WIDTH)
+//    W = WIDTH;
+/*
+scale = CAMERA_DEPTH / (z - camZ);
+X = (1 + scale * (x - camX)) * WIDTH / 2;
+Y = (1 - scale * (y - camY)) * HEIGHT / 2;
+W = scale * ROAD_WIDTH * WIDTH / 2;*/
+
+//destX = X + scale * spriteX * WIDTH / 2;
+   //destX += destW * spriteX;
+   //dst.x = destX;
+   //actsprite[state].draw(renderer, &src, &dst);

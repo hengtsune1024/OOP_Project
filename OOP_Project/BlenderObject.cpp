@@ -9,15 +9,23 @@ BlenderObject::BlenderObject(const char* objectFile, const char* textureFile, do
 	rotation = { 0,0,0 };
 	img.surface = SDL_LoadBMP(textureFile);
 	if (img.surface == NULL) {
-		printf("error");
+		printf("error: surface cannot be created\n");
+		printf("%s", textureFile);
 		exit(1);
 	}
 	img.pixels = (Uint32*)img.surface->pixels;
 	img.width = img.surface->w;
 	img.height = img.surface->h;
+	Load(objectFile);
 }
 
-void BlenderObject::Load()
+BlenderObject::~BlenderObject() {
+	for (int i = 0; i < triangles.size(); ++i)
+		delete[]triangles[i];
+	SDL_FreeSurface(img.surface);
+}
+
+void BlenderObject::Load(const char* objectFile)
 {
 	// Load object
 	FILE* f;
@@ -75,13 +83,13 @@ void BlenderObject::Load()
 	fclose(f);
 }
 
-
+/*
 void BlenderObject::Logic(double elapsedTime)
 {
 	rotation.y += 1 * elapsedTime;
-}
+}*/
 
-void BlenderObject::draw(SDL_Renderer* renderer, Point3D pos, double camDeg, double camDepth, Engine* engine, bool clean, double maxy)
+void BlenderObject::draw(Point3D pos, double camDeg, double camDepth, Engine* engine, bool clean, double maxy)
 {
 	Uint32* bmp = engine->getPixels();
 	if (clean) {
@@ -98,11 +106,7 @@ void BlenderObject::draw(SDL_Renderer* renderer, Point3D pos, double camDeg, dou
 		for (int j = 0; j < clippedTriangles.size(); ++j) {
 			allTriangles.push_back(clippedTriangles[j]);
 		}
-		//allTriangles.push_back(faces[i]);
 	}
-
-	//std::sort(allTriangles.begin(), allTriangles.end(), Triangle::compare); 
-
 
 	for (int i = 0; i < allTriangles.size(); ++i) {
 		allTriangles[i]->calculateDrawPoints(rotation, position, camDepth, engine);
@@ -115,13 +119,4 @@ void BlenderObject::draw(SDL_Renderer* renderer, Point3D pos, double camDeg, dou
 		}
 		delete allTriangles[i];
 	}
-	/*
-	img.texture = SDL_CreateTextureFromSurface(renderer, engine->getSurface());
-	if (img.texture == NULL) {
-		std::cout << SDL_GetError() << std::endl;
-		exit(1);
-	}
-
-	SDL_RenderCopy(renderer, img.texture, NULL, NULL);
-	SDL_DestroyTexture(img.texture);*/
 }

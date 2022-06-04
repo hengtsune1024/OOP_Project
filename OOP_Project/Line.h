@@ -13,7 +13,8 @@ class Line
     double spriteX;
     double clip;
     double slope;
-    unsigned long long type;
+    unsigned long long type;    // type of road (RoadType)
+
     Image* sprite;
     Image* actsprite;
 
@@ -46,7 +47,7 @@ public:
     void drawSprite(SDL_Renderer*);
     
     void setActSprite(Image* i, double sX) { actsprite = i; spriteX = sX; }
-    void drawActSprite(SDL_Renderer*, int);
+    void drawActSprite(SDL_Renderer*, int); 
 
 };
 

@@ -2,7 +2,6 @@
 #include <SDL.h>
 #include <SDL2_gfxPrimitives.h>
 #include "Tool.h"
-#include "Image.h"
 #include "constants.h"
 #include "Line.h"
 #include "Trap.h"
@@ -76,7 +75,7 @@ public:
 
 	double baseHeight; //only used when in air
 	RacingCar();
-	RacingCar(const char* path, int n, SDL_Renderer* renderer, Line*);
+	RacingCar(const char* objpath, const char* imgpath,SDL_Renderer* renderer, Line*);
 	~RacingCar();
 	void quit();
 	//void setPosition(int xx, int yy);

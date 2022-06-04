@@ -1,6 +1,8 @@
 #pragma once
 
 #define CUBE_SIZE 1000
+#define ROCK_SIZE 3000
+
 //window
 #define WIDTH 600				//window width and height
 #define HEIGHT 600
@@ -87,7 +89,6 @@ enum TrapType {
 enum ToolType {
 	SPEEDUP,INVINCIBLE, ACCELERATE_SHORT, ACCELERATE_LONG
 };
-
 /*
 
 #define BOUNCE_SPEED -5

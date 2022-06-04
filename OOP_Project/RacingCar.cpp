@@ -13,32 +13,12 @@ RacingCar::~RacingCar() {
 	*/
 }
 
-RacingCar::RacingCar(const char* path, int n, SDL_Renderer* renderer, Line* initpos) :
-	virus("../images/coronavirus/", 15, renderer), tools("../images/star/", 5, renderer), rock("../images/rock/", 1, renderer),
+RacingCar::RacingCar(const char* obfpath, const char* imgpath, SDL_Renderer* renderer, Line* initpos) :
+	virus("../images/coronavirus/", 15, renderer), tools("../images/star/", 5, renderer), rock("../images/rock/rock.txt", "../images/rock/rock.bmp"),
 	isRushing(NONE), fullEnergy(true), energy(100.0), healthPoint(100.0), motion(MOTION_INIT), accState(0), roadtype(NORMAL),
-	currentPos(initpos), car3D("../images/car1.txt", "../images/car1.bmp", 750), theOtherCar(NULL)
+	currentPos(initpos), car3D(obfpath, imgpath, 750), theOtherCar(NULL)
 {
-	/*
-	num = n;
-	try {
-		image = new Image[num];
-	}
-	catch (bad_alloc& b) {
-		cerr << "[RacingCar] new image error: " << b.what() << endl;
-		exit(1);
-	}
-
-	for (int i = 0; i < num; i++)
-	{
-		char file[100];
-		sprintf_s(file, 100, "%s%02d.png", path, i + 1);
-
-		image[i].set(file, renderer);
-	}
-
-	frame = n / 2 - 1;
-	*/
-	car3D.Load();
+	
 }
 
 void RacingCar::quit()
@@ -46,48 +26,13 @@ void RacingCar::quit()
 	// Remove timer in case the call back was not called	
 	SDL_RemoveTimer(cartimer);
 	SDL_RemoveTimer(chargeTimer);
-
-	/*
-	// Free loaded image	
-	for (int i = 0; i < num; i++)
-	{
-		image[i].close();
-	}
-	*/
 	virus.quit();
 
 }
-/*
-void RacingCar::setPosition(int xx, int yy)
-{
-	x = xx;
-	y = yy;
-}
-
-
-int RacingCar::getWidth()
-{
-	return image[frame].getWidth();
-}
-
-int RacingCar::getHeight()
-{
-	return image[frame].getHeight();
-}
-*/
 void RacingCar::draw(SDL_Renderer* renderer,Engine* engine, bool clean)
 {
 	//car image
-	/*
-	SDL_Rect d;
-	d.x = x;
-	d.y = y;
-	d.w = image[frame].getWidth();
-	d.h = image[frame].getHeight();*
-
-	image[frame].draw(renderer, { NULL }, &d);*/
-
-	car3D.draw(renderer, { 0,0,0 }, 0, motion.camDepth, engine, clean);
+	car3D.draw({ 0,0,0 }, 0, motion.camDepth, engine, clean);
 
 	//energy bottle
 	roundedBoxColor(renderer, 10, 10, 10 + WIDTH / 4, 30, 2, 0xff828282);
@@ -112,7 +57,7 @@ void RacingCar::draw(SDL_Renderer* renderer,Engine* engine, bool clean)
 }
 
 void RacingCar::drawOtherCar(SDL_Renderer* renderer, Engine* engine, bool clean, double maxy, double camH) {
-	car3D.draw(renderer,
+	car3D.draw(
 		{ motion.posY - theOtherCar->getPosY() ,camH - theOtherCar->getCamHeight() - theOtherCar->getCurrentPos()->gety(),motion.posX - theOtherCar->getPosX() }, 
 		motion.camDegree, motion.camDepth, engine, clean, maxy);
 }
@@ -120,28 +65,7 @@ void RacingCar::drawOtherCar(SDL_Renderer* renderer, Engine* engine, bool clean,
 Uint32 RacingCar::changeData(Uint32 interval, void* param)
 {
 	RacingCar* p = (RacingCar*)param;
-	/*
-	if (p->time != 0)
-	{
-		if (p->direct == 0)
-		{
-			if (p->frame > p->num / 2)
-				p->frame--;
-			else if (p->frame < p->num / 2)
-				p->frame++;
-		}
-		else if (p->direct == -1)
-		{
-			if (p->frame > 0)
-				p->frame--;
-		}
-		else if (p->direct == 1)
-		{
-			if (p->frame < p->num - 1)
-				p->frame++;
-		}
-		return interval;
-	}*/
+	
 	
 	Point3D rot = p->car3D.getRotation();
 	double dif = p->motion.axleDegree - p->motion.camDegree;
@@ -226,14 +150,7 @@ void RacingCar::brake(int type)
 				motion.accLinear = 0;
 				motion.velLinear = 0;
 			}
-			/*
-			if ((sign && ((slope < 0 && motion.accLinear + slope < 0) || (slope > 0 && motion.accLinear + slope > 0))) || (sign == 0 && (slope > FRICTION_ACC || slope < -FRICTION_ACC)))
-				motion.accLinear += slope;
-			else {
-				motion.accLinear = 0;
-				if(motion.velLinear)
-				motion.velLinear = 0;
-			}*/
+			
 		}
 	}
 	//foward
@@ -363,94 +280,7 @@ void RacingCar::touchobstacle()
 	}
 }
 //previous code
-/*RacingCar::RacingCar() {}
-
-RacingCar::RacingCar(Map* _map, SDL_Renderer* renderer):state(0),direct(FRONT),healthPoint(MAX_HP),
-      fullyDamaged(false),energyPoint(MAX_ENERGY),fullyCharged(true),rechargeInterval(0),map(_map)
-{
-	
-	//for (int i = 0; i < NUM_CARIMG; ++i) {
-		setImage(RACINGCAR_PATH, NUM_CARIMG, renderer, 0);
-	//}
-	cout << "[RacingCar] Car initialized" << endl;
-
-}
-
-RacingCar::~RacingCar() {}
-
-
-void RacingCar::quit() {
-	removeTimer();
-	closeImg();
-	cout << "[RacingCar] Car closed" << endl;
-}
-
-bool RacingCar::isHit() {
-	//need map
-	return 1;
-}
-
-void RacingCar::HitObstacle() {
-	acc = 0;
-	velX = BOUNCE_SPEED;
-	// HP damage 
-
-}
-
-void RacingCar::stopTimer() {
-
-}
-
-void RacingCar::turn(int d) {
-	if (direct == FRONT) {
-		if (d == 1)
-			direct = RIGHT_FRONT, state = 1;
-		else if (d == -1)
-			direct = LEFT_FRONT, state = 2;
-	}
-	else if (direct == BACK) {
-		if (d == 1)
-			direct = RIGHT_BACK, state = 1;
-		else if (d == -1)
-			direct = LEFT_BACK, state = 2;
-	}
-	else if (d == 0) {
-		direct = FRONT, state = 0;
-	}
-}
-
-void RacingCar::startTimer(Uint32 interval) {
-	rechargeTimer = SDL_AddTimer(rechargeInterval, recharge, this);
-}
-
-void RacingCar::removeTimer() {
-	SDL_RemoveTimer(rechargeTimer);
-}
-
-void RacingCar::accelerate() {
-
-}
-
-void RacingCar::draw(SDL_Renderer* renderer) {
-	drawImg(renderer, { ALL_REGION },
-		{WIDTH/2- getCurrentState().getWidth() / 2,HEIGHT - getCurrentState().getHeight(),getCurrentState().getWidth() ,getCurrentState().getHeight() });
-}
-
-Uint32 RacingCar::recharge(Uint32 interval, void* para) {
-	if (interval == 0)
-		return 0;
-	RacingCar* rc = (RacingCar*)para;
-	if (rc->energyPoint == MAX_ENERGY) {
-		rc->rechargeInterval = 0;
-		rc->fullyCharged = true;
-		return rc->rechargeInterval;
-	}
-	rc->energyPoint += RATE_RECHARGE;
-	return rc->rechargeInterval;
-}
-
-
-
+/*
 void RacingCar::init() {
 	state = 0;
 	//acc = 0;
@@ -504,3 +334,81 @@ void RacingCar::init() {
 				break;
 		}
 */
+
+
+/*
+void RacingCar::setPosition(int xx, int yy)
+{
+	x = xx;
+	y = yy;
+}
+
+
+int RacingCar::getWidth()
+{
+	return image[frame].getWidth();
+}
+
+int RacingCar::getHeight()
+{
+	return image[frame].getHeight();
+}
+*/
+/*
+	num = n;
+	try {
+		image = new Image[num];
+	}
+	catch (bad_alloc& b) {
+		cerr << "[RacingCar] new image error: " << b.what() << endl;
+		exit(1);
+	}
+
+	for (int i = 0; i < num; i++)
+	{
+		char file[100];
+		sprintf_s(file, 100, "%s%02d.png", path, i + 1);
+
+		image[i].set(file, renderer);
+	}
+
+	frame = n / 2 - 1;
+	*/
+	/*
+				if ((sign && ((slope < 0 && motion.accLinear + slope < 0) || (slope > 0 && motion.accLinear + slope > 0))) || (sign == 0 && (slope > FRICTION_ACC || slope < -FRICTION_ACC)))
+					motion.accLinear += slope;
+				else {
+					motion.accLinear = 0;
+					if(motion.velLinear)
+					motion.velLinear = 0;
+				}*/
+				/*
+					if (p->time != 0)
+					{
+						if (p->direct == 0)
+						{
+							if (p->frame > p->num / 2)
+								p->frame--;
+							else if (p->frame < p->num / 2)
+								p->frame++;
+						}
+						else if (p->direct == -1)
+						{
+							if (p->frame > 0)
+								p->frame--;
+						}
+						else if (p->direct == 1)
+						{
+							if (p->frame < p->num - 1)
+								p->frame++;
+						}
+						return interval;
+					}*/
+					/*
+						SDL_Rect d;
+						d.x = x;
+						d.y = y;
+						d.w = image[frame].getWidth();
+						d.h = image[frame].getHeight();*
+
+						image[frame].draw(renderer, { NULL }, &d);*/
