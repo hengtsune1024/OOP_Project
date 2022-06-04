@@ -94,6 +94,7 @@ public:
 	bool getFullEnergy() { return fullEnergy; }
 	double getEnergy() { return energy; }
 
+	BlenderObject* getCar3D() { return &car3D; }
 
 	double getPosX() { return motion.posX; }
 	double getPosY() { return motion.posY; }
