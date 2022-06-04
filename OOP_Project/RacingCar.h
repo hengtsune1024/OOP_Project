@@ -7,6 +7,7 @@
 #include "Line.h"
 #include "Trap.h"
 #include "Obstacle.h"
+#include "BlenderObject.h"
 
 class Map;
 
@@ -28,13 +29,14 @@ struct Motion {
 class RacingCar
 {
 	Motion motion;
-
+	/*
 	char path[100];
 	int num;  // New in this example
 	Image* image;
 	int frame;
 	int x;
 	int y;
+	*/
 	SDL_TimerID cartimer;
 	Uint32 time;
 	static Uint32 changeData(Uint32 interval, void* param); // Timer callback 
@@ -66,6 +68,8 @@ class RacingCar
 	unsigned long long roadtype;
 	Line* currentPos;
 
+	BlenderObject car3D;
+
 
 public:
 
@@ -74,10 +78,10 @@ public:
 	RacingCar(const char* path, int n, SDL_Renderer* renderer, Line*);
 	~RacingCar();
 	void quit();
-	void setPosition(int xx, int yy);
-	int getWidth();
-	int getHeight();
-	void draw(SDL_Renderer* renderer);
+	//void setPosition(int xx, int yy);
+	//int getWidth();
+	//int getHeight();
+	void draw(SDL_Renderer* renderer, Engine* engine, bool clean);
 	void startTimer(Uint32 t);
 	void stopTimer();
 	void turn(int); // move the object

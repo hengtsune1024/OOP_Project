@@ -5,7 +5,7 @@ BlenderObject::BlenderObject(const char* objectFile, const char* textureFile, do
 	strcpy_s(objFile, objectFile);
 	this->scale = scale;
 
-	position = { 0,1500,15000 };
+	position = { 0,-1500,2000 };
 	rotation = { 0,0,0 };
 	img.surface = SDL_LoadBMP(textureFile);
 	if (img.surface == NULL) {
@@ -81,11 +81,13 @@ void BlenderObject::Logic(double elapsedTime)
 	rotation.y += 1 * elapsedTime;
 }
 
-void BlenderObject::draw(SDL_Renderer* renderer, Point3D pos, double camDeg, double camDepth, Engine* engine)
+void BlenderObject::draw(SDL_Renderer* renderer, Point3D pos, double camDeg, double camDepth, Engine* engine, bool clean)
 {
 	Uint32* bmp = engine->getPixels();
-	memset(bmp, 0, WIDTH * HEIGHT * 4);
-	memset(engine->getZBuffer(), 0, WIDTH * HEIGHT * sizeof(double));
+	if (clean) {
+		memset(bmp, 0, WIDTH * HEIGHT * 4);
+		memset(engine->getZBuffer(), 0, WIDTH * HEIGHT * sizeof(double));
+	}
 
 	std::vector<Triangle*> allTriangles;
 	for (int i = 0; i < triangles.size(); ++i) {

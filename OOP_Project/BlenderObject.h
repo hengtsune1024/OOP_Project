@@ -20,6 +20,8 @@ public:
 	BlenderObject(const char* objectFile, const char* textureFile, double scale);
 	void Load();
 	void Logic(double elapsedTime);
-	void draw(SDL_Renderer* renderer, Point3D pos, double camDeg, double camDepth, Engine* engine);
+	void draw(SDL_Renderer* renderer, Point3D pos, double camDeg, double camDepth, Engine* engine, bool clean);
+	Point3D getRotation() { return rotation; }
+	void setRotation(Point3D r) { rotation = r; }
 };
 

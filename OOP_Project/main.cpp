@@ -23,6 +23,8 @@ int main(int argc, char* argv[])
 
 	map.startTimer();
 
+	unsigned int st, end, i = 0;
+
 	while (!quit) {
 
 		while (SDL_PollEvent(&e) != 0) {
@@ -34,8 +36,18 @@ int main(int argc, char* argv[])
 		}
 		window.clear();
 		
+		st = SDL_GetTicks();
 		map.draw(window.GetRenderer());
 		window.display();
+		end = SDL_GetTicks();
+		if (i == 16) {
+			i = 0;
+			printf("%lf\n", 1000.0 / (end - st));
+		}
+		else {
+			++i;
+		}
+
 	}
 
 	map.quit();

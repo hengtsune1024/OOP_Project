@@ -107,7 +107,7 @@ Map::Map(SDL_Renderer* renderer, bool dual) : lines(NUM_LINE), number_of_lines(N
 	car1->setTrap(&lines[300]);
 	car1->setTool(&lines[200]);
 	car1->setObstacle(&lines[250]);
-	car1->setPosition(WIDTH / 2 - car1->getWidth() / 2, HEIGHT - car1->getHeight() + 20);
+	//car1->setPosition(WIDTH / 2 - car1->getWidth() / 2, HEIGHT - car1->getHeight() + 20);
 	car1->turn(0);
 	
 	cube.setPos({ lines[POS].getx(),lines[POS].gety()+CUBE_SIZE,lines[POS].getz(),0,0,0 });
@@ -120,7 +120,7 @@ Map::Map(SDL_Renderer* renderer, bool dual) : lines(NUM_LINE), number_of_lines(N
 		car2->setTool(&lines[200]);
 		car2->setObstacle(&lines[250]);
 
-		car2->setPosition(WIDTH / 2 - car2->getWidth() / 2, HEIGHT - car2->getHeight() + 20);
+		//car2->setPosition(WIDTH / 2 - car2->getWidth() / 2, HEIGHT - car2->getHeight() + 20);
 		car2->setPosY(lines[INITIAL_POS].getx() + ROAD_WIDTH / 2);
 		car2->turn(0);
 	}
@@ -289,8 +289,14 @@ void Map::draw(SDL_Renderer* renderer)
 		if (startpos <= 200 && startpos > 0) {
 			car->getTools()->drawImg(renderer, &lines[200]);
 		}
+		bool clean = true;
+		if (startpos + 300 > POS && cube.getZ() - CUBE_SIZE > m.posX) {
+			cube.draw(renderer, { m.posY,1.0 * camH,m.posX }, m.camDegree, m.camDepth, & engine, clean);
+			clean = false;
+		}
+
 		//car
-		car->draw(renderer);
+		car->draw(renderer, &engine,clean);
 
 		/**************************/
 		car->getTrap()->drawStain(renderer);	//only draws stain
@@ -298,14 +304,15 @@ void Map::draw(SDL_Renderer* renderer)
 
 		car->getTools()->drawmytool(renderer);
 
-		if (startpos + 300 > POS && cube.getZ() - CUBE_SIZE > m.posX) {
-			cube.draw(renderer, { m.posY,1.0 * camH,m.posX }, m.camDegree, m.camDepth, &engine);
-		}
+		
+
+		engine.drawAll(renderer);
 
 		if (dualMode) {
 			car = car2;
 			SDL_RenderSetViewport(renderer, &viewPort2);
 		}
+
 
 	} while (--times);
 

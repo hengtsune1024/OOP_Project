@@ -45,11 +45,13 @@ Cube::~Cube()
 	SDL_FreeSurface(img.surface);
 }
 
-void Cube::draw(SDL_Renderer* renderer,Point3D pos, double camDeg, double camDepth, Engine* engine) 
+void Cube::draw(SDL_Renderer* renderer,Point3D pos, double camDeg, double camDepth, Engine* engine, bool clean) 
 {
 	Uint32* bmp = engine->getPixels();
-	memset(bmp, 0, WIDTH * HEIGHT * 4);
-	memset(engine->getZBuffer(), 0, HEIGHT * WIDTH * sizeof(double));
+	if (clean) {
+		memset(bmp, 0, WIDTH * HEIGHT * 4);
+		memset(engine->getZBuffer(), 0, WIDTH * HEIGHT * sizeof(double));
+	}
 
 	std::vector<Triangle*> allTriangles;
 	for (int i = 0; i < triangles.size(); ++i) {

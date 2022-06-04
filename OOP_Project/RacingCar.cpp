@@ -1,21 +1,24 @@
 #include "RacingCar.h"
 RacingCar::RacingCar() :
 	isRushing(NONE), fullEnergy(true), energy(100.0), healthPoint(100.0),
-	motion(MOTION_INIT), roadtype(NORMAL), outOfRoad(false), inAir(false)
+	motion(MOTION_INIT), roadtype(NORMAL), outOfRoad(false), inAir(false), car3D("../images/car1.txt", "../images/car1.bmp", 500)
 {}
 
 RacingCar::~RacingCar() {
+	/*
 	if (image != NULL) {
 		delete[]image;
 		image = NULL;
 	}
+	*/
 }
 
-RacingCar::RacingCar(const char* path, int n, SDL_Renderer* renderer, Line* initpos): 
-	virus("../images/coronavirus/", 15, renderer),tools("../images/star/", 5, renderer), rock("../images/rock/", 1, renderer),
+RacingCar::RacingCar(const char* path, int n, SDL_Renderer* renderer, Line* initpos) :
+	virus("../images/coronavirus/", 15, renderer), tools("../images/star/", 5, renderer), rock("../images/rock/", 1, renderer),
 	isRushing(NONE), fullEnergy(true), energy(100.0), healthPoint(100.0), motion(MOTION_INIT), accState(0), roadtype(NORMAL),
-	currentPos(initpos)
+	currentPos(initpos), car3D("../images/car1.txt", "../images/car1.bmp", 500)
 {
+	/*
 	num = n;
 	try {
 		image = new Image[num];
@@ -34,6 +37,8 @@ RacingCar::RacingCar(const char* path, int n, SDL_Renderer* renderer, Line* init
 	}
 
 	frame = n / 2 - 1;
+	*/
+	car3D.Load();
 }
 
 void RacingCar::quit()
@@ -42,21 +47,23 @@ void RacingCar::quit()
 	SDL_RemoveTimer(cartimer);
 	SDL_RemoveTimer(chargeTimer);
 
+	/*
 	// Free loaded image	
 	for (int i = 0; i < num; i++)
 	{
 		image[i].close();
 	}
-
+	*/
 	virus.quit();
 
 }
-
+/*
 void RacingCar::setPosition(int xx, int yy)
 {
 	x = xx;
 	y = yy;
 }
+
 
 int RacingCar::getWidth()
 {
@@ -67,17 +74,20 @@ int RacingCar::getHeight()
 {
 	return image[frame].getHeight();
 }
-
-void RacingCar::draw(SDL_Renderer* renderer)
+*/
+void RacingCar::draw(SDL_Renderer* renderer,Engine* engine, bool clean)
 {
 	//car image
+	/*
 	SDL_Rect d;
 	d.x = x;
 	d.y = y;
 	d.w = image[frame].getWidth();
-	d.h = image[frame].getHeight();
+	d.h = image[frame].getHeight();*
 
-	image[frame].draw(renderer, { NULL }, &d);
+	image[frame].draw(renderer, { NULL }, &d);*/
+
+	car3D.draw(renderer, { 0,0,0 }, 0, motion.camDepth, engine, clean);
 
 	//energy bottle
 	roundedBoxColor(renderer, 10, 10, 10 + WIDTH / 4, 30, 2, 0xff828282);
@@ -104,6 +114,7 @@ void RacingCar::draw(SDL_Renderer* renderer)
 Uint32 RacingCar::changeData(Uint32 interval, void* param)
 {
 	RacingCar* p = (RacingCar*)param;
+	/*
 	if (p->time != 0)
 	{
 		if (p->direct == 0)
@@ -124,11 +135,21 @@ Uint32 RacingCar::changeData(Uint32 interval, void* param)
 				p->frame++;
 		}
 		return interval;
+	}*/
+	/*
+	Point3D rot = p->car3D.getRotation();
+	if (rot.y < p->motion.camDegree) {
+		rot.y += 0.02;
+		if (rot.y > p->motion.camDegree)
+			rot.y = p->motion.camDegree;
 	}
-	else
-	{
-		return 0;
+	else if (rot.y > p->motion.camDegree) {
+		rot.y -= 0.02;
+		if (rot.y < p->motion.camDegree)
+			rot.y = p->motion.camDegree;
 	}
+	p->car3D.setRotation(rot);*/
+	return interval;
 }
 
 void RacingCar::startTimer(Uint32 t)
