@@ -13,7 +13,6 @@ class Cube
 	Point3D position;
 	Point3D rotation;
 	std::vector<Triangle*> triangles;
-	Engine engine;
 	Image3D img;
 
 public:
@@ -21,6 +20,6 @@ public:
 	~Cube();
 	void setPos(Point3D p) { position = p; }
 	double getZ() { return position.z; }
-	void draw(SDL_Renderer* renderer, Point3D pos, double camDeg, double camDepth);
+	void draw(SDL_Renderer* renderer, Point3D pos, double camDeg, double camDepth, Engine* engine);
 };
 

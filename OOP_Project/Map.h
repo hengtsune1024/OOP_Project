@@ -53,6 +53,7 @@ class Map
 
 	//3D object
 	Cube cube;
+	Engine engine;
 
 	//static member
 	static Uint32 grass;
@@ -62,8 +63,6 @@ class Map
 	static SDL_Rect viewPort1;
 	static SDL_Rect viewPort2;
 	static unsigned long long type;
-
-
 
 public:
 
@@ -83,6 +82,7 @@ public:
 	void draw(SDL_Renderer*);	// draw the map, car, and tools, etc.
 	void rush(RushType);
 	void usetool(ToolType);
+	Engine* getEng() { return &engine; }
 };
 
 // unused code

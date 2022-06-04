@@ -299,7 +299,7 @@ void Map::draw(SDL_Renderer* renderer)
 		car->getTools()->drawmytool(renderer);
 
 		if (startpos + 300 > POS && cube.getZ() - CUBE_SIZE > m.posX) {
-			cube.draw(renderer, { m.posY,1.0 * camH,m.posX }, m.camDegree, m.camDepth);
+			cube.draw(renderer, { m.posY,1.0 * camH,m.posX }, m.camDegree, m.camDepth, &engine);
 		}
 
 		if (dualMode) {

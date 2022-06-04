@@ -48,9 +48,9 @@ void Triangle::calculateDrawPoints(const Point3D& rotation, const Point3D& posit
 		drawPoints[i] = engine->CenterScreen(drawPoints[i]);
 
 	//normal z
-	normalZ = -(drawPoints[1].x - drawPoints[0].x) * (drawPoints[2].y - drawPoints[0].y) + (drawPoints[1].y - drawPoints[0].y) * (drawPoints[2].x - drawPoints[0].x);
+	normalZ = (drawPoints[1].x - drawPoints[0].x) * (drawPoints[2].y - drawPoints[0].y) - (drawPoints[1].y - drawPoints[0].y) * (drawPoints[2].x - drawPoints[0].x);
 }
-
+/*
 void Triangle::draw(Uint32* bitmap, Image3D& img)
 {
 	Point3D aux;
@@ -89,6 +89,7 @@ void Triangle::draw(Uint32* bitmap, Image3D& img)
 			ue = drawPoints[0].u + (1.0 * y - p0y) / (p2y - p0y) * (drawPoints[2].u - drawPoints[0].u);
 			ve = drawPoints[0].v + (1.0 * y - p0y) / (p2y - p0y) * (drawPoints[2].v - drawPoints[0].v);
 			we = drawPoints[0].w + (1.0 * y - p0y) / (p2y - p0y) * (drawPoints[2].w - drawPoints[0].w);
+
 
 			if (x1 > x2) {
 				aux1 = x1;
@@ -137,6 +138,7 @@ void Triangle::draw(Uint32* bitmap, Image3D& img)
 			ve = drawPoints[0].v + (1.0 * y - p0y) / (p2y - p0y) * (drawPoints[2].v - drawPoints[0].v);
 			we = drawPoints[0].w + (1.0 * y - p0y) / (p2y - p0y) * (drawPoints[2].w - drawPoints[0].w);
 
+
 			if (x1 > x2) {
 				aux1 = x1;
 				x1 = x2;
@@ -163,13 +165,154 @@ void Triangle::draw(Uint32* bitmap, Image3D& img)
 					v += vstep;
 					w += wstep;
 					bitmap[WIDTH * y + x] = img.getColor(u / w, v / w);
+					
 				}
 			}
 		}
 	}
+}
+*/
+void Triangle::draw(Uint32* bitmap, Image3D& img, double zbuffer[])
+{
+	Point3D aux;
+	for (int i = 0; i < 2; ++i)
+		for (int j = i + 1; j < 3; ++j)
+			if (drawPoints[i].y > drawPoints[j].y) {
+				aux = drawPoints[i];
+				drawPoints[i] = drawPoints[j];
+				drawPoints[j] = aux;
+			}
+
+	int p0x = drawPoints[0].x;
+	int p0y = drawPoints[0].y;
+	int p1x = drawPoints[1].x;
+	int p1y = drawPoints[1].y;
+	int p2x = drawPoints[2].x;
+	int p2y = drawPoints[2].y;
+
+	double slope1, slope2;
+	int x1, x2, y, aux1;
+	double vs, ve, us, ue, ws, we, zs, ze, aux2;
+	double u, ustep, v, vstep, w, wstep, z, zstep;
+
+	if (p0y < p1y) {
+		slope1 = (1.0 * p1x - p0x) / (p1y - p0y);
+		slope2 = (1.0 * p2x - p0x) / (p2y - p0y);
+		for (int i = 0; i <= p1y - p0y; i++) {
+			x1 = p0x + i * slope1;
+			x2 = p0x + i * slope2;
+			y = p0y + i;
+
+			us = drawPoints[0].u + (1.0 * y - p0y) / (p1y - p0y) * (drawPoints[1].u - drawPoints[0].u);
+			vs = drawPoints[0].v + (1.0 * y - p0y) / (p1y - p0y) * (drawPoints[1].v - drawPoints[0].v);
+			ws = drawPoints[0].w + (1.0 * y - p0y) / (p1y - p0y) * (drawPoints[1].w - drawPoints[0].w);
+
+			ue = drawPoints[0].u + (1.0 * y - p0y) / (p2y - p0y) * (drawPoints[2].u - drawPoints[0].u);
+			ve = drawPoints[0].v + (1.0 * y - p0y) / (p2y - p0y) * (drawPoints[2].v - drawPoints[0].v);
+			we = drawPoints[0].w + (1.0 * y - p0y) / (p2y - p0y) * (drawPoints[2].w - drawPoints[0].w);
+
+			zs = drawPoints[0].z + (1.0 * y - p0y) / (p1y - p0y) * (drawPoints[1].z - drawPoints[0].z);
+			ze = drawPoints[0].z + (1.0 * y - p0y) / (p2y - p0y) * (drawPoints[2].z - drawPoints[0].z);
 
 
+			if (x1 > x2) {
+				aux1 = x1;
+				x1 = x2;
+				x2 = aux1;
+				aux2 = us;
+				us = ue;
+				ue = aux2;
+				aux2 = vs;
+				vs = ve;
+				ve = aux2;
+				aux2 = ws;
+				ws = we;
+				we = aux2;
+				aux2 = zs;
+				zs = ze;
+				ze = aux2;
+			}
+			if (x2 > x1) {
+				u = us * img.width;
+				ustep = (ue - us) / (x2 - x1) * img.width;
+				v = vs * img.height;
+				vstep = (ve - vs) / (x2 - x1) * img.height;
+				w = ws;
+				wstep = (we - ws) / (x2 - x1);
+				z = zs;
+				zstep = (ze - zs) / (x2 - x1);
+				for (int x = x1; x <= x2; x++) {
+					u += ustep;
+					v += vstep;
+					w += wstep;
+					z += zstep;
+					if (zbuffer[WIDTH * y + x] == 0 || zbuffer[WIDTH * y + x] > z) {
+						bitmap[WIDTH * y + x] = img.getColor(u / w, v / w);
+						zbuffer[WIDTH * y + x] = z;
+					}
+				}
+			}
+		}
+	}
+	if (p1y < p2y) {
+		slope1 = (1.0 * p2x - p1x) / (p2y - p1y);
+		slope2 = (1.0 * p2x - p0x) / (p2y - p0y);
+		double sx = p2x - (p2y - p1y) * slope2;
+		for (int i = 0; i <= p2y - p1y; i++) {
+			x1 = p1x + i * slope1;
+			x2 = sx + i * slope2;
+			y = p1y + i;
 
+			us = drawPoints[1].u + (1.0 * y - p1y) / (p2y - p1y) * (drawPoints[2].u - drawPoints[1].u);
+			vs = drawPoints[1].v + (1.0 * y - p1y) / (p2y - p1y) * (drawPoints[2].v - drawPoints[1].v);
+			ws = drawPoints[1].w + (1.0 * y - p1y) / (p2y - p1y) * (drawPoints[2].w - drawPoints[1].w);
+
+			ue = drawPoints[0].u + (1.0 * y - p0y) / (p2y - p0y) * (drawPoints[2].u - drawPoints[0].u);
+			ve = drawPoints[0].v + (1.0 * y - p0y) / (p2y - p0y) * (drawPoints[2].v - drawPoints[0].v);
+			we = drawPoints[0].w + (1.0 * y - p0y) / (p2y - p0y) * (drawPoints[2].w - drawPoints[0].w);
+
+			zs = drawPoints[0].z + (1.0 * y - p0y) / (p1y - p0y) * (drawPoints[1].z - drawPoints[0].z);
+			ze = drawPoints[0].z + (1.0 * y - p0y) / (p2y - p0y) * (drawPoints[2].z - drawPoints[0].z);
+
+			if (x1 > x2) {
+				aux1 = x1;
+				x1 = x2;
+				x2 = aux1;
+				aux2 = us;
+				us = ue;
+				ue = aux2;
+				aux2 = vs;
+				vs = ve;
+				ve = aux2;
+				aux2 = ws;
+				ws = we;
+				we = aux2;
+				aux2 = zs;
+				zs = ze;
+				ze = aux2;
+			}
+			if (x2 > x1) {
+				u = us * img.width;
+				ustep = (ue - us) / (x2 - x1) * img.width;
+				v = vs * img.height;
+				vstep = (ve - vs) / (x2 - x1) * img.height;
+				w = ws;
+				wstep = (we - ws) / (x2 - x1);
+				z = zs;
+				zstep = (ze - zs) / (x2 - x1);
+				for (int x = x1; x <= x2; x++) {
+					u += ustep;
+					v += vstep;
+					w += wstep;
+					z += zstep;
+					if (zbuffer[WIDTH * y + x] == 0 || zbuffer[WIDTH * y + x] > z) {
+						bitmap[WIDTH * y + x] = img.getColor(u / w, v / w);
+						zbuffer[WIDTH * y + x] = z;
+					}
+				}
+			}
+		}
+	}
 }
 
 bool Triangle::compare(Triangle* a, Triangle* b) {

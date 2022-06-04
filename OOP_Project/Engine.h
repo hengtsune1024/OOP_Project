@@ -11,6 +11,7 @@ class Engine
 	double Z0;
 	Uint32* pixels;
 	SDL_Surface* img;
+	static double zBuffer[WIDTH * HEIGHT];
 
 public:
 	Engine();
@@ -23,4 +24,6 @@ public:
 	Point3D Rotate(const Point3D& original, Point3D rotation);
 	Point3D ApplyPerspective(const Point3D& original, double camDepth);
 	Point3D CenterScreen(const Point3D& original);
+	double* getZBuffer() { return zBuffer; }
+	void drawAll(SDL_Renderer* renderer);
 };

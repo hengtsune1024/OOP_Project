@@ -32,8 +32,8 @@ int main(int argc, char* argv[])
 			}
 			eventHandler(e, window, map, map.getCar1(), map.getCar2());
 		}
-
 		window.clear();
+		
 		map.draw(window.GetRenderer());
 		window.display();
 	}
