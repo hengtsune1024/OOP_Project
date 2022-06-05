@@ -1,5 +1,5 @@
 #include "Map.h"
-#define POS 100
+
 Uint32 Map::grass;
 Uint32 Map::rumble;
 Uint32 Map::road;
@@ -8,14 +8,14 @@ SDL_Rect Map::viewPort1 = { 0,0,WIDTH,HEIGHT };
 SDL_Rect Map::viewPort2 = { WIDTH,0,WIDTH,HEIGHT };
 unsigned long long Map::type = 0;
 
-Map::Map() : lines(NUM_LINE), number_of_lines(NUM_LINE), cube("../images/cube/cube.txt", "../images/cube/cube.bmp", CUBE_SIZE / 2.457335)
+Map::Map() : lines(NUM_LINE), number_of_lines(NUM_LINE), cube("../images/cube/cube.txt", "../images/cube/cube.bmp", NULL, CUBE_SIZE / 2.457335)
 {}
 
 Map::Map(SDL_Renderer* renderer, bool dual) : lines(NUM_LINE), number_of_lines(NUM_LINE), dualMode(dual),
-	car1(new RacingCar("../images/car/car.txt","../images/car/car.bmp", renderer, &lines[INITIAL_POS])),
+	car1(new RacingCar("../images/car/car.txt", "../images/car/car.bmp", renderer, &lines[INITIAL_POS])),
 	car2(dual ? new RacingCar("../images/car/car.txt", "../images/car/car.bmp", renderer, &lines[INITIAL_POS]) : NULL),
-	streetlight("../images/streetlight.png", renderer), 
-	moon("../images/moon.png", renderer), cube("../images/cube/cube.txt", "../images/cube/cube.bmp", CUBE_SIZE / 2.457335)
+	streetlight("../images/streetlight.png", renderer),
+	moon("../images/moon.png", renderer), cube("../images/cube/cube.txt", "../images/cube/cube.bmp", &lines, CUBE_SIZE / 2.457335)
 {
 	double x = 0, dx = 0;
 
@@ -297,7 +297,7 @@ void Map::draw(SDL_Renderer* renderer)
 		bool clean = true;
 		
 		if (startpos + 300 > POS && cube.getZ() - CUBE_SIZE > m.posX) {
-			cube.draw(pos, cube.getRotation(), m.camDegree, m.camDepth, &engine, clean, true, HEIGHT);
+			cube.drawObj3D(pos, m.camDegree, m.camDepth, &engine, clean, HEIGHT);
 			clean = false;
 		}
 
@@ -586,6 +586,7 @@ Uint32 Map::move(Uint32 interval, void* para)
 					}
 				}
 			}
+			map->cube.collide(car);
 		}
 
 		if (map->dualMode) 
@@ -600,7 +601,10 @@ Uint32 Map::move(Uint32 interval, void* para)
 		//collision
 		double dx = map->car1->getPosY() - map->car2->getPosY();
 		double dz = map->car1->getPosX() - map->car2->getPosX();
-		if (dx * dx + dz * dz < 16000000.0) {
+
+		if (dx * dx + dz * dz < 4.0 * (CAR_HALF_LENGTH * CAR_HALF_LENGTH + CAR_HALF_WIDTH * CAR_HALF_WIDTH) * 0.9) 
+		{
+			bool col = false;
 			double rd = map->car2->getAxleDegree() - map->car1->getAxleDegree();
 			double cos_ = cos(rd), sin_ = sin(rd);//CAR_HALF_LENGTHcos_  CAR_HALF_WIDTH
 			double rz[4] = { CAR_HALF_LENGTH * cos_ - CAR_HALF_WIDTH * sin_ - dz,CAR_HALF_LENGTH * cos_ + CAR_HALF_WIDTH * sin_ - dz ,
@@ -624,10 +628,42 @@ Uint32 Map::move(Uint32 interval, void* para)
 					else if (dz > 0 && map->car2->getRushing()) {
 						map->car2->rush(NONE);
 					}
-
+					col = true;
 					break;
 				}
 			}
+
+			if (!col) 
+			{
+				rd = -rd;
+				sin_ = -sin_;
+				double rz[4] = { CAR_HALF_LENGTH * cos_ - CAR_HALF_WIDTH * sin_ - dz,CAR_HALF_LENGTH * cos_ + CAR_HALF_WIDTH * sin_ - dz ,
+								-CAR_HALF_LENGTH * cos_ - CAR_HALF_WIDTH * sin_ - dz ,-CAR_HALF_LENGTH * cos_ + CAR_HALF_WIDTH * sin_ - dz };
+				double rx[4] = { CAR_HALF_LENGTH * sin_ + CAR_HALF_WIDTH * cos_ - dx,CAR_HALF_LENGTH * sin_ - CAR_HALF_WIDTH * cos_ - dx,
+								-CAR_HALF_LENGTH * sin_ + CAR_HALF_WIDTH * cos_ - dx,-CAR_HALF_LENGTH * sin_ - CAR_HALF_WIDTH * cos_ - dx };
+
+				for (int i = 0; i < 4; ++i) {
+					if (rz[i] < CAR_HALF_LENGTH && rz[i] > -CAR_HALF_LENGTH && rx[i] < CAR_HALF_WIDTH && rx[i] > -CAR_HALF_WIDTH) {
+						//collided, 
+						double e = 0.6;
+						double vz1 = map->car1->getVelLinear() * cos(map->car1->getAxleDegree()), vz2 = map->car2->getVelLinear() * cos(map->car2->getAxleDegree());
+						double vx1 = map->car1->getVelLinear() * sin(map->car1->getAxleDegree()), vx2 = map->car2->getVelLinear() * sin(map->car2->getAxleDegree());
+						double vx = ((1 - e) * vx1 + (1 + e) * vx2) / 2.0, vz = ((1 - e) * vz1 + (1 + e) * vz2) / 2.0;
+						map->car1->setVelLinear(sqrt(vx * vx + vz * vz));
+						vx = ((1 + e) * vx1 + (1 - e) * vx) / 2.0, vz = ((1 + e) * vz1 + (1 - e) * vz2) / 2.0;
+						map->car2->setVelLinear(sqrt(vx * vx + vz * vz));
+
+						if (dz < 0 && map->car1->getRushing()) {
+							map->car1->rush(NONE);
+						}
+						else if (dz > 0 && map->car2->getRushing()) {
+							map->car2->rush(NONE);
+						}
+						break;
+					}
+				}
+			}
+
 		}
 	}
 	return interval;

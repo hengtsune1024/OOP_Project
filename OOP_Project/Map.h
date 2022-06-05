@@ -9,6 +9,7 @@
 #include "Trap.h"
 #include "Tool.h"
 #include "Engine.h"
+#include "PhysicalItem.h"
 #include <vector>
 #include <cmath>
 
@@ -55,7 +56,7 @@ class Map
 
 	//3D object
 	//Cube cube;
-	BlenderObject cube;
+	PhysicalItem cube;
 	Engine engine;
 
 	//static member

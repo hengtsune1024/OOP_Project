@@ -30,7 +30,7 @@ Point3D Engine::Translate(const Point3D& original, const Point3D& translation)
 	toReturn.w = original.w;
 	return toReturn;
 }
-Point3D Engine::Rotate(const Point3D& original, Point3D rotation,bool flag)
+Point3D Engine::Rotate(const Point3D& original, Point3D rotation)
 {
 	Point3D toReturn;
 	/*

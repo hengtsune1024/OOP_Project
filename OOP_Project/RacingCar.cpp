@@ -33,7 +33,7 @@ void RacingCar::draw(SDL_Renderer* renderer,Engine* engine, bool clean)
 {
 	//car image
 
-	car3D.draw({ 0,0,0 }, { -motion.Xangle,car3D.getRotation().y,0 }, 0, motion.camDepth, engine, clean, true, HEIGHT);
+	car3D.draw({ 0,0,0 }, { -motion.Xangle,car3D.getRotation().y,0 }, 0, motion.camDepth, engine, clean, HEIGHT);
 
 	//energy bottle
 	roundedBoxColor(renderer, 10, 10, 10 + WIDTH / 4, 30, 2, 0xff828282);
@@ -66,7 +66,7 @@ void RacingCar::drawOtherCar(SDL_Renderer* renderer, Engine* engine, bool clean,
 	theOtherCar->car3D.draw(
 		{ motion.posY - theOtherCar->getPosY() ,currentPos->gety() - theOtherCar->getCurrentPos()->gety() + 0,motion.posX - theOtherCar->getPosX()},
 		{ -theOtherCar->motion.Xangle,theOtherCar->motion.axleDegree,0 },
-		motion.camDegree, motion.camDepth, engine, clean,false, maxy);
+		motion.camDegree, motion.camDepth, engine, clean, maxy);
 }
 
 Uint32 RacingCar::changeData(Uint32 interval, void* param)

@@ -95,7 +95,7 @@ void BlenderObject::Logic(double elapsedTime)
 	rotation.y += 1 * elapsedTime;
 }*/
 
-void BlenderObject::draw(Point3D pos, Point3D worldRot, double camDeg, double camDepth, Engine* engine, bool clean, bool flag, double maxy)
+void BlenderObject::draw(Point3D pos, Point3D worldRot, double camDeg, double camDepth, Engine* engine, bool clean, double maxy)
 {
 	Uint32* bmp = engine->getPixels();
 	if (clean) {
@@ -106,8 +106,8 @@ void BlenderObject::draw(Point3D pos, Point3D worldRot, double camDeg, double ca
 	std::vector<Triangle*> allTriangles;
 	for (int i = 0; i < triangles.size(); ++i) {
 		//axle rotate
-		triangles[i]->calculateWorldPoints(worldRot, position, engine,flag);
-		triangles[i]->calculateCameraPoints(pos, camDeg, engine,flag);
+		triangles[i]->calculateWorldPoints(worldRot, position, engine);
+		triangles[i]->calculateCameraPoints(pos, camDeg, engine);
 
 		std::vector<Triangle*> clippedTriangles = triangles[i]->GetZClippedTriangles();
 		for (int j = 0; j < clippedTriangles.size(); ++j) {

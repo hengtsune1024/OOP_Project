@@ -1,5 +1,6 @@
 #pragma once
 
+#define POS 100
 #define CUBE_SIZE 1000
 #define ROCK_SIZE 3000
 
