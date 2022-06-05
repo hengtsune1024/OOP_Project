@@ -5,10 +5,13 @@
 #include "constants.h"
 #include "Line.h"
 #include "RacingCar.h"
+#include "BlenderObject.h"
 #include "Trap.h"
 #include "Tool.h"
+#include "Engine.h"
 #include <vector>
 #include <cmath>
+
 using namespace std;
 
 class RacingCar;
@@ -50,6 +53,11 @@ class Map
 	Image streetlight;
 	Image moon;
 
+	//3D object
+	//Cube cube;
+	BlenderObject cube;
+	Engine engine;
+
 	//static member
 	static Uint32 grass;
 	static Uint32 rumble;
@@ -68,6 +76,7 @@ public:
 	// getters
 	RacingCar* getCar1() { return car1; }
 	RacingCar* getCar2() { return car2; }
+	//Engine* getEngine() { return &engine; }
 
 	// timer
 	void startTimer();
@@ -76,6 +85,7 @@ public:
 	void draw(SDL_Renderer*);	// draw the map, car, and tools, etc.
 	void rush(RushType);
 	void usetool(ToolType);
+	Engine* getEng() { return &engine; }
 };
 
 // unused code

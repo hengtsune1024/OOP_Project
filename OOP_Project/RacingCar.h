@@ -2,11 +2,11 @@
 #include <SDL.h>
 #include <SDL2_gfxPrimitives.h>
 #include "Tool.h"
-#include "Image.h"
 #include "constants.h"
 #include "Line.h"
 #include "Trap.h"
 #include "Obstacle.h"
+#include "BlenderObject.h"
 
 class Map;
 
@@ -17,24 +17,31 @@ struct Motion {
 	double velPerpen;		// z-direction velocity (moving up and down)
 	double velAngular;		// angular velocity on xy-plane
 	double accLinear;		// linear acceleration on xy-plane
-	double camDegree;		// camera degree (in rad, x-axis is 0)
-	double roadDegree;		// the degree from x-axis to the road vector (from current segment to the next segment) 
-	double camDepth;		// camera depth
+
+	double axleDegree;		// angle between car-direction and z-axis(X-axis)
+	double camDegree;		// camera degree (in rad, z-axis(X-axis) is 0)
+	double roadDegree;		// the degree from z-axis(X-axis) to the road vector (from current segment to the next segment) 
+	double Xangle;			// rotation about x-axis(Y-axis)
+
 	double velM;			// velocity modification
+
+	double camDepth;		// camera depth
 	double roadMod;			// road modification (for friction to change gradually between different roadTypes)
 	double camHeight;		// camera height from the road
+	
 };
 
 class RacingCar
 {
 	Motion motion;
-
+	/*
 	char path[100];
 	int num;  // New in this example
 	Image* image;
 	int frame;
 	int x;
 	int y;
+	*/
 	SDL_TimerID cartimer;
 	Uint32 time;
 	static Uint32 changeData(Uint32 interval, void* param); // Timer callback 
@@ -66,29 +73,39 @@ class RacingCar
 	unsigned long long roadtype;
 	Line* currentPos;
 
+	BlenderObject car3D;
+	RacingCar* theOtherCar;
 
 public:
+
+
 	double baseHeight; //only used when in air
 	RacingCar();
-	RacingCar(const char* path, int n, SDL_Renderer* renderer, Line*);
+	RacingCar(const char* objpath, const char* imgpath,SDL_Renderer* renderer, Line*);
 	~RacingCar();
 	void quit();
-	void setPosition(int xx, int yy);
-	int getWidth();
-	int getHeight();
-	void draw(SDL_Renderer* renderer);
+	//void setPosition(int xx, int yy);
+	//int getWidth();
+	//int getHeight();
+	void draw(SDL_Renderer* renderer, Engine* engine, bool clean);
+	void drawOtherCar(SDL_Renderer* renderer, Engine* engine, bool clean, double maxy, double camH);
 	void startTimer(Uint32 t);
 	void stopTimer();
 	void turn(int); // move the object
 
 	void usetool(ToolType type);
 
-
+	void setOtherCar(RacingCar* c) { theOtherCar = c; }
+	RacingCar* getOtherCar() { return theOtherCar; }
+	void setXangle(double xd) { motion.Xangle = xd; }
 	void rush(RushType);
 	RushType getRushing() { return isRushing; }
 	bool getFullEnergy() { return fullEnergy; }
 	double getEnergy() { return energy; }
 
+	BlenderObject* getCar3D() { return &car3D; }
+	double getAxleDegree() { return motion.axleDegree; }
+	void setAxleDegree(double ad) { motion.axleDegree = ad; }
 
 	double getPosX() { return motion.posX; }
 	double getPosY() { return motion.posY; }
@@ -127,7 +144,7 @@ public:
 	void setPosY(double y) { motion.posY = y; }
 	void setVelLinear(double v) { motion.velLinear = v; }
 	void setVelAngular(double v) { motion.velAngular = v; }
-	//void setAccLinear(double a) { motion.accLinear = a; }
+	void setAccLinear(double a) { motion.accLinear = a; }
 	void setCamDegree(double cd) { motion.camDegree = cd;  }  //camera degree
 	void setCamDepth(double cdp) { motion.camDepth = cdp; }  //camera depth
 	void setRoadDegree(double rd) { motion.roadDegree = rd; }

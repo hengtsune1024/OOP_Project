@@ -1,18 +1,17 @@
 #include "Obstacle.h"
-Obstacle::Obstacle()
+Obstacle::Obstacle() :obst3D(NULL, NULL, ROCK_SIZE)
 {
 }
 Obstacle::~Obstacle()
 {
 }
-Obstacle::Obstacle(const char* path, int n, SDL_Renderer* renderer)
+Obstacle::Obstacle(const char* objpath, const char* imgpath) : obst3D(objpath, imgpath, ROCK_SIZE)
 {
 	touchtime = 0;
-	setImage(path, n, renderer, 0);
 }
 void Obstacle::setObstacle(Line* line)
 {
-	setEntity(line);
+	
 }
 int Obstacle::istouching()
 {
@@ -23,4 +22,8 @@ int Obstacle::istouching()
 		touchtime = SDL_GetTicks64();
 		return 0;
 	}
+}
+
+void Obstacle::drawObject3D(Point3D pos, double camDeg, double camDepth, Engine* engine, bool clean, double maxy) {
+	obst3D.draw(pos, { 0,0,0 }, camDeg, camDepth, engine, clean, true, maxy);
 }

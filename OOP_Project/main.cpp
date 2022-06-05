@@ -3,7 +3,7 @@
 #include <SDL_image.h>
 #include "System.h"
 #include "RenderWindow.h"
-#include "Map.h" 
+#include "Map.h"
 #include "RacingCar.h"
 
 void eventHandler(SDL_Event&, RenderWindow&, Map&, RacingCar*, RacingCar* = NULL);
@@ -23,6 +23,8 @@ int main(int argc, char* argv[])
 
 	map.startTimer();
 
+	unsigned int st, end, i = 0;
+
 	while (!quit) {
 
 		while (SDL_PollEvent(&e) != 0) {
@@ -32,12 +34,23 @@ int main(int argc, char* argv[])
 			}
 			eventHandler(e, window, map, map.getCar1(), map.getCar2());
 		}
+		st = SDL_GetTicks();
 
 		window.clear();
 		map.draw(window.GetRenderer());
 		window.display();
-	}
 
+		end = SDL_GetTicks();
+		//calculate fps
+		if (i == 16) {
+			i = 0;
+			printf("%lf\n", 1000.0 / (end - st));
+		}
+		else {
+			++i;
+		}
+
+	}
 	map.quit();
 	window.quit();
 	sdl.quit();

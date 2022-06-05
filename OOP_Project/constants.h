@@ -1,5 +1,8 @@
 #pragma once
 
+#define CUBE_SIZE 1000
+#define ROCK_SIZE 3000
+
 //window
 #define WIDTH 600				//window width and height
 #define HEIGHT 600
@@ -15,10 +18,12 @@
 #define FINAL_POS 4200
 
 //camera
+#define FIELD_OF_VIEW 45
 #define DEFAULT_CAMERA_DEPTH 0.96
 #define CAMERA_HEIGHT 2000
 #define BEGINRUSH_CAMDEPTH 0.2
 #define AFTERRUSH_CAMDEPTH_RECOVER 0.0075
+#define CAMERA_CARMIDPOINT_DIST 3000
 
 //timer interval
 #define MOVE_INTERVAL 50
@@ -29,7 +34,7 @@
 #define STAIN_INTERVAL 3000
 
 //speed
-#define MAX_FORWARD_SPEED 1800		//max car forward moving speed
+#define MAX_FORWARD_SPEED 1600		//max car forward moving speed
 #define MAX_BACKWARD_SPEED 1000		//max car backward moving speed
 #define AFTERRUSH_SPEED_DECREASE 3
 
@@ -46,8 +51,8 @@
 #define GRAVITY 50
 
 //rotation
-#define ROTATE 0.04			//car camera rotation
-#define MAX_ROTATE_DEGREE 0.52  // 30 degree
+#define ROTATE 0.06			//car camera rotation
+#define MAX_ROTATE_DEGREE 0.7854  // 30 degree
 
 //road
 #define ROAD_WIDTH 4000
@@ -59,10 +64,8 @@
 #define TOOL_WIDTH 2000
 
 //racing car
-#define MOTION_INIT {INITIAL_POS * SEGMENT_LENGTH,0,0,0,0,0,0,0,DEFAULT_CAMERA_DEPTH,1,1,CAMERA_HEIGHT}
-#define CAR_WIDTH (0.8 * ROAD_WIDTH)
-#define CAR_LENGTH (1.6 * ROAD_WIDTH)
-#define FRONT_REAR_DISTANCE (0.64 * ROAD_WIDTH)    //wheel width=0.2*CAR_LENGTH=0.32*ROAD_WIDTH
+#define CAR_HALF_LENGTH 1800
+#define MOTION_INIT {INITIAL_POS * SEGMENT_LENGTH,0,0,0,0,0,0,0,0,0,DEFAULT_CAMERA_DEPTH,1,1,CAMERA_HEIGHT}
 
 //energy
 #define ENERGY_RECOVER 0.2
@@ -85,7 +88,6 @@ enum TrapType {
 enum ToolType {
 	SPEEDUP,INVINCIBLE, ACCELERATE_SHORT, ACCELERATE_LONG
 };
-
 /*
 
 #define BOUNCE_SPEED -5
