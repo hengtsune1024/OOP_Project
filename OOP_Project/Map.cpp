@@ -294,7 +294,7 @@ void Map::draw(SDL_Renderer* renderer)
 		bool clean = true;
 		
 		if (startpos + 300 > POS && cube.getZ() - CUBE_SIZE > m.posX) {
-			cube.draw(pos, cube.getRotation(), m.camDegree, m.camDepth, &engine, clean);
+			cube.draw(pos, cube.getRotation(), m.camDegree, m.camDepth, &engine, clean, true, HEIGHT);
 			clean = false;
 		}
 
@@ -355,7 +355,7 @@ Uint32 Map::move(Uint32 interval, void* para)
 
 	do {
 		const Motion& motion = car->getMotion();
-		startpos = (motion.posX + CAR__HALF_LENGTH) / SEGMENT_LENGTH;
+		startpos = motion.posX / SEGMENT_LENGTH;
 		car->setCurrentPos(&(map->lines[startpos]));
 
 		//perpendicular (z-direction)
@@ -439,7 +439,7 @@ Uint32 Map::move(Uint32 interval, void* para)
 		/********* Do not move these codes ********/
 
 		//current index of road line
-		startpos = (motion.posX + CAR__HALF_LENGTH) / SEGMENT_LENGTH;
+		startpos = motion.posX / SEGMENT_LENGTH;
 
 		//degree between road vector and normal line (same direction as camera degree)
 		car->setRoadDegree(atan((map->lines[startpos + 1].getx() - map->lines[startpos].getx()) / (map->lines[startpos + 1].getz() - map->lines[startpos].getz())));
@@ -454,7 +454,7 @@ Uint32 Map::move(Uint32 interval, void* para)
 			car->setPosY(motion.posY - velY);
 			car->setPosX(motion.posX - velX);
 
-			int originpos = (motion.posX + CAR__HALF_LENGTH) / SEGMENT_LENGTH;		//startpos after moving, endpos is original
+			int originpos = motion.posX / SEGMENT_LENGTH;		//startpos after moving, endpos is original
 			if (originpos == startpos)
 				++originpos;
 
@@ -466,7 +466,7 @@ Uint32 Map::move(Uint32 interval, void* para)
 			//map->posX += velProjected * cos(roadD);
 			//map->posY += velProjected * sin(roadD);
 
-			originpos = (motion.posX + CAR__HALF_LENGTH) / SEGMENT_LENGTH;
+			originpos = motion.posX / SEGMENT_LENGTH;
 			if (motion.posY < map->lines[originpos].getx() - ROAD_BORDER * motion.velM)
 				car->setPosY(map->lines[originpos].getx() - ROAD_BORDER * motion.velM);
 			//map->posY = map->lines[originpos].getx() - ROAD_BORDER * motion.velM;
@@ -505,9 +505,10 @@ Uint32 Map::move(Uint32 interval, void* para)
 
 
 		//update startpos and type
-		startpos = (motion.posX + CAR__HALF_LENGTH) / SEGMENT_LENGTH;
+		startpos = motion.posX / SEGMENT_LENGTH;
 		type = map->lines[startpos].getType();
 		car->setRoadType(type);
+		car->setVelM(car->getRoadMod()* (sin(motion.roadDegree)* (map->lines[startpos + 1].getx() - map->lines[startpos].getx()) + cos(motion.roadDegree) * SEGMENT_LENGTH) / SEGMENT_LENGTH);
 
 		if (!car->isInAir()) {
 			//special road
@@ -519,6 +520,7 @@ Uint32 Map::move(Uint32 interval, void* para)
 				else if ((type & ACCELERATE_RIGHT) && (motion.posY > map->lines[startpos].getx() && motion.posY < map->lines[startpos].getx() + ROAD_WIDTH * motion.velM)) {
 					car->rush(ACCROAD);
 				}
+				printf("%lf %lf %lf \n", motion.posY, map->lines[startpos].getx(), map->lines[startpos].getx() + ROAD_WIDTH * motion.velM);
 			}
 			//trap
 			if ((type & TRAPAREA) && motion.posY < map->lines[startpos].getx() + TRAP_WIDTH * motion.velM && motion.posY > map->lines[startpos].getx() - TRAP_WIDTH * motion.velM)

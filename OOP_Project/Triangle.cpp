@@ -12,17 +12,17 @@ Triangle::Triangle(Point3D p0, Point3D p1, Point3D p2) {
 	drawPoints[2] = p2;
 }
 
-void Triangle::calculateWorldPoints(const Point3D& rotation, const Point3D& position, Engine* engine)
+void Triangle::calculateWorldPoints(const Point3D& rotation, const Point3D& position, Engine* engine,bool flag)
 {
 	//rotate
 	for (int i = 0; i < 3; ++i)
-		worldPoints[i] = engine->Rotate(points[i], rotation);
+		worldPoints[i] = engine->Rotate(points[i], rotation,flag);
 	//translation
 	for (int i = 0; i < 3; ++i)
 		worldPoints[i] = engine->Translate(worldPoints[i], position);
 }
 
-void Triangle::calculateCameraPoints(Point3D pos, double camDeg, Engine* engine) {
+void Triangle::calculateCameraPoints(Point3D pos, double camDeg, Engine* engine, bool flag) {
 
 	//translation
 	pos.x = -pos.x, pos.y = -pos.y, pos.z = -pos.z;
@@ -31,7 +31,7 @@ void Triangle::calculateCameraPoints(Point3D pos, double camDeg, Engine* engine)
 	}
 	//rotate
 	for (int i = 0; i < 3; ++i)
-		cameraPoints[i] = engine->Rotate(cameraPoints[i], { 0,-camDeg,0 });
+		cameraPoints[i] = engine->Rotate(cameraPoints[i], { 0,-camDeg,0 },flag);
 
 	//average Z
 	averageZ = (cameraPoints[0].z + cameraPoints[1].z + cameraPoints[2].z) / 3.0;

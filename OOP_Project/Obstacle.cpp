@@ -25,5 +25,5 @@ int Obstacle::istouching()
 }
 
 void Obstacle::drawObject3D(Point3D pos, double camDeg, double camDepth, Engine* engine, bool clean, double maxy) {
-	obst3D.draw(pos, { 0,0,0 }, camDeg, camDepth, engine, clean, maxy);
+	obst3D.draw(pos, { 0,0,0 }, camDeg, camDepth, engine, clean, true, maxy);
 }

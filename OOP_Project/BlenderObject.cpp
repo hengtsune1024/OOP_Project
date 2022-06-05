@@ -5,7 +5,7 @@ BlenderObject::BlenderObject(const char* objectFile, const char* textureFile, do
 	strcpy_s(objFile, objectFile);
 	this->scale = scale;
 
-	position = { 0,-1500,2000 };
+	position = { 0,-CAMERA_HEIGHT,2000 };
 	rotation = { 0,0,0 };
 	img.surface = SDL_LoadBMP(textureFile);
 	if (img.surface == NULL) {
@@ -31,6 +31,7 @@ void BlenderObject::Load(const char* objectFile)
 	FILE* f;
 	fopen_s(&f, objFile, "r");
 	char sym[100], buffer[100];
+	double minz = 1e10, maxz = -1e10;
 
 	if (f != NULL)
 	{
@@ -52,6 +53,10 @@ void BlenderObject::Load(const char* objectFile)
 				else if (sym[1] == '\0') {
 					fscanf(f, "%lf%lf%lf", &x, &y, &z);
 					vertices.push_back({ x,y,z,0,0 });
+					if (y > maxz)
+						maxz = y;
+					if (y < minz)
+						minz = y;
 
 				}
 				else {
@@ -79,7 +84,7 @@ void BlenderObject::Load(const char* objectFile)
 			}
 		}
 	}
-	printf("%u\n", triangles.size());
+	printf("%u %lf %lf \n", triangles.size(),minz*scale,maxz*scale);
 	fclose(f);
 }
 
@@ -89,7 +94,7 @@ void BlenderObject::Logic(double elapsedTime)
 	rotation.y += 1 * elapsedTime;
 }*/
 
-void BlenderObject::draw(Point3D pos, Point3D rot, double camDeg, double camDepth, Engine* engine, bool clean, double maxy)
+void BlenderObject::draw(Point3D pos, Point3D worldRot, double camDeg, double camDepth, Engine* engine, bool clean, bool flag, double maxy)
 {
 	Uint32* bmp = engine->getPixels();
 	if (clean) {
@@ -100,8 +105,8 @@ void BlenderObject::draw(Point3D pos, Point3D rot, double camDeg, double camDept
 	std::vector<Triangle*> allTriangles;
 	for (int i = 0; i < triangles.size(); ++i) {
 		//axle rotate
-		triangles[i]->calculateWorldPoints(rotation, position, engine);
-		triangles[i]->calculateCameraPoints(pos, camDeg, engine);
+		triangles[i]->calculateWorldPoints(worldRot, position, engine,flag);
+		triangles[i]->calculateCameraPoints(pos, camDeg, engine,flag);
 
 		std::vector<Triangle*> clippedTriangles = triangles[i]->GetZClippedTriangles();
 		for (int j = 0; j < clippedTriangles.size(); ++j) {
@@ -111,7 +116,7 @@ void BlenderObject::draw(Point3D pos, Point3D rot, double camDeg, double camDept
 
 	for (int i = 0; i < allTriangles.size(); ++i) {
 		//camera rotate
-		allTriangles[i]->calculateDrawPoints(rot, position, camDepth, engine);
+		allTriangles[i]->calculateDrawPoints({ 0,0,0 }, position, camDepth, engine);
 		if (allTriangles[i]->getNormalZ() < 0) {
 			std::vector<Triangle*> clippedTriangles = allTriangles[i]->GetClippedTriangles();
 			for (int j = 0; j < clippedTriangles.size(); ++j) {

@@ -21,7 +21,7 @@ public:
 	Uint32* getPixels() { return pixels; }
 	SDL_Surface* getSurface() { return img; }
 	Point3D Translate(const Point3D& original, const Point3D& translation);
-	Point3D Rotate(const Point3D& original, Point3D rotation);
+	Point3D Rotate(const Point3D& original, Point3D rotation,bool);
 	Point3D ApplyPerspective(const Point3D& original, double camDepth);
 	Point3D CenterScreen(const Point3D& original);
 	double* getZBuffer() { return zBuffer; }
