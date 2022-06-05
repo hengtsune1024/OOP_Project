@@ -33,13 +33,13 @@
 #define STAIN_INTERVAL 3000
 
 //speed
-#define MAX_FORWARD_SPEED 1800		//max car forward moving speed
+#define MAX_FORWARD_SPEED 1600		//max car forward moving speed
 #define MAX_BACKWARD_SPEED 1000		//max car backward moving speed
 #define AFTERRUSH_SPEED_DECREASE 3
 
 //rush
-#define ENERGY_RUSHBEGIN_SPEED 2200
-#define ACCROAD_RUSHBEGIN_SPEED 2000
+#define ENERGY_RUSHBEGIN_SPEED 2000
+#define ACCROAD_RUSHBEGIN_SPEED 1800
 
 //acceleration
 #define ACCELERATION 150		//
@@ -64,7 +64,7 @@
 
 //racing car
 #define MOTION_INIT {INITIAL_POS * SEGMENT_LENGTH,0,0,0,0,0,0,0,0,DEFAULT_CAMERA_DEPTH,1,1,CAMERA_HEIGHT}
-#define CAR__HALF_LENGTH 1400
+#define CAR__HALF_LENGTH 2000
 #define FRONT_REAR_DISTANCE (0.64 * ROAD_WIDTH)    //wheel width=0.2*CAR_LENGTH=0.32*ROAD_WIDTH
 
 //energy

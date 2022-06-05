@@ -96,9 +96,11 @@ void BlenderObject::draw(Point3D pos, Point3D rot, double camDeg, double camDept
 		memset(bmp, 0, WIDTH * HEIGHT * 4);
 		memset(engine->getZBuffer(), 0, WIDTH * HEIGHT * sizeof(double));
 	}
+
 	std::vector<Triangle*> allTriangles;
 	for (int i = 0; i < triangles.size(); ++i) {
-		triangles[i]->calculateWorldPoints(rot, position, engine);
+		//axle rotate
+		triangles[i]->calculateWorldPoints(rotation, position, engine);
 		triangles[i]->calculateCameraPoints(pos, camDeg, engine);
 
 		std::vector<Triangle*> clippedTriangles = triangles[i]->GetZClippedTriangles();
@@ -108,6 +110,7 @@ void BlenderObject::draw(Point3D pos, Point3D rot, double camDeg, double camDept
 	}
 
 	for (int i = 0; i < allTriangles.size(); ++i) {
+		//camera rotate
 		allTriangles[i]->calculateDrawPoints(rot, position, camDepth, engine);
 		if (allTriangles[i]->getNormalZ() < 0) {
 			std::vector<Triangle*> clippedTriangles = allTriangles[i]->GetClippedTriangles();
