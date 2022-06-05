@@ -5,42 +5,63 @@
 #include "RenderWindow.h"
 #include "Map.h" 
 #include "RacingCar.h"
+#include "Functions.h"
 
 void eventHandler(SDL_Event&, RenderWindow&, Map&, RacingCar*, RacingCar* = NULL);
 
 int main(int argc, char* argv[]) 
 {
-	bool dual = 1;
+	bool dual = 0;
+	bool quit = false;
+
 	System sdl;
 	RenderWindow window;
 	sdl.init();
-	window.init(dual);
-	
-	Map map(window.GetRenderer(), dual);
-	
 	SDL_Event e;
-	bool quit = false;
-
-	map.startTimer();
-
-	while (!quit) {
-
-		while (SDL_PollEvent(&e) != 0) {
-			if (e.type == SDL_QUIT || (e.type == SDL_KEYDOWN && e.key.keysym.sym == SDLK_ESCAPE)) {
-				quit = true;
-				break;
-			}
-			eventHandler(e, window, map, map.getCar1(), map.getCar2());
+	window.init(0);
+	while (!quit)
+	{
+		Functions func(window, &dual, &quit);
+		//Menu
+		while (!quit)
+		{
+			window.clear();
+			func.Menu(window.GetRenderer());
+			window.display();
 		}
 
-		window.clear();
-		map.draw(window.GetRenderer());
-		window.display();
+		quit = false;
+		Map map(window.GetRenderer(), dual);
+		map.startTimer();
+		while (!quit) {
+
+			while (SDL_PollEvent(&e) != 0) {
+				if (e.type == SDL_QUIT || (e.type == SDL_KEYDOWN && e.key.keysym.sym == SDLK_ESCAPE)) {
+					quit = true;
+					break;
+				}
+				eventHandler(e, window, map, map.getCar1(), map.getCar2());
+			}
+
+			window.clear();
+			map.draw(window.GetRenderer());
+			if (map.getwinner())
+			{
+				func.Victory(map.getwinner());
+				break;
+			}
+
+			//Counting 3 2 1
+			func.Counting(map);
+			window.display();
+		}
+		func.close();
+		map.quit();
 	}
 
-	map.quit();
-	window.quit();
+	window.quit();																																							
 	sdl.quit();
+
 	return 0;
 }
 
@@ -86,6 +107,8 @@ void eventHandler(SDL_Event& e, RenderWindow& w, Map& map, RacingCar* car1, Raci
 			case SDLK_3:
 
 				break;
+
+
 			//car 2
 			case SDLK_UP:
 				if (car2)
@@ -127,7 +150,6 @@ void eventHandler(SDL_Event& e, RenderWindow& w, Map& map, RacingCar* car1, Raci
 			case SDLK_KP_3:
 
 				break;
-
 
 			default:;
 		}
@@ -191,4 +213,3 @@ void eventHandler(SDL_Event& e, RenderWindow& w, Map& map, RacingCar* car1, Raci
 		}
 	}
 }
-

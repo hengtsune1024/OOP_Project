@@ -15,9 +15,18 @@ void System::init() {
 		exit(1);
 
 	}
+
+	// Initialize SDL_ttf	
+	if (TTF_Init() == -1)
+	{
+		printf("SDL_ttf could not initialize! SDL_ttf Error: %s\n", TTF_GetError());
+		exit(1);
+	}
+
 	cout << "[System] IMG_Init Succeeded" << endl;
 }
 void System::quit() {
 	IMG_Quit();
+	TTF_Quit();
 	SDL_Quit();
 }

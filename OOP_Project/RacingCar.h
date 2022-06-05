@@ -1,4 +1,5 @@
 #pragma once
+#include <stdlib.h>
 #include <SDL.h>
 #include <SDL2_gfxPrimitives.h>
 #include "Tool.h"
@@ -7,22 +8,23 @@
 #include "Line.h"
 #include "Trap.h"
 #include "Obstacle.h"
+#include "Text.h"
 
 class Map;
 
 struct Motion {
 	double posX;			// x position in 3D world (moving forward and backword)
 	double posY;			// y position in 3D world (moving right and left)
-	double velLinear;		// linear velocity 
-	double velPerpen;
-	double velAngular;		// angular velocity 
-	double accLinear;		// linear acceleration 
-	double camDegree;		// camera degree (in radius, x-axis is 0)
+	double velLinear;		// total xy linear velocity 
+	double velPerpen;		// z-direction velocity (moving up and down)
+	double velAngular;		// angular velocity on xy-plane
+	double accLinear;		// linear acceleration on xy-plane
+	double camDegree;		// camera degree (in rad, x-axis is 0)
 	double roadDegree;		// the degree from x-axis to the road vector (from current segment to the next segment) 
-	double camDepth;
-	double velM;
-	double roadMod;
-	double camHeight;
+	double camDepth;		// camera depth
+	double velM;			// velocity modification
+	double roadMod;			// road modification (for friction to change gradually between different roadTypes)
+	double camHeight;		// camera height from the road
 };
 
 class RacingCar
@@ -50,7 +52,7 @@ class RacingCar
 	RushType isRushing;
 	bool fullEnergy;
 	bool outOfRoad;
-	bool invincible;
+	int invincible;
 	int accState;
 	bool inAir;
 
@@ -66,6 +68,12 @@ class RacingCar
 	unsigned long long roadtype;
 	Line* currentPos;
 
+	//timing
+	bool arrive;
+	Uint64 starttime;
+	Uint64 totaltime;
+	char timing[100];
+	Text timetext;
 
 public:
 	double baseHeight; //only used when in air
@@ -88,7 +96,7 @@ public:
 	RushType getRushing() { return isRushing; }
 	bool getFullEnergy() { return fullEnergy; }
 	double getEnergy() { return energy; }
-
+	double getHP() { return healthPoint; }
 
 	double getPosX() { return motion.posX; }
 	double getPosY() { return motion.posY; }
@@ -113,7 +121,7 @@ public:
 
 	void setInAir(bool ia) { inAir = ia; }
 
-	const Motion& getMotioin() { return motion; }
+	const Motion& getMotion() { return motion; }
 
 	void brake(int = -1);		//car accelerating
 	void setRoadType(unsigned long long);
@@ -135,7 +143,8 @@ public:
 	void setRoadMod(double rm) { motion.roadMod = rm; }
 
 	void touchobstacle();
-
+	void isarrive();
+	Uint64 gettotaltime() { return totaltime; }
 };
 
 

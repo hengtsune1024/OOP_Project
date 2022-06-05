@@ -9,10 +9,8 @@
 #include "Tool.h"
 #include <vector>
 #include <cmath>
+#include "SDL_ttf.h"
 using namespace std;
-
-class RacingCar;
-class Trap;
 
 struct Quad {
 	Uint32 color;
@@ -59,6 +57,9 @@ class Map
 	static SDL_Rect viewPort2;
 	static unsigned long long type;
 
+	//winner
+	bool gameset;
+	int winner;
 public:
 
 	Map();					// default constructor (initialize nothing)
@@ -76,6 +77,7 @@ public:
 	void draw(SDL_Renderer*);	// draw the map, car, and tools, etc.
 	void rush(RushType);
 	void usetool(ToolType);
+	int getwinner();
 };
 
 // unused code

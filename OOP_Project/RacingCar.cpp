@@ -14,10 +14,17 @@ RacingCar::~RacingCar() {
 RacingCar::RacingCar(const char* path, int n, SDL_Renderer* renderer, Line* initpos): 
 	virus("../images/coronavirus/", 15, renderer),tools("../images/star/", 5, renderer), rock("../images/rock/", 1, renderer),
 	isRushing(NONE), fullEnergy(true), energy(100.0), healthPoint(100.0), motion(MOTION_INIT), accState(0), roadtype(NORMAL),
-	currentPos(initpos)
+	currentPos(initpos), starttime(SDL_GetTicks64() + 3000), timing("00:00:000"), arrive(false), totaltime(0), invincible(0),
+	timetext(timing, "../fonts/akabara-cinderella.ttf", 20, 0x02, { 255, 255, 255 }, SHADED, { 0, 0, 0 }, renderer, { 250, 10 }, { 10, 10 }, NULL, SDL_FLIP_NONE, 255)
 {
 	num = n;
-	image = new Image[num];
+	try {
+		image = new Image[num];
+	}
+	catch (bad_alloc& b) {
+		cerr << "[RacingCar] new image error: " << b.what() << endl;
+		exit(1);
+	}
 
 	for (int i = 0; i < num; i++)
 	{
@@ -43,7 +50,7 @@ void RacingCar::quit()
 	}
 
 	virus.quit();
-
+	timetext.close();
 }
 
 void RacingCar::setPosition(int xx, int yy)
@@ -93,11 +100,30 @@ void RacingCar::draw(SDL_Renderer* renderer)
 	roundedRectangleRGBA(renderer, 25, 80, 60, 115, 1, 255, 0, 255, 255);
 	roundedRectangleRGBA(renderer, 65, 80, 100, 115, 1, 255, 0, 255, 255);
 	roundedRectangleRGBA(renderer, 105, 80, 140, 115, 1, 255, 0, 255, 255);
+
+	//timing
+	timetext.close();
+	timetext.setString(timing);
+	timetext.generateTexture();
+	timetext.draw();
 }
 
 Uint32 RacingCar::changeData(Uint32 interval, void* param)
 {
 	RacingCar* p = (RacingCar*)param;
+	if (!p->arrive)
+	{
+		int totaltime = SDL_GetTicks64() - p->starttime;
+		totaltime < 0 ? totaltime = 0 : 1;
+		int ms = totaltime % 1000;
+		totaltime /= 1000;
+		int sec = totaltime % 60;
+		totaltime -= sec;
+		int min = totaltime / 60;
+		sprintf_s(p->timing, "%02d:%02d:%03d", min, sec, ms);
+	}
+	if (SDL_GetTicks64() - p->invincible >= 5000)
+		p->invincible = 0;
 	if (p->time != 0)
 	{
 		if (p->direct == 0)
@@ -306,7 +332,7 @@ void RacingCar::usetool(ToolType type)
 		break;
 	case INVINCIBLE:
 		printf("INVINCIBLE NOW\n");
-		invincible = true;
+		invincible = SDL_GetTicks64();
 		break;
 	}
 }
@@ -330,6 +356,18 @@ void RacingCar::touchobstacle()
 		//cout << motion.velLinear << endl;
 
 	}
+}
+
+
+void RacingCar::isarrive() 
+{
+	if (!arrive)
+	{
+		arrive = true;
+		totaltime= SDL_GetTicks64() - starttime;
+		//printf("%d\n", arrivetime);
+	}
+
 }
 //previous code
 /*RacingCar::RacingCar() {}

@@ -9,13 +9,15 @@
 #define ALL_REGION -1	//when drawing image, pass {ALL_REGION} into SDL_Rect src to draw the whole image 
 						//or into SDL_Rect dst to fill image into the whole window 
 
-//racing car
-#define MOTION_INIT {INITIAL_POS* SEGMENT_LENGTH,0,0,0,0,0,0,0,DEFAULT_CAMERA_DEPTH,1,1,CAMERA_HEIGHT}
+//text
+#define SOLID 100
+#define SHADED 101
+#define BLENDED 102
 
 //map
 #define NUM_LINE 5000		//
 #define INITIAL_POS 30
-#define FINAL_POS 3000
+#define FINAL_POS 4200
 
 //camera
 #define DEFAULT_CAMERA_DEPTH 0.96
@@ -46,6 +48,7 @@
 #define HIGH_FRICTION_ACC 60
 #define LOW_FRICTION_ACC 5
 #define INCLINE_ACC 150
+#define GRAVITY 50
 
 //rotation
 #define ROTATE 0.04			//car camera rotation
@@ -60,13 +63,20 @@
 #define TRAP_WIDTH 1000
 #define TOOL_WIDTH 2000
 
+//racing car
+#define MOTION_INIT {INITIAL_POS * SEGMENT_LENGTH,0,0,0,0,0,0,0,DEFAULT_CAMERA_DEPTH,1,1,CAMERA_HEIGHT}
+#define CAR_WIDTH (0.8 * ROAD_WIDTH)
+#define CAR_LENGTH (1.6 * ROAD_WIDTH)
+#define FRONT_REAR_DISTANCE (0.64 * ROAD_WIDTH)    //wheel width=0.2*CAR_LENGTH=0.32*ROAD_WIDTH
+
 //energy
 #define ENERGY_RECOVER 0.2
 
 //road type (used in Line class)
 enum RoadType {
 	NORMAL = 1, ENDPOINT = 2, ACCELERATE_RIGHT = 4, ACCELERATE_LEFT = 8, TRAPAREA = 16, TOOLAREA = 32, HIGH_FRICTION = 64, LOW_FRICTION = 128,
-	INCLINE_FORWARD = 256, INCLINE_BACKWARD = 512, OBSTACLEAREA = 1024
+	INCLINE_FORWARD = 256, INCLINE_BACKWARD = 512, OBSTACLEAREA = 1024, INCLINE_PLANE = 2048, STARTPOINT = 4096
+	//INCLINE_BACKWARD: the front one is higher
 };
 
 enum RushType {
@@ -81,6 +91,27 @@ enum ToolType {
 	SPEEDUP,INVINCIBLE, ACCELERATE_SHORT, ACCELERATE_LONG
 };
 
+// Button constants
+const int BUTTON_X = WIDTH / 4;
+const int BUTTON_Y = HEIGHT / 4;
+const int BUTTON_WIDTH = WIDTH / 2;
+const int BUTTON_HEIGHT = HEIGHT / 2;
+enum MouseState
+{
+	MSNONE = 0,
+	OUT = 1, // Mouse out
+	IN_LB_SC = 2,  // Inside, Left Button, Single Click
+	IN_RB_SC = 3,  // Inside, RIGHT Button, Single Click
+	IN_LB_DC = 4,  // Inside, Left Button, Double Click
+	IN_RB_DC = 5,  // Inside, RIGHT Button, Double Click
+	IN_LB_PR = 6,  // Inside, Left Button, Press
+	IN_RB_PR = 7,  // Inside, Left Button, Press
+	IN_WU = 8,  // Inside, Wheel UP
+	IN_WD = 9,  // Inside, Wheel DOWN
+	HOVER = 10, // Mouse hover
+	IN_LB_PR_HOVER = 11, // Inside, Left Button, Press, Hover
+	IN_RB_PR_HOVER = 12 // Inside, Left Button, Press, Hover
+};
 /*
 
 #define BOUNCE_SPEED -5

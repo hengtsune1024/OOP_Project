@@ -61,7 +61,8 @@ Uint32 Entity::changeData(Uint32 interval, void* param)
 	Entity* p = (Entity*)param;
 	if (p->time != 0)
 	{
-		p->state = (p->state + 1) % p->numImage;  // image frame	
+		if(p->numImage)
+			p->state = (p->state + 1) % p->numImage;  // image frame	
 		/*
 		if (p->flag == true)
 		{
@@ -79,9 +80,8 @@ Uint32 Entity::changeData(Uint32 interval, void* param)
 }
 
 void Entity::quit() {
-	closeImg();
 	SDL_RemoveTimer(entitytimer);
-	
+	closeImg();
 }
 void Entity::startTimer(Uint32 t) {
 	time = t;

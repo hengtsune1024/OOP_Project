@@ -21,15 +21,15 @@ public:
 
     Line();
     ~Line();
-    double getx() { return x; }
-    double gety() { return y; }
-    double getz() { return z; }
-    double getX() { return X; }
-    double getY() { return Y; }
-    double getW() { return W; }
-    double getCurve() { return curve; }
-    double getSlope() { return slope; }
-    unsigned long long getType() { return type; }
+    double getx() const { return x; }
+    double gety() const { return y; }
+    double getz() const { return z; }
+    double getX() const { return X; }
+    double getY() const { return Y; }
+    double getW() const { return W; }
+    double getCurve() const { return curve; }
+    double getSlope() const { return slope; }
+    unsigned long long getType() const { return type; }
 
     void setz(double _z) { z = _z; }
     void sety(double _y) { y = _y; }
