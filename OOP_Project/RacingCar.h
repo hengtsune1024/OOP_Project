@@ -133,7 +133,7 @@ public:
 	const Motion& getMotion() { return motion; }
 
 	void brake(int = -1);		//car accelerating
-	void setRoadType(unsigned long long);
+	void setFrictionType(unsigned long long);
 
 	void setTrap(Line* l) { virus.setTrap(l); }
 	void setTool(Line* l) { tools.setTool(l); }

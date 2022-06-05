@@ -23,17 +23,17 @@ Map::Map(SDL_Renderer* renderer, bool dual) : lines(NUM_LINE), number_of_lines(N
 
 		//curve, default = 0
 		if (i > 100 && i <= 300)		// range of turing road
-			lines[i].setCurve(0.9);
+			lines[i].setCurve(0.3);
 		else if (i > 300 && i < 600)
-			lines[i].setCurve(1.2);
+			lines[i].setCurve(-0.4);
 		else if (i > 700 && i < 1000)
-			lines[i].setCurve(-0.3);
+			lines[i].setCurve(-0.15);
 		else if (i > 1200 && i < 1400)
-			lines[i].setCurve(-1.5);
+			lines[i].setCurve(0.4);
 		else if (i > 1500 && i < 2000)
-			lines[i].setCurve(1.2);
+			lines[i].setCurve(0.3);
 		else if (i > 2200 && i < 2800)
-			lines[i].setCurve(-1.3);
+			lines[i].setCurve(-0.35);
 		
 			
 		// y, default = 0
@@ -50,6 +50,7 @@ Map::Map(SDL_Renderer* renderer, bool dual) : lines(NUM_LINE), number_of_lines(N
 		else if (i > 3200 && i < 3300) {
 			lines[i].sety((i - 3200) * CAMERA_HEIGHT / 100.0);
 			lines[i].setSlope(lines[i].gety() - lines[i - 1].gety());
+			lines[i].addType(INCLINE_PLANE);
 		}
 		if (lines[i].getSlope() > 1e-6) {
 			lines[i].addType(INCLINE_BACKWARD);
@@ -97,8 +98,8 @@ Map::Map(SDL_Renderer* renderer, bool dual) : lines(NUM_LINE), number_of_lines(N
 		//700 - 900
 		else if (i >= 700 && i <= 900)
 			lines[i].addType(LOW_FRICTION);
-		else if (i >= 3300 && i <= 3350)
-			lines[i].addType(INCLINE_PLANE);
+		else if (i >= 3300 && i <= 3320)
+			lines[i].addType(CLIFF);
 		else
 			lines[i].addType(NORMAL);
 		
@@ -219,7 +220,7 @@ void Map::draw(SDL_Renderer* renderer)
 
 			//road type
 			type = lines[i].getType();
-			if ((type & NORMAL) || (type & TRAPAREA) || (type & TOOLAREA) || (type & OBSTACLEAREA) || (type & INCLINE_PLANE)) {
+			if ((type & NORMAL) || (type & TRAPAREA) || (type & TOOLAREA) || (type & OBSTACLEAREA) || (type & CLIFF)) {
 				rumble = (i >> 2) & 1 ? 0xffffffff : 0xff000000;
 				road = (i >> 2) & 1 ? 0xff6b6b6b : 0xff696969;
 				drawQuad(renderer, { rumble, p.getX(), p.getY(), p.getW() * 1.2, l.getX(), l.getY(), l.getW() * 1.2 });
@@ -435,7 +436,7 @@ Uint32 Map::move(Uint32 interval, void* para)
 
 
 		//set car road type
-		car->setRoadType(type);
+		car->setFrictionType(type);
 
 		double velX, velY;
 		velX = motion.velLinear * cos(motion.axleDegree) * punish * motion.velM;
@@ -443,7 +444,7 @@ Uint32 Map::move(Uint32 interval, void* para)
 
 		//move in x-direction
 		car->setPosX(motion.posX + velX);
-		if (motion.posX < 0 || motion.posX >(map->number_of_lines - 20) * SEGMENT_LENGTH || (motion.posX - velX > 3300 * SEGMENT_LENGTH && motion.posX < 3300 * SEGMENT_LENGTH))
+		if (motion.posX < 0 || motion.posX >(map->number_of_lines - 20) * SEGMENT_LENGTH || (velX < 0 && (map->lines[(int)(motion.posX / SEGMENT_LENGTH)].getType() & CLIFF)))
 			car->setPosX(motion.posX - velX);
 
 		/********* Do not move these codes ********/
@@ -489,7 +490,7 @@ Uint32 Map::move(Uint32 interval, void* para)
 		//update startpos and type
 		startpos = motion.posX / SEGMENT_LENGTH;
 		type = map->lines[startpos].getType();
-		car->setRoadType(type);
+		car->setFrictionType(type);
 
 		//rotate car
 		car->setAxleDegree(motion.axleDegree + motion.velAngular);
@@ -520,7 +521,7 @@ Uint32 Map::move(Uint32 interval, void* para)
 
 		// Xdegree
 		if (!car->isInAir()) {
-			if(!(map->lines[front].getType() & INCLINE_PLANE))
+			if(!(map->lines[front].getType() & CLIFF))
 				car->setXangle(atan((map->lines[front].gety() - map->lines[back].gety()) / (2 * dist)));
 		}
 		else {
@@ -574,9 +575,9 @@ Uint32 Map::move(Uint32 interval, void* para)
 
 				if (critVel < 0)
 					critVel = -critVel;
-				if ((critVel > 1e-6 && motion.velLinear * motion.velLinear > critVel) || (startpos > 3295 && startpos < 3300)) {
+				if ((critVel > 1e-6 && motion.velLinear * motion.velLinear > critVel) || (map->lines[startpos].getType() & INCLINE_PLANE)) {
 					car->setVelPerpen(velX * (map->lines[startpos].getSlope() / sqrt(SEGMENT_LENGTH * SEGMENT_LENGTH + map->lines[startpos].getSlope() * map->lines[startpos].getSlope())));
-					if (motion.velPerpen < GRAVITY * 8 && !(startpos > 3295 && startpos < 3300)) {
+					if (motion.velPerpen < GRAVITY * 5 && !(startpos > 3295 && startpos < 3300)) {
 						car->setVelPerpen(0);
 					}
 					else {

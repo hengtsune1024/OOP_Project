@@ -9,7 +9,7 @@
 #define TITLE "OOP Project"		//window title
 
 //image
-#define ALL_REGION -1	//when drawing image, pass {ALL_REGION} into SDL_Rect src to draw the whole image 
+//#define ALL_REGION -1	//when drawing image, pass {ALL_REGION} into SDL_Rect src to draw the whole image 
 						//or into SDL_Rect dst to fill image into the whole window 
 
 //map
@@ -75,7 +75,7 @@
 //road type (used in Line class)
 enum RoadType {
 	NORMAL = 1, ENDPOINT = 2, ACCELERATE_RIGHT = 4, ACCELERATE_LEFT = 8, TRAPAREA = 16, TOOLAREA = 32, HIGH_FRICTION = 64, LOW_FRICTION = 128,
-	INCLINE_FORWARD = 256, INCLINE_BACKWARD = 512, OBSTACLEAREA = 1024, INCLINE_PLANE = 2048
+	INCLINE_FORWARD = 256, INCLINE_BACKWARD = 512, OBSTACLEAREA = 1024, CLIFF = 2048, INCLINE_PLANE = 4096
 	//INCLINE_BACKWARD: the front one is higher
 };
 

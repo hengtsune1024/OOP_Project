@@ -112,7 +112,7 @@ void RacingCar::turn(int d)
 	direct = d;
 } */
 
-void RacingCar::setRoadType(unsigned long long rt) {
+void RacingCar::setFrictionType(unsigned long long rt) {
 	if ((rt & NORMAL) || (rt & HIGH_FRICTION) || (rt & LOW_FRICTION)) {
 		roadtype = rt;
 	}
