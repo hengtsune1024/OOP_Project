@@ -5,7 +5,7 @@ BlenderObject::BlenderObject(const char* objectFile, const char* textureFile, do
 	strcpy_s(objFile, objectFile);
 	this->scale = scale;
 
-	position = { 0,-CAMERA_HEIGHT,2000 };
+	position = { 0,-CAMERA_HEIGHT,3000 };
 	rotation = { 0,0,0 };
 	img.surface = SDL_LoadBMP(textureFile);
 	if (img.surface == NULL) {

@@ -21,7 +21,7 @@ struct Motion {
 	double camDegree;		// camera degree (in rad, z-axis(X-axis) is 0)
 	double roadDegree;		// the degree from z-axis(X-axis) to the road vector (from current segment to the next segment) 
 	double camDepth;		// camera depth
-	double velM;			// velocity modification
+	//double velM;			// velocity modification
 	double roadMod;			// road modification (for friction to change gradually between different roadTypes)
 	double camHeight;		// camera height from the road
 };
@@ -142,7 +142,7 @@ public:
 	void setCamDegree(double cd) { motion.camDegree = cd;  }  //camera degree
 	void setCamDepth(double cdp) { motion.camDepth = cdp; }  //camera depth
 	void setRoadDegree(double rd) { motion.roadDegree = rd; }
-	void setVelM(double vm) { motion.velM = vm; }
+	//void setVelM(double vm) { motion.velM = vm; }
 	void setRoadMod(double rm) { motion.roadMod = rm; }
 
 	void touchobstacle();

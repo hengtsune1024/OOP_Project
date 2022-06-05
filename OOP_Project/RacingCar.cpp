@@ -16,7 +16,7 @@ RacingCar::~RacingCar() {
 RacingCar::RacingCar(const char* obfpath, const char* imgpath, SDL_Renderer* renderer, Line* initpos) :
 	virus("../images/coronavirus/", 15, renderer), tools("../images/star/", 5, renderer), rock("../images/rock/rock.txt", "../images/rock/rock.bmp"),
 	isRushing(NONE), fullEnergy(true), energy(100.0), healthPoint(100.0), motion(MOTION_INIT), accState(0), roadtype(NORMAL),
-	currentPos(initpos), car3D(obfpath, imgpath, 750), theOtherCar(NULL)
+	currentPos(initpos), car3D(obfpath, imgpath, 1000), theOtherCar(NULL)
 {
 	
 }

@@ -49,10 +49,11 @@ Point3D Engine::Rotate(const Point3D& original, Point3D rotation,bool flag)
 	toReturn.y = original.x * (sin(rotation.z) * cos(rotation.y)) +
 		original.y * (sin(rotation.z) * sin(rotation.y) * sin(rotation.x) + cos(rotation.z) * cos(rotation.x)) +
 		original.z * (sin(rotation.z) * sin(rotation.y) * cos(rotation.x) - cos(rotation.z) * sin(rotation.x));
-	/*
+	
 	toReturn.z = original.x * (-sin(rotation.y)) +
 		original.y * (cos(rotation.y) * sin(rotation.x)) +
-		original.z * (cos(rotation.y) * cos(rotation.x));*/
+		original.z * (cos(rotation.y) * cos(rotation.x));
+	/*
 	if (flag) {
 		toReturn.z = original.z;
 	}
@@ -60,7 +61,7 @@ Point3D Engine::Rotate(const Point3D& original, Point3D rotation,bool flag)
 		toReturn.z = original.x * (-sin(rotation.y)) +
 			original.y * (cos(rotation.y) * sin(rotation.x)) +
 			original.z * (cos(rotation.y) * cos(rotation.x));
-	}
+	}*/
 	toReturn.u = original.u;
 	toReturn.v = original.v;
 	toReturn.w = original.w;
