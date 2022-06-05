@@ -23,7 +23,7 @@ struct Motion {
 	double roadDegree;		// the degree from z-axis(X-axis) to the road vector (from current segment to the next segment) 
 	double Xangle;			// rotation about x-axis(Y-axis)
 
-	//double velM;			// velocity modification
+	double velM;			// velocity modification
 
 	double camDepth;		// camera depth
 	double roadMod;			// road modification (for friction to change gradually between different roadTypes)
@@ -144,11 +144,11 @@ public:
 	void setPosY(double y) { motion.posY = y; }
 	void setVelLinear(double v) { motion.velLinear = v; }
 	void setVelAngular(double v) { motion.velAngular = v; }
-	//void setAccLinear(double a) { motion.accLinear = a; }
+	void setAccLinear(double a) { motion.accLinear = a; }
 	void setCamDegree(double cd) { motion.camDegree = cd;  }  //camera degree
 	void setCamDepth(double cdp) { motion.camDepth = cdp; }  //camera depth
 	void setRoadDegree(double rd) { motion.roadDegree = rd; }
-	//void setVelM(double vm) { motion.velM = vm; }
+	void setVelM(double vm) { motion.velM = vm; }
 	void setRoadMod(double rm) { motion.roadMod = rm; }
 
 	void touchobstacle();

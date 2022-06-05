@@ -49,7 +49,6 @@ Map::Map(SDL_Renderer* renderer, bool dual) : lines(NUM_LINE), number_of_lines(N
 		}
 		else if (i > 3200 && i < 3300) {
 			lines[i].sety((i - 3200) * CAMERA_HEIGHT / 100.0);
-			lines[i].addType(INCLINE_PLANE);
 			lines[i].setSlope(lines[i].gety() - lines[i - 1].gety());
 		}
 		if (lines[i].getSlope() > 1e-6) {
@@ -98,6 +97,8 @@ Map::Map(SDL_Renderer* renderer, bool dual) : lines(NUM_LINE), number_of_lines(N
 		//700 - 900
 		else if (i >= 700 && i <= 900)
 			lines[i].addType(LOW_FRICTION);
+		else if (i >= 3300 && i <= 3350)
+			lines[i].addType(INCLINE_PLANE);
 		else
 			lines[i].addType(NORMAL);
 		
@@ -218,7 +219,7 @@ void Map::draw(SDL_Renderer* renderer)
 
 			//road type
 			type = lines[i].getType();
-			if ((type & NORMAL) || (type & TRAPAREA) || (type & TOOLAREA) || (type & OBSTACLEAREA)) {
+			if ((type & NORMAL) || (type & TRAPAREA) || (type & TOOLAREA) || (type & OBSTACLEAREA) || (type & INCLINE_PLANE)) {
 				rumble = (i >> 2) & 1 ? 0xffffffff : 0xff000000;
 				road = (i >> 2) & 1 ? 0xff6b6b6b : 0xff696969;
 				drawQuad(renderer, { rumble, p.getX(), p.getY(), p.getW() * 1.2, l.getX(), l.getY(), l.getW() * 1.2 });
@@ -311,14 +312,12 @@ void Map::draw(SDL_Renderer* renderer)
 			else {
 				car->drawOtherCar(renderer, &engine, clean, HEIGHT, camH);
 			}
-
 			clean = false;
 		}
 
 		if (startpos <= 200 && startpos > 0) {
 			car->getTools()->drawImg(renderer, &lines[200]);
 		}
-
 
 		//car
 		car->draw(renderer, &engine, clean);
@@ -383,20 +382,18 @@ Uint32 Map::move(Uint32 interval, void* para)
 			}
 		}
 
-		// Xdegree
-		if (!car->isInAir()) {
-			double dist = CAR_HALF_LENGTH * cos(motion.axleDegree);
-			int front = (motion.posX + dist) / SEGMENT_LENGTH;
-			int back = (motion.posX - dist) / SEGMENT_LENGTH;
-			car->setXangle(atan((map->lines[front].gety() - map->lines[back].gety()) / (2 * dist)));
-		}
+		double dist = CAR_HALF_LENGTH * cos(motion.axleDegree);
+		int front = (motion.posX + CAMERA_CARMIDPOINT_DIST + dist) / SEGMENT_LENGTH;
+		int back = (motion.posX + CAMERA_CARMIDPOINT_DIST - dist) / SEGMENT_LENGTH;
+
+		
 
 		car->setRoadDegree(atan((map->lines[startpos + 1].getx() - map->lines[startpos].getx()) / SEGMENT_LENGTH));
 
 		//speed punishment
 		punish = 1.0;
-		if (motion.posY > map->lines[startpos].getx() + ROAD_WIDTH || motion.posY < map->lines[startpos].getx() - ROAD_WIDTH) {
-			punish = ROAD_WIDTH / (motion.posY - map->lines[startpos].getx());
+		if (motion.posY > map->lines[startpos].getx() + ROAD_WIDTH * motion.velM || motion.posY < map->lines[startpos].getx() - ROAD_WIDTH* motion.velM) {
+			punish = (ROAD_WIDTH * motion.velM) / (motion.posY - map->lines[startpos].getx());
 			if (punish < 0)
 				punish = -punish;
 			car->setOutofRoad(true);
@@ -405,8 +402,10 @@ Uint32 Map::move(Uint32 interval, void* para)
 			car->setOutofRoad(false);
 		}
 
+		
 		//friction
 		type = map->lines[startpos].getType();
+
 		if ((type & HIGH_FRICTION)) {
 			if (!car->isOutofRoad() && (motion.roadMod - 0.6 > 1e-6 || motion.roadMod - 0.6 < -1e-6)) {
 				if (motion.roadMod < 0.6)
@@ -432,15 +431,19 @@ Uint32 Map::move(Uint32 interval, void* para)
 			}
 		}
 
+		car->setVelM(car->getRoadMod() * (sin(motion.roadDegree) * (map->lines[startpos + 1].getx() - map->lines[startpos].getx()) + cos(motion.roadDegree) * SEGMENT_LENGTH) / SEGMENT_LENGTH);
+
+
 		//set car road type
 		car->setRoadType(type);
+
 		double velX, velY;
-		velX = motion.velLinear * cos(motion.axleDegree) * punish;
-		velY = motion.velLinear * sin(motion.axleDegree) * punish;
+		velX = motion.velLinear * cos(motion.axleDegree) * punish * motion.velM;
+		velY = motion.velLinear * sin(motion.axleDegree) * punish * motion.velM;
 
 		//move in x-direction
 		car->setPosX(motion.posX + velX);
-		if (motion.posX < 0 || motion.posX >(map->number_of_lines - 20) * SEGMENT_LENGTH)
+		if (motion.posX < 0 || motion.posX >(map->number_of_lines - 20) * SEGMENT_LENGTH || (motion.posX - velX > 3300 * SEGMENT_LENGTH && motion.posX < 3300 * SEGMENT_LENGTH))
 			car->setPosX(motion.posX - velX);
 
 		/********* Do not move these codes ********/
@@ -456,7 +459,7 @@ Uint32 Map::move(Uint32 interval, void* para)
 	   //move in y-direction
 		car->setPosY(motion.posY + velY);
 
-		if ((motion.posY < map->lines[startpos].getx() - ROAD_BORDER) || (motion.posY > map->lines[startpos].getx() + ROAD_BORDER))
+		if ((motion.posY < map->lines[startpos].getx() - ROAD_BORDER * motion.velM) || (motion.posY > map->lines[startpos].getx() + ROAD_BORDER * motion.velM))
 		{
 			car->setPosY(motion.posY - velY);
 			car->setPosX(motion.posX - velX);
@@ -467,102 +470,113 @@ Uint32 Map::move(Uint32 interval, void* para)
 
 			double roadD = atan((map->lines[startpos].getx() - map->lines[originpos].getx()) / (map->lines[startpos].getz() - map->lines[originpos].getz()));
 
-			double velProjected = motion.velLinear * cos(roadD - motion.axleDegree) * punish;
+			double velProjected = motion.velLinear * cos(roadD - motion.axleDegree) * punish * motion.velM;
 			car->setPosY(motion.posY + velProjected * sin(roadD));
 			car->setPosX(motion.posX + velProjected * cos(roadD));
 			//map->posX += velProjected * cos(roadD);
 			//map->posY += velProjected * sin(roadD);
 
 			originpos = motion.posX / SEGMENT_LENGTH;
-			if (motion.posY < map->lines[originpos].getx() - ROAD_BORDER)
-				car->setPosY(map->lines[originpos].getx() - ROAD_BORDER);
+			if (motion.posY < map->lines[originpos].getx() - ROAD_BORDER * motion.velM)
+				car->setPosY(map->lines[originpos].getx() - ROAD_BORDER * motion.velM);
 			//map->posY = map->lines[originpos].getx() - ROAD_BORDER * ;
-			else if (motion.posY > map->lines[originpos].getx() + ROAD_BORDER)
-				car->setPosY(map->lines[originpos].getx() + ROAD_BORDER);
+			else if (motion.posY > map->lines[originpos].getx() + ROAD_BORDER * motion.velM)
+				car->setPosY(map->lines[originpos].getx() + ROAD_BORDER * motion.velM);
 			//map->posY = map->lines[originpos].getx() + ROAD_BORDER * ;
 
 		}
 
+		//update startpos and type
+		startpos = motion.posX / SEGMENT_LENGTH;
+		type = map->lines[startpos].getType();
+		car->setRoadType(type);
+
 		//rotate car
 		car->setAxleDegree(motion.axleDegree + motion.velAngular);
 
-		if ((motion.axleDegree <= motion.roadDegree - MAX_ROTATE_DEGREE && motion.velAngular <= 0) || (motion.axleDegree >= motion.roadDegree + MAX_ROTATE_DEGREE && motion.velAngular >= 0)) {
+		if ((motion.axleDegree <= motion.roadDegree - MAX_ROTATE_DEGREE / motion.velM && motion.velAngular <= 0) || (motion.axleDegree >= motion.roadDegree + MAX_ROTATE_DEGREE / motion.velM && motion.velAngular >= 0)) {
 			car->setAxleDegree(motion.axleDegree - motion.velAngular);
-			if (motion.axleDegree <= motion.roadDegree - MAX_ROTATE_DEGREE) {
-				car->setAxleDegree(motion.roadDegree - MAX_ROTATE_DEGREE);
+			if (motion.axleDegree <= motion.roadDegree - MAX_ROTATE_DEGREE / motion.velM) {
+				car->setAxleDegree(motion.roadDegree - MAX_ROTATE_DEGREE / motion.velM);
 			}
-			else if (motion.axleDegree >= motion.roadDegree + MAX_ROTATE_DEGREE) {
-				car->setAxleDegree(motion.roadDegree + MAX_ROTATE_DEGREE);
+			else if (motion.axleDegree >= motion.roadDegree + MAX_ROTATE_DEGREE / motion.velM) {
+				car->setAxleDegree(motion.roadDegree + MAX_ROTATE_DEGREE / motion.velM);
 			}
 		}
 
 		//rotate camera
 		if (motion.camDegree > motion.axleDegree) {
 			double rot = 0.06 / 0.78539 * (motion.camDegree - motion.axleDegree) + 0.01;
-			car->setCamDegree(motion.camDegree - rot);
+			car->setCamDegree(motion.camDegree - rot / motion.velM);
 			if (motion.camDegree < motion.axleDegree)
 				car->setCamDegree(motion.axleDegree);
 		}
 		else if (motion.camDegree < motion.axleDegree) {
 			double rot = 0.06 / 0.78539 * (  motion.axleDegree- motion.camDegree) + 0.01;
-			car->setCamDegree(motion.camDegree + rot);
+			car->setCamDegree(motion.camDegree + rot / motion.velM);
 			if (motion.camDegree > motion.axleDegree)
 				car->setCamDegree(motion.axleDegree);
 		}
 
-
-		//update startpos and type
-		startpos = motion.posX / SEGMENT_LENGTH;
-		type = map->lines[startpos].getType();
-		car->setRoadType(type);
-		
-
+		// Xdegree
+		if (!car->isInAir()) {
+			if(!(map->lines[front].getType() & INCLINE_PLANE))
+				car->setXangle(atan((map->lines[front].gety() - map->lines[back].gety()) / (2 * dist)));
+		}
+		else {
+			if (velX > 0) {
+				car->setXangle(motion.Xangle - 0.02);
+			}
+			else {
+				car->setXangle(motion.Xangle + 0.02);
+			}
+		}
 
 		//special road
 		if (!car->isInAir()) {
 			type = map->lines[startpos].getType();
 			if (car->getRushing() != ACCROAD && ((type & ACCELERATE_LEFT) || (type & ACCELERATE_RIGHT))) {
-				if ((type & ACCELERATE_LEFT) && (motion.posY < map->lines[startpos].getx() && motion.posY > map->lines[startpos].getx() - ROAD_WIDTH)) {
+				if ((type & ACCELERATE_LEFT) && (motion.posY < map->lines[startpos].getx() && motion.posY > map->lines[startpos].getx() - ROAD_WIDTH * motion.velM)) {
 					car->rush(ACCROAD);
 				}
-				else if ((type & ACCELERATE_RIGHT) && (motion.posY > map->lines[startpos].getx() && motion.posY < map->lines[startpos].getx() + ROAD_WIDTH)) {
+				else if ((type & ACCELERATE_RIGHT) && (motion.posY > map->lines[startpos].getx() && motion.posY < map->lines[startpos].getx() + ROAD_WIDTH * motion.velM)) {
 					car->rush(ACCROAD);
 				}
-				printf("%lf %lf %lf \n", motion.posY, map->lines[startpos].getx(), map->lines[startpos].getx() + ROAD_WIDTH);
 			}
 			//trap
-			if ((type & TRAPAREA) && motion.posY < map->lines[startpos].getx() + TRAP_WIDTH  && motion.posY > map->lines[startpos].getx() - TRAP_WIDTH )
+			if ((type & TRAPAREA) && motion.posY < map->lines[startpos].getx() + TRAP_WIDTH * motion.velM && motion.posY > map->lines[startpos].getx() - TRAP_WIDTH * motion.velM)
 				car->getTrap()->gettrap(STAIN);
 			//tool
-			if ((type & TOOLAREA) && motion.posY < map->lines[startpos].getx() + TOOL_WIDTH && motion.posY > map->lines[startpos].getx() - TOOL_WIDTH )
+			if ((type & TOOLAREA) && motion.posY < map->lines[startpos].getx() + TOOL_WIDTH * motion.velM && motion.posY > map->lines[startpos].getx() - TOOL_WIDTH * motion.velM)
 				car->getTools()->getTools();
 
-			if ((type & OBSTACLEAREA) && motion.posY < map->lines[startpos].getx() + TOOL_WIDTH && motion.posY > map->lines[startpos].getx() - TOOL_WIDTH )
+			if ((type & OBSTACLEAREA) && motion.posY < map->lines[startpos].getx() + TOOL_WIDTH * motion.velM && motion.posY > map->lines[startpos].getx() - TOOL_WIDTH * motion.velM)
 			{
 				car->touchobstacle();
-				//printf("Touch Obstacle\n");
 			}
 
 			//fly
 			//critVel=GRAVITY*|(1+y'^2)/y''|
-			if (((type & INCLINE_BACKWARD) && velX > 1e-6) || ((type & INCLINE_FORWARD) && velX < -1e-6)) {
+			if (((type & INCLINE_BACKWARD) && motion.velLinear > 1e-6) || ((type & INCLINE_FORWARD) && motion.velLinear < -1e-6)) {
 				double _cos, _sin, critVel = 0;
 				if (startpos > 300 && startpos < 1054) {
 					//y=sin((startpos-300)/30.0)*CAMH, y'=cos((startpos-300)/30.0)*CAMH/30.0, y''=-sin((startpos-300)/30.0)*CAMH/900.0
+
 					_cos = cos((startpos - 300) / 30.0), _sin = ((startpos - 300) / 30.0);
-					critVel = GRAVITY * (900 + _cos * _cos * CAMERA_HEIGHT * CAMERA_HEIGHT) / (_sin * CAMERA_HEIGHT)  ;
+					critVel = GRAVITY * (900 + _cos * _cos * CAMERA_HEIGHT * CAMERA_HEIGHT) / (_sin * CAMERA_HEIGHT) * motion.velM * motion.velM;
 				}
 				else if (startpos > 1200 && startpos < 2896) {
 					//y=sin((startpos-1200)/20.0)*CAMH*0.6, y'=cos((startpos-1200)/20.0)*CAMH*0.03, y''=-sin((startpos-1200)/20.0)*CAMH*0.0015
+
 					_cos = cos((startpos - 1200) / 20.0), _sin = ((startpos - 1200) / 20.0);
-					critVel = GRAVITY * (400 + _cos * _cos * CAMERA_HEIGHT * CAMERA_HEIGHT * 0.36) / (_sin * CAMERA_HEIGHT * 0.6)  ;
+					critVel = GRAVITY * (400 + _cos * _cos * CAMERA_HEIGHT * CAMERA_HEIGHT * 0.36) / (_sin * CAMERA_HEIGHT * 0.6) * motion.velM * motion.velM;
 				}
 
 				if (critVel < 0)
 					critVel = -critVel;
-				if ((critVel > 1e-6 && velX * velX > critVel) || (startpos > 3295 && startpos < 3300)) {
+				if ((critVel > 1e-6 && motion.velLinear * motion.velLinear > critVel) || (startpos > 3295 && startpos < 3300)) {
 					car->setVelPerpen(velX * (map->lines[startpos].getSlope() / sqrt(SEGMENT_LENGTH * SEGMENT_LENGTH + map->lines[startpos].getSlope() * map->lines[startpos].getSlope())));
-					if (motion.velPerpen < GRAVITY * 2 && !(startpos > 3295 && startpos < 3300)) {
+					if (motion.velPerpen < GRAVITY * 8 && !(startpos > 3295 && startpos < 3300)) {
 						car->setVelPerpen(0);
 					}
 					else {
@@ -573,7 +587,6 @@ Uint32 Map::move(Uint32 interval, void* para)
 			}
 
 		}
-
 		if (map->dualMode) {
 			car = map->car2;
 		}
@@ -594,6 +607,7 @@ Uint32 Map::accelerate(Uint32 interval, void* para)
 	do {
 		const Motion& motion = car->getMotion();
 		car->brake();
+		
 		if (car->getRushing()) //excpet RushType == NONE(0), other types will go here
 		{
 			double speedDecrease = AFTERRUSH_SPEED_DECREASE;
