@@ -101,14 +101,16 @@ void RacingCar::startTimer(Uint32 t)
 	chargeTimer = SDL_AddTimer(CHARGE_INTERVAL, charge, this);
 }
 
-void RacingCar::stopTimer()
+
+void RacingCar::RacingCar::stopTimer()
 {
 	time = 0;
 }
+/*
 void RacingCar::turn(int d)
 {
 	direct = d;
-} 
+} */
 
 void RacingCar::setRoadType(unsigned long long rt) {
 	if ((rt & NORMAL) || (rt & HIGH_FRICTION) || (rt & LOW_FRICTION)) {
@@ -217,6 +219,7 @@ void RacingCar::rush(RushType r)
 	{
 		case NONE:
 			isRushing = r;
+			motion.camDepth = DEFAULT_CAMERA_DEPTH;
 			break;
 		case ENERGY:
 			if (fullEnergy) {

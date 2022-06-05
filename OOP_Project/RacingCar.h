@@ -91,7 +91,7 @@ public:
 	void drawOtherCar(SDL_Renderer* renderer, Engine* engine, bool clean, double maxy, double camH);
 	void startTimer(Uint32 t);
 	void stopTimer();
-	void turn(int); // move the object
+	//void turn(int); // move the object
 
 	void usetool(ToolType type);
 

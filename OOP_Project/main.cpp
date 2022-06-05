@@ -72,11 +72,11 @@ void eventHandler(SDL_Event& e, RenderWindow& w, Map& map, RacingCar* car1, Raci
 				break;
 			case SDLK_a:
 				car1->setVelAngular(car1->getVelAngular() - ROTATE);
-				car1->turn(-1);
+				//car1->turn(-1);
 				break;
 			case SDLK_d:
 				car1->setVelAngular(car1->getVelAngular() + ROTATE);
-				car1->turn(1);
+				//car1->turn(1);
 				break;
 			case SDLK_SPACE:
 				car1->rush(ENERGY);
@@ -111,13 +111,13 @@ void eventHandler(SDL_Event& e, RenderWindow& w, Map& map, RacingCar* car1, Raci
 			case SDLK_LEFT:
 				if (car2) {
 					car2->setVelAngular(car2->getVelAngular() - ROTATE);
-					car2->turn(-1);
+					//car2->turn(-1);
 				}
 				break;
 			case SDLK_RIGHT:
 				if (car2) {
 					car2->setVelAngular(car2->getVelAngular() + ROTATE);
-					car2->turn(1);
+					//car2->turn(1);
 				}
 				break;
 			case SDLK_RETURN:
@@ -156,11 +156,11 @@ void eventHandler(SDL_Event& e, RenderWindow& w, Map& map, RacingCar* car1, Raci
 				break;
 			case SDLK_a:
 				car1->setVelAngular(car1->getVelAngular() + ROTATE);
-				car1->turn(0);
+				//car1->turn(0);
 				break;
 			case SDLK_d:
 				car1->setVelAngular(car1->getVelAngular() - ROTATE);
-				car1->turn(0);
+				//car1->turn(0);
 				break;
 
 			case SDLK_e:
@@ -182,13 +182,13 @@ void eventHandler(SDL_Event& e, RenderWindow& w, Map& map, RacingCar* car1, Raci
 			case SDLK_LEFT:
 				if (car2) {
 					car2->setVelAngular(car2->getVelAngular() + ROTATE);
-					car2->turn(0);
+					//car2->turn(0);
 				}
 				break;
 			case SDLK_RIGHT:
 				if (car2) {
 					car2->setVelAngular(car2->getVelAngular() - ROTATE);
-					car2->turn(0);
+					//car2->turn(0);
 				}
 				break;
 
