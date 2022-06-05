@@ -17,13 +17,18 @@ struct Motion {
 	double velPerpen;		// z-direction velocity (moving up and down)
 	double velAngular;		// angular velocity on xy-plane
 	double accLinear;		// linear acceleration on xy-plane
+
 	double axleDegree;		// angle between car-direction and z-axis(X-axis)
 	double camDegree;		// camera degree (in rad, z-axis(X-axis) is 0)
 	double roadDegree;		// the degree from z-axis(X-axis) to the road vector (from current segment to the next segment) 
-	double camDepth;		// camera depth
+	double Xangle;			// rotation about x-axis(Y-axis)
+
 	//double velM;			// velocity modification
+
+	double camDepth;		// camera depth
 	double roadMod;			// road modification (for friction to change gradually between different roadTypes)
 	double camHeight;		// camera height from the road
+	
 };
 
 class RacingCar
@@ -73,6 +78,7 @@ class RacingCar
 
 public:
 
+
 	double baseHeight; //only used when in air
 	RacingCar();
 	RacingCar(const char* objpath, const char* imgpath,SDL_Renderer* renderer, Line*);
@@ -91,7 +97,7 @@ public:
 
 	void setOtherCar(RacingCar* c) { theOtherCar = c; }
 	RacingCar* getOtherCar() { return theOtherCar; }
-
+	void setXangle(double xd) { motion.Xangle = xd; }
 	void rush(RushType);
 	RushType getRushing() { return isRushing; }
 	bool getFullEnergy() { return fullEnergy; }

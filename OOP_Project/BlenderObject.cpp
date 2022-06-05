@@ -31,7 +31,7 @@ void BlenderObject::Load(const char* objectFile)
 	FILE* f;
 	fopen_s(&f, objFile, "r");
 	char sym[100], buffer[100];
-	double minz = 1e10, maxz = -1e10;
+	double min = 1e10, max = -1e10;
 
 	if (f != NULL)
 	{
@@ -53,10 +53,11 @@ void BlenderObject::Load(const char* objectFile)
 				else if (sym[1] == '\0') {
 					fscanf(f, "%lf%lf%lf", &x, &y, &z);
 					vertices.push_back({ x,y,z,0,0 });
-					if (y > maxz)
-						maxz = y;
-					if (y < minz)
-						minz = y;
+					/*
+					if (x > max)
+						max = x;
+					if (x < min)
+						min = x;*/
 
 				}
 				else {
@@ -84,7 +85,7 @@ void BlenderObject::Load(const char* objectFile)
 			}
 		}
 	}
-	printf("%u %lf %lf \n", triangles.size(),minz*scale,maxz*scale);
+	//printf("%u %lf %lf \n", triangles.size(),min*scale,max*scale);
 	fclose(f);
 }
 

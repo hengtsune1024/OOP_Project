@@ -32,7 +32,8 @@ void RacingCar::quit()
 void RacingCar::draw(SDL_Renderer* renderer,Engine* engine, bool clean)
 {
 	//car image
-	car3D.draw({ 0,0,0 }, car3D.getRotation(), 0, motion.camDepth, engine, clean, true, HEIGHT);
+
+	car3D.draw({ 0,0,0 }, { -motion.Xangle,car3D.getRotation().y,0 }, 0, motion.camDepth, engine, clean, true, HEIGHT);
 
 	//energy bottle
 	roundedBoxColor(renderer, 10, 10, 10 + WIDTH / 4, 30, 2, 0xff828282);
@@ -62,9 +63,9 @@ void RacingCar::drawOtherCar(SDL_Renderer* renderer, Engine* engine, bool clean,
 		{ motion.posY - theOtherCar->getPosY() ,camH - theOtherCar->getCamHeight() - theOtherCar->getCurrentPos()->gety(),motion.posX - theOtherCar->getPosX()},
 		{ 0,(theOtherCar->motion.axleDegree - motion.axleDegree),0},
 		motion.camDegree, motion.camDepth, engine, clean, maxy);*/
-	car3D.draw(
+	theOtherCar->car3D.draw(
 		{ motion.posY - theOtherCar->getPosY() ,currentPos->gety() - theOtherCar->getCurrentPos()->gety() + 0,motion.posX - theOtherCar->getPosX()},
-		{ 0,(theOtherCar->motion.axleDegree),0 },
+		{ -theOtherCar->motion.Xangle,theOtherCar->motion.axleDegree,0 },
 		motion.camDegree, motion.camDepth, engine, clean,false, maxy);
 }
 

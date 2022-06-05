@@ -270,6 +270,7 @@ void Map::draw(SDL_Renderer* renderer)
 
 			
 		}
+
 		colorChange1 = (colorChange1 + 2) & 31;
 
 		//sprite lamps
@@ -381,7 +382,15 @@ Uint32 Map::move(Uint32 interval, void* para)
 				car->setCamHeight(CAMERA_HEIGHT);
 			}
 		}
-		//velocity modification
+
+		// Xdegree
+		if (!car->isInAir()) {
+			double dist = CAR_HALF_LENGTH * cos(motion.axleDegree);
+			int front = (motion.posX + dist) / SEGMENT_LENGTH;
+			int back = (motion.posX - dist) / SEGMENT_LENGTH;
+			car->setXangle(atan((map->lines[front].gety() - map->lines[back].gety()) / (2 * dist)));
+		}
+
 		car->setRoadDegree(atan((map->lines[startpos + 1].getx() - map->lines[startpos].getx()) / SEGMENT_LENGTH));
 
 		//speed punishment
@@ -508,8 +517,9 @@ Uint32 Map::move(Uint32 interval, void* para)
 		car->setRoadType(type);
 		
 
+
+		//special road
 		if (!car->isInAir()) {
-			//special road
 			type = map->lines[startpos].getType();
 			if (car->getRushing() != ACCROAD && ((type & ACCELERATE_LEFT) || (type & ACCELERATE_RIGHT))) {
 				if ((type & ACCELERATE_LEFT) && (motion.posY < map->lines[startpos].getx() && motion.posY > map->lines[startpos].getx() - ROAD_WIDTH)) {

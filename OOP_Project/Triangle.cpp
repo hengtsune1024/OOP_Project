@@ -127,8 +127,6 @@ void Triangle::draw(Uint32* bitmap, Image3D& img, double zbuffer[], double maxy)
 					v += vstep;
 					w += wstep;
 					z += zstep;
-					if (x == WIDTH / 2 && y == HEIGHT / 2+10)
-						printf("%lf %lf %u\n", z, zbuffer[WIDTH * y + x], img.getColor(u / w, v / w));
 					if (zbuffer[WIDTH * y + x] == 0 || zbuffer[WIDTH * y + x] > z) {
 						bitmap[WIDTH * y + x] = img.getColor(u / w, v / w);
 						zbuffer[WIDTH * y + x] = z;
