@@ -82,9 +82,6 @@ void eventHandler(SDL_Event& e, RenderWindow& w, Map& map, RacingCar* car1, Raci
 				car1->rush(ENERGY);
 				break;
 
-			case SDLK_e:
-				car1->setVelPerpen(car1->getVelPerpen() + 300);
-				break;
 			/*
 			case SDLK_q:
 				car1->setVelPerpen(car1->getVelPerpen() - 300);
@@ -124,9 +121,6 @@ void eventHandler(SDL_Event& e, RenderWindow& w, Map& map, RacingCar* car1, Raci
 				car2->rush(ENERGY);
 				break;
 
-			case SDLK_o:
-				car2->setVelPerpen(car2->getVelPerpen() + 300);
-				break;
 				/*
 			case SDLK_l:
 				car2->setVelPerpen(car2->getVelPerpen() - 300);
@@ -162,10 +156,6 @@ void eventHandler(SDL_Event& e, RenderWindow& w, Map& map, RacingCar* car1, Raci
 				car1->setVelAngular(car1->getVelAngular() - ROTATE);
 				//car1->turn(0);
 				break;
-
-			case SDLK_e:
-				car1->setVelPerpen(0);
-				break;
 				/*
 			case SDLK_q:
 				car1->setVelPerpen(car1->getVelPerpen() + 300);
@@ -190,10 +180,6 @@ void eventHandler(SDL_Event& e, RenderWindow& w, Map& map, RacingCar* car1, Raci
 					car2->setVelAngular(car2->getVelAngular() - ROTATE);
 					//car2->turn(0);
 				}
-				break;
-
-			case SDLK_o:
-				car2->setVelPerpen(0);
 				break;
 				/*
 			case SDLK_l:
