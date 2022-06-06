@@ -21,7 +21,7 @@ class Functions
 	Text gradetext;
 	Text recordtext;
 	Text hinttext;
-	Uint64 rec1, rec2, rec3;
+	Uint64 rec[3];
 	Text  rec1text, rec2text, rec3text;
 	int count;
 	char countstring[10];
