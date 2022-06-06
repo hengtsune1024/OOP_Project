@@ -219,7 +219,7 @@ void Functions::Grade(EndType type, int record)
 
 		gradetext.close();
 		gradetext.setString("-- : -- : ---");
-		gradetext.setPos({ 300, 300 });
+		gradetext.setPos({ 400, 300 });
 		gradetext.generateTexture();
 		gradetext.draw();
 

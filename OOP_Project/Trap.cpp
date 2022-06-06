@@ -4,7 +4,6 @@ Trap::Trap() {
 }
 
 Trap::~Trap() {
-	stain.close();
 }
 void Trap::close() {
 	quit();

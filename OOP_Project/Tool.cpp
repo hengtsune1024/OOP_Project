@@ -3,8 +3,6 @@ Tool::Tool(){
 
 }
 Tool::~Tool() {
-	tool1img.close();
-	tool2img.close();
 }
 
 void Tool::close() {
