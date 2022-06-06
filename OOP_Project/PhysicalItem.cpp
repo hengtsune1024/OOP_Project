@@ -66,11 +66,10 @@ void PhysicalItem::collide(RacingCar* car)
 						-CAR_HALF_LENGTH * sin_ + CAR_HALF_WIDTH * cos_ - dx,-CAR_HALF_LENGTH * sin_ - CAR_HALF_WIDTH * cos_ - dx };
 		for (int i = 0; i < 4; ++i) {
 			if (rz[i] < CUBE_SIZE && rz[i] > -CUBE_SIZE && rx[i] < CUBE_SIZE && rx[i] > -CUBE_SIZE) {
-				//collided, 
-				double e = 0.6;
+				//collided
 				isMoving = true;
 				moveDegree = car->getAxleDegree();
-				moveVel = car->getMotion().velLinear;
+				moveVel = car->getMotion().velLinear * 1.2;
 				startTimer();
 				break;
 			}

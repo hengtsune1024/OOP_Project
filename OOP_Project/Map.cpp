@@ -49,7 +49,7 @@ Map::Map(SDL_Renderer* renderer, bool dual) : lines(NUM_LINE), number_of_lines(N
 			lines[i].setSlope(lines[i].gety() - lines[i - 1].gety());
 		}
 		else if (i > 3200 && i < 3300) {
-			lines[i].sety((i - 3200) * CAMERA_HEIGHT / 100.0);
+			lines[i].sety((i - 3200) * CAMERA_HEIGHT * 3 / 100.0);
 			lines[i].setSlope(lines[i].gety() - lines[i - 1].gety());
 			lines[i].addType(INCLINE_PLANE);
 		}
@@ -330,14 +330,14 @@ void Map::draw(SDL_Renderer* renderer)
 		//car
 		car->draw(renderer, &engine, clean);
 
+		engine.drawAll(renderer);
+
 		/**************************/
 		car->getTrap()->drawStain(renderer);	//only draws stain
 		/**************************/
 
 		car->getTools()->drawmytool(renderer);
 
-
-		engine.drawAll(renderer);
 
 		if (dualMode) {
 			car = car2;
