@@ -5,7 +5,7 @@
 #include <vector>
 #include "Point3D.h"
 #include "Triangle.h"
-
+#pragma warning(disable:4996)
 class BlenderObject
 {
 	char objFile[30];

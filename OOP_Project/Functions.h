@@ -29,7 +29,9 @@ public:
 	Functions(RenderWindow& window, bool* d, bool* q);
 	void Menu(SDL_Renderer* renderer);
 	void Counting(Map& map);
-	void Victory(int);
+	void Victory(EndType type);
+	void Grade(EndType type, int record);
+	void Record();
 	void close();
 };
 

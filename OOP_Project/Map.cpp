@@ -11,7 +11,7 @@ unsigned long long Map::type = 0;
 Map::Map() : lines(NUM_LINE), number_of_lines(NUM_LINE), cube("../images/cube/cube.txt", "../images/cube/cube.bmp", NULL, CUBE_SIZE / 2.457335)
 {}
 
-Map::Map(SDL_Renderer* renderer, bool dual) : lines(NUM_LINE), number_of_lines(NUM_LINE), dualMode(dual), winner(0),
+Map::Map(SDL_Renderer* renderer, bool dual) : lines(NUM_LINE), number_of_lines(NUM_LINE), dualMode(dual), endtype(PLAYING), record(0),
 	car1(new RacingCar("../images/car/car.txt", "../images/car/car.bmp", renderer, &lines[INITIAL_POS])),
 	car2(dual ? new RacingCar("../images/car/car.txt", "../images/car/car.bmp", renderer, &lines[INITIAL_POS]) : NULL),
 	streetlight("../images/streetlight.png", renderer),
@@ -166,7 +166,6 @@ void Map::drawQuad(SDL_Renderer* renderer, Quad q) {
 
 void Map::draw(SDL_Renderer* renderer) 
 {
-
 	SDL_RenderSetViewport(renderer, &viewPort1);
 	RacingCar* car = car1;
 	RacingCar* otherCar = car2;
@@ -568,9 +567,9 @@ Uint32 Map::move(Uint32 interval, void* para)
 				if (car->getHP() <= 0)
 				{
 					if (map->dualMode)
-						map->winner = times;
+						map->endtype = (times == 2 ? PLAYER2 : PLAYER1);
 					else
-						map->winner = -2;
+						map->endtype = FAILED;
 				}
 				//printf("Touch Obstacle\n");
 			}
@@ -581,13 +580,18 @@ Uint32 Map::move(Uint32 interval, void* para)
 				car->isarrive();
 				if (map->dualMode)
 				{
-					if (!map->winner)
+					if (!map->endtype)
 					{
-						map->winner = (times == 1 ? 2 : 1);
+						map->endtype = (times == 1 ? PLAYER2 : PLAYER1);
+						map->record = car->gettotaltime();
 					}
 				}
 				else
-					map->winner = -1;
+				{
+					map->endtype = VICTORY;
+					map->record = car->gettotaltime();
+				}
+				map->endtime = SDL_GetTicks64() + 3000;
 			}
 			//fly
 			//critVel=GRAVITY*|(1+y'^2)/y''|
@@ -757,10 +761,6 @@ Uint32 Map::accelerate(Uint32 interval, void* para)
 	return interval;
 }
 
-int Map::getwinner() 
-{
-	return winner;
-}
 void Map::startTimer() {
 
 	moveTimer = SDL_AddTimer(MOVE_INTERVAL, move, this);

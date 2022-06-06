@@ -19,13 +19,15 @@ int main(int argc, char* argv[])
 	sdl.init();
 	SDL_Event e;
 	window.init(false);
+	Image Ferrari("../images/ferrari.png", window.GetRenderer());
+	Functions func(window, &dual, &quit);
 	while (!quit)
 	{
-		Functions func(window, &dual, &quit);
 		//Menu
 		while (!quit)
 		{
 			window.clear();
+			Ferrari.draw(window.GetRenderer(), NULL, NULL, false);
 			func.Menu(window.GetRenderer());
 			window.display();
 		}
@@ -34,6 +36,7 @@ int main(int argc, char* argv[])
 		Map map(window.GetRenderer(), dual);
 		map.startTimer();
 		unsigned int st, end, i = 0;
+
 		while (!quit) {
 
 			while (SDL_PollEvent(&e) != 0) {
@@ -47,17 +50,21 @@ int main(int argc, char* argv[])
 
 			window.clear();
 			map.draw(window.GetRenderer());
-			if (map.getwinner())
+			if (map.getendtype() != PLAYING)
 			{
-				func.Victory(map.getwinner());
-				break;
+				func.Victory(map.getendtype());
+				if (SDL_GetTicks64() >= map.getendtime())
+				{
+					func.Grade(map.getendtype(), map.getrecord());
+					break;
+				}
 			}
 
 			//Counting 3 2 1
 			func.Counting(map);
 			window.display();
 
-			end = SDL_GetTicks();
+			 end = SDL_GetTicks();
 			//calculate fps
 			if (i == 16) {
 				i = 0;
@@ -67,10 +74,9 @@ int main(int argc, char* argv[])
 				++i;
 			}
 		}
-		func.close();
 		map.quit();
 	}
-
+	func.close();
 	window.quit();																																							
 	sdl.quit();
 

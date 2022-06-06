@@ -29,6 +29,7 @@ void RacingCar::quit()
 	SDL_RemoveTimer(cartimer);
 	SDL_RemoveTimer(chargeTimer);
 	virus.quit();
+	tools.quit();
 	timetext.close();
 }
 void RacingCar::draw(SDL_Renderer* renderer,Engine* engine, bool clean)

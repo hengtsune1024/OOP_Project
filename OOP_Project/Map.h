@@ -65,9 +65,13 @@ class Map
 	static SDL_Rect viewPort2;
 	static unsigned long long type;
 
-	//winner
-	bool gameset;
-	int winner;
+	//to end the game
+	int endtime;
+	EndType endtype;
+
+	//totaltime of winning/victory car
+	int record;
+
 public:
 
 	Map();					// default constructor (initialize nothing)
@@ -86,7 +90,9 @@ public:
 	void draw(SDL_Renderer*);	// draw the map, car, and tools, etc.
 	void rush(RushType);
 	void usetool(ToolType);
-	int getwinner();
+	EndType getendtype() { return endtype; }
+	int getendtime() { return endtime; }
+	int getrecord() { return record; }
 	Engine* getEng() { return &engine; }
 };
 
