@@ -565,7 +565,7 @@ Uint32 Map::move(Uint32 interval, void* para)
 			}
 
 			//obstacle
-			if ((type & OBSTACLEAREA) && motion.posY < map->lines[startpos].getx() + TOOL_WIDTH * motion.velM && motion.posY > map->lines[startpos].getx() - TOOL_WIDTH * motion.velM)
+			if ((type & OBSTACLEAREA) && motion.posY < map->lines[startpos].getx() + OBSTACLE_WIDTH * motion.velM && motion.posY > map->lines[startpos].getx() - OBSTACLE_WIDTH * motion.velM)
 			{
 				car->touchobstacle();
 				

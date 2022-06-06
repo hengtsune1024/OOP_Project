@@ -6,6 +6,12 @@ Tool::~Tool() {
 	tool1img.close();
 	tool2img.close();
 }
+
+void Tool::close() {
+	quit();
+	tool1img.close();
+	tool2img.close();
+}
 Tool::Tool(const char* path, int n, SDL_Renderer* renderer) : Tool1(0), Tool2(0),
 	tool1img("../images/star.png", renderer), tool2img("../images/star.png", renderer)
 {

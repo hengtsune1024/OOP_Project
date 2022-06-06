@@ -6,6 +6,10 @@ Trap::Trap() {
 Trap::~Trap() {
 	stain.close();
 }
+void Trap::close() {
+	quit();
+	stain.close();
+}
 Trap::Trap(const char* path, int n, SDL_Renderer* renderer) :stain("../images/stain.png", renderer)
 {
 	staintime = SDL_GetTicks64() - STAIN_INTERVAL;
