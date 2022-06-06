@@ -5,8 +5,11 @@
 #include "constants.h"
 #include "Line.h"
 #include "RacingCar.h"
+#include "BlenderObject.h"
 #include "Trap.h"
 #include "Tool.h"
+#include "Engine.h"
+#include "PhysicalItem.h"
 #include <vector>
 #include <cmath>
 #include "SDL_ttf.h"
@@ -48,6 +51,11 @@ class Map
 	Image streetlight;
 	Image moon;
 
+	//3D object
+	//Cube cube;
+	PhysicalItem cube;
+	Engine engine;
+
 	//static member
 	static Uint32 grass;
 	static Uint32 rumble;
@@ -69,6 +77,7 @@ public:
 	// getters
 	RacingCar* getCar1() { return car1; }
 	RacingCar* getCar2() { return car2; }
+	//Engine* getEngine() { return &engine; }
 
 	// timer
 	void startTimer();
@@ -78,6 +87,7 @@ public:
 	void rush(RushType);
 	void usetool(ToolType);
 	int getwinner();
+	Engine* getEng() { return &engine; }
 };
 
 // unused code

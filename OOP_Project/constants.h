@@ -1,12 +1,16 @@
 #pragma once
 
+#define POS 100
+#define CUBE_SIZE 1000
+#define ROCK_SIZE 3000
+
 //window
 #define WIDTH 600				//window width and height
 #define HEIGHT 600
 #define TITLE "OOP Project"		//window title
 
 //image
-#define ALL_REGION -1	//when drawing image, pass {ALL_REGION} into SDL_Rect src to draw the whole image 
+//#define ALL_REGION -1	//when drawing image, pass {ALL_REGION} into SDL_Rect src to draw the whole image 
 						//or into SDL_Rect dst to fill image into the whole window 
 
 //text
@@ -20,10 +24,12 @@
 #define FINAL_POS 4200
 
 //camera
+#define FIELD_OF_VIEW 45
 #define DEFAULT_CAMERA_DEPTH 0.96
 #define CAMERA_HEIGHT 2000
 #define BEGINRUSH_CAMDEPTH 0.2
 #define AFTERRUSH_CAMDEPTH_RECOVER 0.0075
+#define CAMERA_CARMIDPOINT_DIST 3000
 
 //timer interval
 #define MOVE_INTERVAL 50
@@ -34,7 +40,7 @@
 #define STAIN_INTERVAL 3000
 
 //speed
-#define MAX_FORWARD_SPEED 1800		//max car forward moving speed
+#define MAX_FORWARD_SPEED 1600		//max car forward moving speed
 #define MAX_BACKWARD_SPEED 1000		//max car backward moving speed
 #define AFTERRUSH_SPEED_DECREASE 3
 
@@ -51,8 +57,8 @@
 #define GRAVITY 50
 
 //rotation
-#define ROTATE 0.04			//car camera rotation
-#define MAX_ROTATE_DEGREE 0.52  // 30 degree
+#define ROTATE 0.06			//car camera rotation
+#define MAX_ROTATE_DEGREE 0.7854  // 30 degree
 
 //road
 #define ROAD_WIDTH 4000
@@ -64,10 +70,10 @@
 #define TOOL_WIDTH 2000
 
 //racing car
-#define MOTION_INIT {INITIAL_POS * SEGMENT_LENGTH,0,0,0,0,0,0,0,DEFAULT_CAMERA_DEPTH,1,1,CAMERA_HEIGHT}
-#define CAR_WIDTH (0.8 * ROAD_WIDTH)
-#define CAR_LENGTH (1.6 * ROAD_WIDTH)
-#define FRONT_REAR_DISTANCE (0.64 * ROAD_WIDTH)    //wheel width=0.2*CAR_LENGTH=0.32*ROAD_WIDTH
+#define CAR_HALF_LENGTH 1900
+#define CAR_HALF_WIDTH 900
+
+#define MOTION_INIT {INITIAL_POS * SEGMENT_LENGTH,0,0,0,0,0,0,0,0,0,DEFAULT_CAMERA_DEPTH,1,1,CAMERA_HEIGHT}
 
 //energy
 #define ENERGY_RECOVER 0.2
@@ -75,7 +81,7 @@
 //road type (used in Line class)
 enum RoadType {
 	NORMAL = 1, ENDPOINT = 2, ACCELERATE_RIGHT = 4, ACCELERATE_LEFT = 8, TRAPAREA = 16, TOOLAREA = 32, HIGH_FRICTION = 64, LOW_FRICTION = 128,
-	INCLINE_FORWARD = 256, INCLINE_BACKWARD = 512, OBSTACLEAREA = 1024, INCLINE_PLANE = 2048, STARTPOINT = 4096
+	INCLINE_FORWARD = 256, INCLINE_BACKWARD = 512, OBSTACLEAREA = 1024, CLIFF = 2048, INCLINE_PLANE = 4096, STARTPOINT = 8192
 	//INCLINE_BACKWARD: the front one is higher
 };
 

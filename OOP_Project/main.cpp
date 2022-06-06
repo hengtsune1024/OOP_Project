@@ -3,7 +3,7 @@
 #include <SDL_image.h>
 #include "System.h"
 #include "RenderWindow.h"
-#include "Map.h" 
+#include "Map.h"
 #include "RacingCar.h"
 #include "Functions.h"
 
@@ -11,14 +11,14 @@ void eventHandler(SDL_Event&, RenderWindow&, Map&, RacingCar*, RacingCar* = NULL
 
 int main(int argc, char* argv[]) 
 {
-	bool dual = 0;
+	bool dual = false;
 	bool quit = false;
 
 	System sdl;
 	RenderWindow window;
 	sdl.init();
 	SDL_Event e;
-	window.init(0);
+	window.init(false);
 	while (!quit)
 	{
 		Functions func(window, &dual, &quit);
@@ -33,6 +33,7 @@ int main(int argc, char* argv[])
 		quit = false;
 		Map map(window.GetRenderer(), dual);
 		map.startTimer();
+		unsigned int st, end, i = 0;
 		while (!quit) {
 
 			while (SDL_PollEvent(&e) != 0) {
@@ -42,6 +43,7 @@ int main(int argc, char* argv[])
 				}
 				eventHandler(e, window, map, map.getCar1(), map.getCar2());
 			}
+			st = SDL_GetTicks();
 
 			window.clear();
 			map.draw(window.GetRenderer());
@@ -54,6 +56,16 @@ int main(int argc, char* argv[])
 			//Counting 3 2 1
 			func.Counting(map);
 			window.display();
+
+			end = SDL_GetTicks();
+			//calculate fps
+			if (i == 16) {
+				i = 0;
+				printf("%lf\n", 1000.0 / (end - st));
+			}
+			else {
+				++i;
+			}
 		}
 		func.close();
 		map.quit();
@@ -80,19 +92,16 @@ void eventHandler(SDL_Event& e, RenderWindow& w, Map& map, RacingCar* car1, Raci
 				break;
 			case SDLK_a:
 				car1->setVelAngular(car1->getVelAngular() - ROTATE);
-				car1->turn(-1);
+				//car1->turn(-1);
 				break;
 			case SDLK_d:
 				car1->setVelAngular(car1->getVelAngular() + ROTATE);
-				car1->turn(1);
+				//car1->turn(1);
 				break;
 			case SDLK_SPACE:
 				car1->rush(ENERGY);
 				break;
 
-			case SDLK_e:
-				car1->setVelPerpen(car1->getVelPerpen() + 300);
-				break;
 			/*
 			case SDLK_q:
 				car1->setVelPerpen(car1->getVelPerpen() - 300);
@@ -121,22 +130,19 @@ void eventHandler(SDL_Event& e, RenderWindow& w, Map& map, RacingCar* car1, Raci
 			case SDLK_LEFT:
 				if (car2) {
 					car2->setVelAngular(car2->getVelAngular() - ROTATE);
-					car2->turn(-1);
+					//car2->turn(-1);
 				}
 				break;
 			case SDLK_RIGHT:
 				if (car2) {
 					car2->setVelAngular(car2->getVelAngular() + ROTATE);
-					car2->turn(1);
+					//car2->turn(1);
 				}
 				break;
 			case SDLK_RETURN:
 				car2->rush(ENERGY);
 				break;
 
-			case SDLK_o:
-				car2->setVelPerpen(car2->getVelPerpen() + 300);
-				break;
 				/*
 			case SDLK_l:
 				car2->setVelPerpen(car2->getVelPerpen() - 300);
@@ -165,15 +171,11 @@ void eventHandler(SDL_Event& e, RenderWindow& w, Map& map, RacingCar* car1, Raci
 				break;
 			case SDLK_a:
 				car1->setVelAngular(car1->getVelAngular() + ROTATE);
-				car1->turn(0);
+				//car1->turn(0);
 				break;
 			case SDLK_d:
 				car1->setVelAngular(car1->getVelAngular() - ROTATE);
-				car1->turn(0);
-				break;
-
-			case SDLK_e:
-				car1->setVelPerpen(0);
+				//car1->turn(0);
 				break;
 				/*
 			case SDLK_q:
@@ -191,18 +193,14 @@ void eventHandler(SDL_Event& e, RenderWindow& w, Map& map, RacingCar* car1, Raci
 			case SDLK_LEFT:
 				if (car2) {
 					car2->setVelAngular(car2->getVelAngular() + ROTATE);
-					car2->turn(0);
+					//car2->turn(0);
 				}
 				break;
 			case SDLK_RIGHT:
 				if (car2) {
 					car2->setVelAngular(car2->getVelAngular() - ROTATE);
-					car2->turn(0);
+					//car2->turn(0);
 				}
-				break;
-
-			case SDLK_o:
-				car2->setVelPerpen(0);
 				break;
 				/*
 			case SDLK_l:

@@ -5,8 +5,7 @@
 #include "Entity.h"
 using namespace std;
 
-class Tool :
-	public Entity
+class Tool : public Entity
 {
 	/*
 	in entity
@@ -22,6 +21,8 @@ class Tool :
 	Image tool1img;
 	Image tool2img;
 
+	//Point3D pos;
+	//Cube cube;
 
 public:
 	Tool();
@@ -31,6 +32,8 @@ public:
 	void setTool(Line* line);
 
 	//void draw(SDL_Renderer* renderer, Line*);
+	//void setPos(Point3D p) { pos = p; }
+	//Cube* getCube() { return &cube; }
 	void getTools();
 	int usetool(ToolType);
 	void drawmytool(SDL_Renderer* renderer);
