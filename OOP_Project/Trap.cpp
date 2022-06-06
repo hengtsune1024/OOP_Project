@@ -4,7 +4,7 @@ Trap::Trap() {
 }
 
 Trap::~Trap() {
-
+	stain.close();
 }
 Trap::Trap(const char* path, int n, SDL_Renderer* renderer) :stain("../images/stain.png", renderer)
 {

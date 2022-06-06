@@ -61,8 +61,10 @@ class Map
 	static Uint32 rumble;
 	static Uint32 road;
 	static Uint32 laneLine;
+	static SDL_Rect viewPort0;
 	static SDL_Rect viewPort1;
 	static SDL_Rect viewPort2;
+
 	static unsigned long long type;
 
 	//to end the game

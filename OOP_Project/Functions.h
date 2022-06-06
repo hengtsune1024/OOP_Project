@@ -18,12 +18,14 @@ class Functions
 	Text modetext;
 	Text counttext;
 	Text endtext;
+	Text gradetext;
 	Text recordtext;
+	Text hinttext;
 	Uint64 rec1, rec2, rec3;
 	Text  rec1text, rec2text, rec3text;
 	int count;
 	char countstring[10];
-
+	char recordstr[50];
 public:
 	~Functions();
 	Functions(RenderWindow& window, bool* d, bool* q);

@@ -4,6 +4,7 @@ Uint32 Map::grass;
 Uint32 Map::rumble;
 Uint32 Map::road;
 Uint32 Map::laneLine;
+SDL_Rect Map::viewPort0 = { WIDTH / 2,0,WIDTH,HEIGHT };
 SDL_Rect Map::viewPort1 = { 0,0,WIDTH,HEIGHT };
 SDL_Rect Map::viewPort2 = { WIDTH,0,WIDTH,HEIGHT };
 unsigned long long Map::type = 0;
@@ -166,7 +167,11 @@ void Map::drawQuad(SDL_Renderer* renderer, Quad q) {
 
 void Map::draw(SDL_Renderer* renderer) 
 {
-	SDL_RenderSetViewport(renderer, &viewPort1);
+	if (dualMode)
+		SDL_RenderSetViewport(renderer, &viewPort1);
+	else
+		SDL_RenderSetViewport(renderer, &viewPort0);
+
 	RacingCar* car = car1;
 	RacingCar* otherCar = car2;
 	int times = dualMode ? 2 : 1;
@@ -570,6 +575,8 @@ Uint32 Map::move(Uint32 interval, void* para)
 						map->endtype = (times == 2 ? PLAYER2 : PLAYER1);
 					else
 						map->endtype = FAILED;
+					map->endtime = SDL_GetTicks64() + 3000;
+
 				}
 				//printf("Touch Obstacle\n");
 			}

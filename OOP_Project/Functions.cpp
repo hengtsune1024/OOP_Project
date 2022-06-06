@@ -8,7 +8,10 @@ icontext("3D Racing Car", "../fonts/akabara-cinderella.ttf", 100, 0x00, { 0, 255
 modetext("Single", "../fonts/akabara-cinderella.ttf", 30, 0x00, { 0, 0, 255 }, BLENDED, { NULL, NULL, NULL }, window.GetRenderer(), { 18, 41 }, { NULL, NULL }, NULL, SDL_FLIP_NONE, 255),
 counttext("3", "../fonts/akabara-cinderella.ttf", 100, 0x00, { 255, 255, 255 }, BLENDED, { NULL, NULL, NULL }, window.GetRenderer(), { 260, 175 }, { NULL, NULL }, NULL, SDL_FLIP_NONE, 255),
 recordtext("Record", "../fonts/akabara-cinderella.ttf", 26, 0x00, { 0, 0, 255 }, BLENDED, { NULL, NULL, NULL }, window.GetRenderer(), { 18, 168 }, { NULL, NULL }, NULL, SDL_FLIP_NONE, 255),
-endtext("WIN", "../fonts/akabara-cinderella.ttf", 100, 0x00, { 255, 255, 255 }, BLENDED, { NULL, NULL, NULL }, window.GetRenderer(), { 260, 175 }, { NULL, NULL }, NULL, SDL_FLIP_NONE, 255)
+endtext("WIN", "../fonts/akabara-cinderella.ttf", 100, 0x00, { 255, 255, 255 }, BLENDED, { NULL, NULL, NULL }, window.GetRenderer(), { 260, 175 }, { NULL, NULL }, NULL, SDL_FLIP_NONE, 255),
+gradetext("GRADE", "../fonts/akabara-cinderella.ttf", 75, 0x00, { 255, 255, 255 }, BLENDED, { NULL, NULL, NULL }, window.GetRenderer(), { 470, 10 }, { NULL, NULL }, NULL, SDL_FLIP_NONE, 255),
+hinttext("Click to continue", "../fonts/akabara-cinderella.ttf", 50, 0x00, { 211, 211, 211 }, BLENDED, { NULL, NULL, NULL }, window.GetRenderer(), { 400, 500 }, { NULL, NULL }, NULL, SDL_FLIP_NONE, 255),
+rec1text(" ", "../fonts/akabara-cinderella.ttf", 100, 0x00, { 255, 255, 255 }, BLENDED, { NULL, NULL, NULL }, window.GetRenderer(), { 250, 500 }, { NULL, NULL }, NULL, SDL_FLIP_NONE, 255)
 {
 	dual = d;
 	quit = q;
@@ -134,7 +137,113 @@ void Functions::Victory(EndType type)
 }
 void Functions::Grade(EndType type, int record)
 {
+	
+	SDL_RenderSetViewport(window.GetRenderer(), NULL);
+	window.clear();
+	gradetext.close();
+	if (record)
+	{
+		rec1 = record;
+		switch (type)
+		{
+		case PLAYER1:
+			gradetext.setString("Winner : Player 1 ");
+			gradetext.setPos({ 300, 10 });
 
+			break;
+		case PLAYER2:
+			gradetext.setString("Winner : Player 2 ");
+			gradetext.setPos({ 300, 10 });
+
+			break;
+		case VICTORY:
+			gradetext.setString("Victory");
+			gradetext.setPos({ 430, 10 });
+			break;
+		}
+		gradetext.generateTexture();
+		gradetext.draw();
+		window.display();
+		SDL_Delay(1000);
+
+		int ms = record % 1000;
+		record /= 1000;
+		int sec = record % 60;
+		record -= sec;
+		int min = record / 60;
+		sprintf_s(recordstr, "%02d : %02d : %03d", min, sec, ms);
+		gradetext.close();
+		gradetext.setString("Record:");
+		gradetext.setPos({ 450, 150 });
+		gradetext.generateTexture();
+		gradetext.draw();
+
+		rec1text.close();
+		rec1text.setString(recordstr);
+		rec1text.setPos({ 300, 300 });
+		rec1text.generateTexture();
+		rec1text.draw();
+
+		window.display();
+		SDL_Delay(2000);
+	}
+	else
+	{
+		switch (type)
+		{
+		case PLAYER1:
+			gradetext.setString("Winner : Player 1 ");
+			gradetext.setPos({ 300, 10 });
+
+			break;
+		case PLAYER2:
+			gradetext.setString("Winner : Player 2 ");
+			gradetext.setPos({ 300, 10 });
+
+			break;
+		case FAILED:
+			gradetext.setString("FAILED");
+			gradetext.setPos({ 430, 10 });
+			break;
+		}
+		gradetext.generateTexture();
+		gradetext.draw();
+		window.display();
+		SDL_Delay(1000);
+
+		gradetext.close();
+		gradetext.setString("Record:");
+		gradetext.setPos({ 450, 150 });
+		gradetext.generateTexture();
+		gradetext.draw();
+
+		gradetext.close();
+		gradetext.setString("-- : -- : ---");
+		gradetext.setPos({ 300, 300 });
+		gradetext.generateTexture();
+		gradetext.draw();
+
+		window.display();
+		SDL_Delay(2000);
+	}
+	hinttext.draw();
+	window.display();
+	SDL_Event e;
+	bool conti = false;
+	while (!conti)
+	{
+		while (SDL_PollEvent(&e) != 0)
+		{
+			if (e.type == SDL_QUIT || (e.type == SDL_KEYDOWN && e.key.keysym.sym == SDLK_ESCAPE))
+			{
+				exit(0);
+			}
+			if (e.type == SDL_MOUSEBUTTONDOWN)
+			{
+				conti = true;
+			}
+		}
+	}
 }
 
 void Functions::Record()
@@ -148,4 +257,7 @@ void Functions::close()
 	modetext.close();
 	recordtext.close();
 	counttext.close();
+	gradetext.close();
+	hinttext.close();
+	rec1text.close();
 }
