@@ -7,12 +7,6 @@ using namespace std;
 
 class Tool : public Entity
 {
-	/*
-	in entity
-	Image* entityImg;
-	int numImage;
-	int state;
-	*/
 	int Tool1;	//speedup
 	int Tool2;	//invincible
 	//int Tool3;	//
@@ -21,8 +15,6 @@ class Tool : public Entity
 	Image tool1img;
 	Image tool2img;
 
-	//Point3D pos;
-	//Cube cube;
 
 public:
 	Tool();
@@ -37,4 +29,5 @@ public:
 	void getTools();
 	int usetool(ToolType);
 	void drawmytool(SDL_Renderer* renderer);
+	void close();
 };

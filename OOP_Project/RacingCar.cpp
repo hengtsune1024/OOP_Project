@@ -28,8 +28,8 @@ void RacingCar::quit()
 	// Remove timer in case the call back was not called	
 	SDL_RemoveTimer(cartimer);
 	SDL_RemoveTimer(chargeTimer);
-	virus.quit();
-	tools.quit();
+	virus.close();
+	tools.close();
 	timetext.close();
 }
 void RacingCar::draw(SDL_Renderer* renderer,Engine* engine, bool clean)

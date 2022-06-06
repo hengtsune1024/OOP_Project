@@ -16,10 +16,6 @@ Entity::Entity(const char path[], int num_Imag, SDL_Renderer* renderer, int init
 }
 
 Entity::~Entity() {
-	if (entityImg != NULL) {
-		delete[]entityImg;
-		entityImg = NULL;
-	}
 }
 void Entity::setImage(const char path[], int num_Imag, SDL_Renderer* renderer, int init_state) 
 {
@@ -34,8 +30,11 @@ void Entity::setImage(const char path[], int num_Imag, SDL_Renderer* renderer, i
 }
 
 void Entity::closeImg() {
-	for (int i = 0; i < numImage; ++i)
-		entityImg[i].close();
+	if (entityImg != NULL) {
+		for (int i = 0; i < numImage; ++i)
+			entityImg[i].close();
+		delete[]entityImg;
+	}
 }
 
 void Entity::drawImg(SDL_Renderer* renderer, Line *line) {

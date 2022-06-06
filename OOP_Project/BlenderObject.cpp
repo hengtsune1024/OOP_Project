@@ -2,7 +2,6 @@
 
 BlenderObject::BlenderObject(const char* objectFile, const char* textureFile, double scale)
 {
-	strcpy_s(objFile, objectFile);
 	this->scale = scale;
 
 	position = { 0,-CAMERA_HEIGHT,CAMERA_CARMIDPOINT_DIST };
@@ -29,7 +28,7 @@ void BlenderObject::Load(const char* objectFile)
 {
 	// Load object
 	FILE* f;
-	fopen_s(&f, objFile, "r");
+	fopen_s(&f, objectFile, "r");
 	char sym[100], buffer[100];
 	double min = 1e10, max = -1e10;
 
@@ -84,9 +83,13 @@ void BlenderObject::Load(const char* objectFile)
 				fgets(buffer, 100, f);
 			}
 		}
+		fclose(f);
+	}
+	else {
+		std::cout << "error: cannot open " << objectFile << std::endl;
+		exit(1);
 	}
 	//printf("%u %lf %lf \n", triangles.size(),min*scale,max*scale);
-	fclose(f);
 }
 
 /*
