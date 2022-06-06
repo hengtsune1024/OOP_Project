@@ -34,6 +34,7 @@ public:
 	void Victory(EndType type);
 	void Grade(EndType type, int record);
 	void Record();
+	void setrecord(int r);
 	void close();
 };
 
