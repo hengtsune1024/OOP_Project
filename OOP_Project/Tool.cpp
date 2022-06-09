@@ -1,24 +1,25 @@
 #include "Tool.h"
-Tool::Tool(){
+Tool::Tool():toolBlock("../images/tool/tool.txt", "../images/tool/tool.bmp", 100) {
 
 }
 Tool::~Tool() {
 }
 
 void Tool::close() {
-	quit();
 	tool1img.close();
 	tool2img.close();
+	removeTimer();
 }
-Tool::Tool(const char* path, int n, SDL_Renderer* renderer) : Tool1(0), Tool2(0),
-	tool1img("../images/star.png", renderer), tool2img("../images/star.png", renderer)
+Tool::Tool(SDL_Renderer* renderer) : Tool1(0), Tool2(0), shownflag(true),
+	tool1img("../images/star.png", renderer), tool2img("../images/star.png", renderer),
+	toolBlock("../images/tool/tool.txt", "../images/tool/tool.bmp", 750)
 {
 	gettime = SDL_GetTicks64() - STAIN_INTERVAL;
-	setImage(path, n, renderer, 0);
 }
 
 void Tool::setTool(Line* line) {
-	setEntity(line);
+	toolBlock.setPos({ line->getx(),line->gety() + 1500,line->getz(),0,0,0 });
+	//setEntity(line);
 	//setPos({ line->getx(),line->gety() + 100 + CUBE_SIZE,line->getz(),0,0,0 });
 }
 /*
@@ -27,6 +28,12 @@ void Trap::draw(SDL_Renderer* renderer, Line *line) {
 	drawImg(renderer, line);
 }
 */
+void Tool::draw(Point3D pos, double camDeg, double camDepth, Engine* engine, bool clean, double maxy) {
+	if (shownflag)
+		toolBlock.draw(pos, toolBlock.getRotation(), camDeg, camDepth, engine, clean, maxy);
+}
+
+
 void Tool::drawmytool(SDL_Renderer* renderer) {
 	SDL_Rect loc1 = { 13,73,60,50 };
 	SDL_Rect loc2 = { 53,73,60,50 };
@@ -65,6 +72,25 @@ void Tool::getTools() {
 		}
 	}
 }
+
+Uint32 Tool::changeData(Uint32 interval, void* para) 
+{
+	Tool* tool = (Tool*)para;
+	double ry = tool->toolBlock.getRotY() + 0.1;
+	if (ry > 3.1415926535 * 2)
+		ry -= 3.1415926535 * 2;
+	tool->toolBlock.setRotation({ 0,ry,0 });
+	return interval;
+}
+
+void Tool::startTimer() {
+	timer = SDL_AddTimer(50, changeData, this);
+}
+
+void Tool::removeTimer() {
+	SDL_RemoveTimer(timer);
+}
+
 int Tool::usetool(ToolType type) {
 	switch (type)
 	{

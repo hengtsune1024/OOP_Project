@@ -14,7 +14,7 @@ RacingCar::~RacingCar() {
 }
 
 RacingCar::RacingCar(const char* obfpath, const char* imgpath, SDL_Renderer* renderer, Line* initpos) :
-	virus("../images/coronavirus/", 15, renderer), tools("../images/star/", 5, renderer), rock("../images/rock/rock.txt", "../images/rock/rock.bmp"),
+	virus("../images/coronavirus/", 15, renderer), tools(renderer), rock("../images/rock/rock.txt", "../images/rock/rock.bmp"),
 	isRushing(NONE), fullEnergy(true), energy(100.0), healthPoint(100.0), motion(MOTION_INIT), accState(0), roadtype(NORMAL),
 	currentPos(initpos), car3D(obfpath, imgpath, 1000), theOtherCar(NULL), starttime(SDL_GetTicks64() + 3000), timing("00:00:000"), arrive(false), totaltime(0), invincible(0),
 	timetext(timing, "../fonts/akabara-cinderella.ttf", 20, 0x02, { 255, 255, 255 }, SHADED, { 0, 0, 0 }, renderer, { 250, 10 }, { 10, 10 }, NULL, SDL_FLIP_NONE, 255)
@@ -159,7 +159,7 @@ void RacingCar::startTimer(Uint32 t)
 	time = t;
 	cartimer = SDL_AddTimer(time, changeData, this); // Set Timer callback
 	virus.startTimer(TRAP_INTERVAL);
-	tools.startTimer(50);
+	tools.startTimer();
 	chargeTimer = SDL_AddTimer(CHARGE_INTERVAL, charge, this);
 }
 

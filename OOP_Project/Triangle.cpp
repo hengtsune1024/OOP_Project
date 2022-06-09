@@ -85,11 +85,12 @@ void Triangle::draw(Uint32* bitmap, Image3D& img, double zbuffer[], double maxy)
 				break;
 
 			us = drawPoints[0].u + (1.0 * y - p0y) / (p1y - p0y) * (drawPoints[1].u - drawPoints[0].u);
-			vs = drawPoints[0].v + (1.0 * y - p0y) / (p1y - p0y) * (drawPoints[1].v - drawPoints[0].v);
-			ws = drawPoints[0].w + (1.0 * y - p0y) / (p1y - p0y) * (drawPoints[1].w - drawPoints[0].w);
-
 			ue = drawPoints[0].u + (1.0 * y - p0y) / (p2y - p0y) * (drawPoints[2].u - drawPoints[0].u);
+
+			vs = drawPoints[0].v + (1.0 * y - p0y) / (p1y - p0y) * (drawPoints[1].v - drawPoints[0].v);
 			ve = drawPoints[0].v + (1.0 * y - p0y) / (p2y - p0y) * (drawPoints[2].v - drawPoints[0].v);
+
+			ws = drawPoints[0].w + (1.0 * y - p0y) / (p1y - p0y) * (drawPoints[1].w - drawPoints[0].w);
 			we = drawPoints[0].w + (1.0 * y - p0y) / (p2y - p0y) * (drawPoints[2].w - drawPoints[0].w);
 
 			zs = drawPoints[0].z + (1.0 * y - p0y) / (p1y - p0y) * (drawPoints[1].z - drawPoints[0].z);
@@ -154,7 +155,7 @@ void Triangle::draw(Uint32* bitmap, Image3D& img, double zbuffer[], double maxy)
 			ve = drawPoints[0].v + (1.0 * y - p0y) / (p2y - p0y) * (drawPoints[2].v - drawPoints[0].v);
 			we = drawPoints[0].w + (1.0 * y - p0y) / (p2y - p0y) * (drawPoints[2].w - drawPoints[0].w);
 
-			zs = drawPoints[0].z + (1.0 * y - p0y) / (p1y - p0y) * (drawPoints[1].z - drawPoints[0].z);
+			zs = drawPoints[1].z + (1.0 * y - p1y) / (p2y - p1y) * (drawPoints[2].z - drawPoints[1].z);
 			ze = drawPoints[0].z + (1.0 * y - p0y) / (p2y - p0y) * (drawPoints[2].z - drawPoints[0].z);
 
 			if (x1 > x2) {
@@ -200,8 +201,8 @@ void Triangle::draw(Uint32* bitmap, Image3D& img, double zbuffer[], double maxy)
 /*
 bool Triangle::compare(Triangle* a, Triangle* b) {
 	return a->averageZ > b->averageZ;
-}
-*/
+}*/
+
 std::vector<Triangle*> Triangle::GetClippedTriangles()
 {
 	std::vector<Triangle*> toReturn;
@@ -474,7 +475,6 @@ std::vector<Triangle*> Triangle::GetClippedTriangles()
 
 	return toReturn;
 }
-
 
 std::vector<Triangle*> Triangle::GetZClippedTriangles()
 {

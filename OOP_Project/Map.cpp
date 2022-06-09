@@ -324,7 +324,8 @@ void Map::draw(SDL_Renderer* renderer)
 		}
 
 		if (startpos <= 200 && startpos > 0) {
-			car->getTools()->drawImg(renderer, &lines[200]);
+			car->getTools()->draw(pos, m.camDegree, m.camDepth, &engine, clean, HEIGHT);
+			clean = false;
 		}
 
 		//car
