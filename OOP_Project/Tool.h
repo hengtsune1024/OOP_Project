@@ -7,7 +7,7 @@
 #include "BlenderObject.h"
 using namespace std;
 
-class Tool
+class Tool: public BlenderObject
 {
 	int Tool1;	//speedup
 	int Tool2;	//invincible
@@ -17,10 +17,8 @@ class Tool
 	Image tool1img;
 	Image tool2img;
 
-	BlenderObject toolBlock;
 	bool shownflag;
 
-	SDL_TimerID timer;
 
 public:
 	Tool();
@@ -35,6 +33,6 @@ public:
 	int usetool(ToolType);
 	void drawmytool(SDL_Renderer* renderer);
 	void close();
-	void draw(Point3D pos, double camDeg, double camDepth, Engine* engine, bool& clean, double maxy = HEIGHT);
-	void logic();
+	void draw3D(Point3D pos, double camDeg, double camDepth, Engine* engine, bool& clean, double maxy = HEIGHT) override;
+	void logic() override;
 };

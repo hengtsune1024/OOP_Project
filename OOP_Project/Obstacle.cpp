@@ -1,11 +1,11 @@
 #include "Obstacle.h"
-Obstacle::Obstacle() :obst3D(NULL, NULL, ROCK_SIZE)
+Obstacle::Obstacle() : BlenderObject(NULL, NULL, ROCK_SIZE)
 {
 }
 Obstacle::~Obstacle()
 {
 }
-Obstacle::Obstacle(const char* objpath, const char* imgpath) : obst3D(objpath, imgpath, ROCK_SIZE)
+Obstacle::Obstacle(const char* objpath, const char* imgpath) : BlenderObject(objpath, imgpath, ROCK_SIZE)
 {
 	touchtime = 0;
 }
@@ -24,7 +24,7 @@ int Obstacle::istouching()
 	}
 }
 
-void Obstacle::drawObject3D(Point3D pos, double camDeg, double camDepth, Engine* engine, bool& clean, double maxy) {
-	obst3D.draw(pos, { 0,0,0 }, camDeg, camDepth, engine, clean, maxy);
+void Obstacle::draw3D(Point3D pos, double camDeg, double camDepth, Engine* engine, bool& clean, double maxy) {
+	BlenderObject_draw(pos, { 0,0,0 }, camDeg, camDepth, engine, clean, maxy);
 	clean = false;
 }

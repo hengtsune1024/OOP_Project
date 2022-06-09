@@ -1,5 +1,5 @@
 #include "Tool.h"
-Tool::Tool():toolBlock("../images/tool/tool.txt", "../images/tool/tool.bmp", 100) {
+Tool::Tool():BlenderObject("../images/tool/tool.txt", "../images/tool/tool.bmp", 100) {
 
 }
 Tool::~Tool() {
@@ -11,13 +11,13 @@ void Tool::close() {
 }
 Tool::Tool(SDL_Renderer* renderer) : Tool1(0), Tool2(0), shownflag(true),
 	tool1img("../images/star.png", renderer), tool2img("../images/star.png", renderer),
-	toolBlock("../images/tool/tool.txt", "../images/tool/tool.bmp", 750)
+	BlenderObject("../images/tool/tool.txt", "../images/tool/tool.bmp", 750)
 {
 	gettime = SDL_GetTicks64() - STAIN_INTERVAL;
 }
 
 void Tool::setTool(Line* line) {
-	toolBlock.setPos({ line->getx(),line->gety() + 1500,line->getz(),0,0,0 });
+	position = { line->getx(),line->gety() + 1500,line->getz(),0,0,0 };
 	//setEntity(line);
 	//setPos({ line->getx(),line->gety() + 100 + CUBE_SIZE,line->getz(),0,0,0 });
 }
@@ -27,9 +27,9 @@ void Trap::draw(SDL_Renderer* renderer, Line *line) {
 	drawImg(renderer, line);
 }
 */
-void Tool::draw(Point3D pos, double camDeg, double camDepth, Engine* engine, bool& clean, double maxy) {
+void Tool::draw3D(Point3D pos, double camDeg, double camDepth, Engine* engine, bool& clean, double maxy) {
 	if (shownflag){
-		toolBlock.draw(pos, toolBlock.getRotation(), camDeg, camDepth, engine, clean, maxy);
+		BlenderObject_draw(pos, rotation, camDeg, camDepth, engine, clean, maxy);
 		clean = false;
 	}
 }
@@ -76,10 +76,9 @@ void Tool::getTools() {
 
 void Tool::logic()
 {
-	double ry = toolBlock.getRotY() + 0.1;
-	if (ry > PI * 2)
-		ry -= PI * 2;
-	toolBlock.setRotation({ 0,ry,0 });
+	rotation.y += 0.1;
+	if (rotation.y > PI * 2)
+		rotation.y -= PI * 2;
 }
 
 

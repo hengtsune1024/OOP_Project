@@ -33,7 +33,7 @@ struct Motion {
 	
 };
 
-class RacingCar
+class RacingCar: public BlenderObject
 {
 	Motion motion;
 	/*
@@ -75,7 +75,6 @@ class RacingCar
 	unsigned long long roadtype;
 	Line* currentPos;
 
-	BlenderObject car3D;
 	RacingCar* theOtherCar;
 
 	//timing
@@ -96,8 +95,11 @@ public:
 	//void setPosition(int xx, int yy);
 	//int getWidth();
 	//int getHeight();
+
+	void draw3D(Point3D campos, double camDeg, double camDepth, Engine* engine, bool& clean, double maxy = HEIGHT) override;
 	void draw(SDL_Renderer* renderer, Engine* engine, bool& clean);
 	void drawOtherCar(SDL_Renderer* renderer, Engine* engine, bool& clean, double maxy, double camH);
+
 	void startTimer(Uint32 t);
 	void stopTimer();
 	//void turn(int); // move the object
@@ -113,7 +115,6 @@ public:
 	double getEnergy() { return energy; }
 	double getHP() { return healthPoint; }
 
-	BlenderObject* getCar3D() { return &car3D; }
 	double getAxleDegree() { return motion.axleDegree; }
 	void setAxleDegree(double ad) { motion.axleDegree = ad; }
 

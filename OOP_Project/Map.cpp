@@ -318,16 +318,16 @@ void Map::draw(SDL_Renderer* renderer)
 		bool clean = true;
 
 		if (startpos <= 300 && startpos > 0)
-			car->getTrap()->draw(pos, m.camDegree, m.camDepth, &engine, clean, HEIGHT);
+			car->getTrap()->draw3D(pos, m.camDegree, m.camDepth, &engine, clean, HEIGHT);
 
 		
 		if (startpos + 300 > POS && cube.getZ() - CUBE_SIZE > m.posX) {
-			cube.drawObj3D(pos, m.camDegree, m.camDepth, &engine, clean, HEIGHT);
+			cube.draw3D(pos, m.camDegree, m.camDepth, &engine, clean, HEIGHT);
 			clean = false;
 		}
 
 		if (startpos <= 250 && startpos > 0) {
-			car->getObstacle()->drawObject3D(pos, m.camDegree, m.camDepth, &engine, clean);
+			car->getObstacle()->draw3D(pos, m.camDegree, m.camDepth, &engine, clean);
 			clean = false;
 		}
 
@@ -342,7 +342,7 @@ void Map::draw(SDL_Renderer* renderer)
 		}
 
 		if (startpos <= 200 && startpos > 0) {
-			car->getTools()->draw(pos, m.camDegree, m.camDepth, &engine, clean, HEIGHT);
+			car->getTools()->draw3D(pos, m.camDegree, m.camDepth, &engine, clean, HEIGHT);
 			clean = false;
 		}
 

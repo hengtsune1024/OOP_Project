@@ -1,6 +1,6 @@
 #include "BlenderObject.h"
 
-BlenderObject::BlenderObject(const char* objectFile, const char* textureFile, double scale)
+BlenderObject::BlenderObject(const char* objectFile, const char* textureFile, double scale): shownflag(true)
 {
 	this->scale = scale;
 
@@ -23,6 +23,9 @@ BlenderObject::~BlenderObject() {
 		delete[]triangles[i];
 	SDL_FreeSurface(img.surface);
 }
+
+void BlenderObject::logic() 
+{}
 
 void BlenderObject::Load(const char* objectFile)
 {
@@ -97,7 +100,7 @@ void BlenderObject::Logic(double elapsedTime)
 {
 	rotation.y += 1 * elapsedTime;
 }*/
-void BlenderObject::draw(Point3D pos, Point3D worldRot, double camDeg, double camDepth, Engine* engine, bool clean, double maxy)
+void BlenderObject::BlenderObject_draw(Point3D pos, Point3D worldRot, double camDeg, double camDepth, Engine* engine, bool clean, double maxy)
 {
 	Uint32* bmp = engine->getPixels();
 	if (clean) {

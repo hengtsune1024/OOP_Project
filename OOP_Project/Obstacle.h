@@ -3,11 +3,10 @@
 #include "Line.h"
 
 
-class Obstacle
+class Obstacle: public BlenderObject
 {
 	
 	int touchtime;
-	BlenderObject obst3D;
 
 public:
 	Obstacle();
@@ -16,7 +15,7 @@ public:
 
 	void setObstacle(Line* line);
 	int istouching();
-	void setPos(Point3D p) { obst3D.setPos(p); }
-	void drawObject3D(Point3D pos, double camDeg, double camDepth, Engine* engine, bool& clean, double maxy = HEIGHT);
+	void setPos(Point3D p) { position = p; }
+	void draw3D(Point3D pos, double camDeg, double camDepth, Engine* engine, bool& clean, double maxy = HEIGHT) override;
 };
 

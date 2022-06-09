@@ -5,7 +5,7 @@
 #include "Line.h"
 #include <SDL.h>
 
-class Trap
+class Trap : public BlenderObject
 {
 	/*
 	in entity
@@ -13,12 +13,10 @@ class Trap
 	int numImage;  
 	int state;
 	*/
-	bool shownflag;
 	int staintime;
 	Image stain;
 
 	bool side; //right=1 left=0
-	BlenderObject trap3D;
 
 public:
 	Trap();
@@ -33,7 +31,7 @@ public:
 	void drawStain(SDL_Renderer* renderer);
 
 	void close();
-	void draw(Point3D pos, double camDeg, double camDepth, Engine* engine, bool& clean, double maxy = HEIGHT);
-	void logic();
+	void draw3D(Point3D campos, double camDeg, double camDepth, Engine* engine, bool& clean, double maxy = HEIGHT) override;
+	void logic() override;
 };
 

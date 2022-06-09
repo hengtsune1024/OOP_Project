@@ -9,17 +9,20 @@
 class BlenderObject
 {
 	double scale;
-	Point3D position;
-	Point3D rotation;
 	std::vector<Triangle*> triangles;
 	Image3D img;
 	void Load(const char* objectFile);
 
+protected:
+	Point3D position;
+	Point3D rotation;
+	bool shownflag;
+	void BlenderObject_draw(Point3D pos, Point3D worldRot, double camDeg, double camDepth, Engine* engine, bool clean, double maxy);
+
 public:
 	BlenderObject(const char* objectFile, const char* textureFile, double scale);
-	~BlenderObject();
+	virtual ~BlenderObject();
 	//void Logic(double elapsedTime);
-	void draw(Point3D pos, Point3D worldRot, double camDeg, double camDepth, Engine* engine, bool clean, double maxy);
 			//pos: camera position, rot: how the object needs to be rotated
 
 	Point3D getRotation() { return rotation; }
@@ -29,5 +32,7 @@ public:
 	void setPos(Point3D p) { position = p; }
 	void setRotY(double yd) { rotation.y = yd; }
 	double getRotY() { return rotation.y; }
+	virtual void logic();
+	virtual void draw3D(Point3D campos, double camDeg, double camDepth, Engine* engine, bool& clean, double maxy = HEIGHT) = 0;
 };
 

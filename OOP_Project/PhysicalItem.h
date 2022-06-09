@@ -8,9 +8,8 @@
 #include "Line.h"
 #define ITEM_FRICTION 50
 
-class PhysicalItem
+class PhysicalItem: public BlenderObject
 {
-	BlenderObject obj3D;
 	double moveDegree;
 	double moveVel;
 	bool isMoving;
@@ -19,11 +18,11 @@ class PhysicalItem
 public:
 	PhysicalItem(const char* objfile, const char* texfile, vector<Line>* l, double scale);
 	~PhysicalItem();
-	void drawObj3D(Point3D pos, double camDeg, double camDepth, Engine* engine, bool& clean, double maxy = HEIGHT);
+	void draw3D(Point3D pos, double camDeg, double camDepth, Engine* engine, bool& clean, double maxy = HEIGHT) override;
 	void setMove(double mv, double md) { moveDegree = md, moveVel = mv; }
 	void setMoving(bool m);
-	void setPos(Point3D p) { obj3D.setPos(p); }
-	double getZ() { return obj3D.getZ(); }
+	void setPos(Point3D p) {position = p; }
+	double getZ() { return position.z; }
 	void collide(RacingCar*);
 	void logic();
 };

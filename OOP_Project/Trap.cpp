@@ -1,5 +1,5 @@
 #include "Trap.h"
-Trap::Trap(): trap3D("../images/trap/trap.txt", "../images/trap/trap.bmp", 100) {
+Trap::Trap(): BlenderObject("../images/trap/trap.txt", "../images/trap/trap.bmp", 100) {
 
 }
 
@@ -8,41 +8,39 @@ Trap::~Trap() {
 void Trap::close() {
 	stain.close();
 }
-Trap::Trap(SDL_Renderer* renderer, bool _side): side(_side), shownflag(true),
-	stain("../images/stain.png", renderer), trap3D("../images/trap/trap.txt", "../images/trap/trap.bmp", 500)
+Trap::Trap(SDL_Renderer* renderer, bool _side): side(_side),
+	stain("../images/stain.png", renderer), BlenderObject("../images/trap/trap.txt", "../images/trap/trap.bmp", 500)
 {
 	staintime = SDL_GetTicks64() - STAIN_INTERVAL;
 }
 
 void Trap::logic()
 {
-	Point3D rot = trap3D.getRotation();
-	rot.x += 0.05;
-	rot.y += 0.06;
-	rot.z += 0.055;
-	if (rot.x > PI * 2)
-		rot.x -= PI * 2;
-	if (rot.y > PI * 2)
-		rot.y -= PI * 2;
-	if (rot.z > PI * 2)
-		rot.z -= PI * 2;
-	trap3D.setRotation(rot);
+	rotation.x += 0.05;
+	rotation.y += 0.06;
+	rotation.z += 0.055;
+	if (rotation.x > PI * 2)
+		rotation.x -= PI * 2;
+	if (rotation.y > PI * 2)
+		rotation.y -= PI * 2;
+	if (rotation.z > PI * 2)
+		rotation.z -= PI * 2;
 }
 
 void Trap::setTrap(Line *line) 
 {
 	if (side)
-		trap3D.setPos({ line->getx(), line->gety() + 1200 ,line->getz(),0,0,0 });
+		position = { line->getx() + ROAD_WIDTH / 2.0, line->gety() + 1200 ,line->getz(),0,0,0 };
 	else
-		trap3D.setPos({ line->getx() - ROAD_WIDTH / 2.0, line->gety() + 1200 ,line->getz(),0,0,0 });
+		position =  { line->getx() - ROAD_WIDTH / 2.0, line->gety() + 1200 ,line->getz(),0,0,0 };
 	//trap3D.setRotY(atan(((line + 1)->getx() - line->getx()) / SEGMENT_LENGTH));
 }
 
-void Trap::draw(Point3D pos, double camDeg, double camDepth, Engine* engine, bool& clean, double maxy)
+void Trap::draw3D(Point3D pos, double camDeg, double camDepth, Engine* engine, bool& clean, double maxy)
 {
-	if (shownflag){
-
-		trap3D.draw(pos, trap3D.getRotation(), camDeg, camDepth, engine, clean, maxy);
+	if (shownflag)
+	{
+		BlenderObject_draw(pos, rotation, camDeg, camDepth, engine, clean, maxy);
 		clean = false;
 	}
 }
