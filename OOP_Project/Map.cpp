@@ -93,7 +93,7 @@ Map::Map(SDL_Renderer* renderer, bool dual) : lines(NUM_LINE), number_of_lines(N
 		else if (i >= 195 && i < 200)
 			lines[i].addType(TOOLAREA);
 		//240 - 260
-		else if (i >= 240 && i < 260)
+		else if (i >= 245 && i < 255)
 			lines[i].addType(OBSTACLEAREA);
 		//400 - 600
 		else if (i >= 400 && i < 600)
@@ -523,10 +523,6 @@ Uint32 Map::move(Uint32 interval, void* para)
 			}
 		}
 
-		//update startpos and type
-		startpos = motion.posX / SEGMENT_LENGTH;
-		type = map->lines[startpos].getType();
-		car->setFrictionType(type);
 
 		//rotate car
 		car->setAxleDegree(motion.axleDegree + motion.velAngular);
@@ -572,32 +568,41 @@ Uint32 Map::move(Uint32 interval, void* para)
 			}
 		}
 
+		//update startpos and type
+		startpos = motion.posX / SEGMENT_LENGTH;
+		type = map->lines[startpos].getType();
+		car->setFrictionType(type);
+
 		//special road
-		if (!car->isInAir()) {
+		if (!car->isInAir()) 
+		{
+			//rush
+			startpos = (motion.posX + CAMERA_CARMIDPOINT_DIST) / SEGMENT_LENGTH;
+			double midY = motion.posY + CAMERA_CARMIDPOINT_DIST * sin(motion.axleDegree);
 			type = map->lines[startpos].getType();
 			if (car->getRushing() != ACCROAD && ((type & ACCELERATE_LEFT) || (type & ACCELERATE_RIGHT))) {
-				if ((type & ACCELERATE_LEFT) && (motion.posY < map->lines[startpos].getx() && motion.posY > map->lines[startpos].getx() - ROAD_WIDTH * motion.velM)) {
+				if ((type & ACCELERATE_LEFT) && (midY < map->lines[startpos].getx() && midY > map->lines[startpos].getx() - ROAD_WIDTH * motion.velM)) {
 					car->rush(ACCROAD);
 				}
-				else if ((type & ACCELERATE_RIGHT) && (motion.posY > map->lines[startpos].getx() && motion.posY < map->lines[startpos].getx() + ROAD_WIDTH * motion.velM)) {
+				else if ((type & ACCELERATE_RIGHT) && (midY > map->lines[startpos].getx() && midY < map->lines[startpos].getx() + ROAD_WIDTH * motion.velM)) {
 					car->rush(ACCROAD);
 				}
 			}
 			//trap
-			if ((type & TRAPAREA) && motion.posY < map->lines[startpos].getx() + TRAP_WIDTH * motion.velM && motion.posY > map->lines[startpos].getx() - TRAP_WIDTH * motion.velM)
+			if ((type & TRAPAREA) && midY < map->lines[startpos].getx() + TRAP_WIDTH * motion.velM && midY > map->lines[startpos].getx() - TRAP_WIDTH * motion.velM)
 			{
 				car->getTrap()->gettrap(STAIN);
 				
 			}
 			
 			//tool
-			if ((type & TOOLAREA) && motion.posY < map->lines[startpos].getx() + TOOL_WIDTH * motion.velM && motion.posY > map->lines[startpos].getx() - TOOL_WIDTH * motion.velM)
+			if ((type & TOOLAREA) && midY < map->lines[startpos].getx() + TOOL_WIDTH * motion.velM && midY > map->lines[startpos].getx() - TOOL_WIDTH * motion.velM)
 			{
 				car->getTools()->getTools();
 			}
 
 			//obstacle
-			if ((type & OBSTACLEAREA) && motion.posY < map->lines[startpos].getx() + OBSTACLE_WIDTH * motion.velM && motion.posY > map->lines[startpos].getx() - OBSTACLE_WIDTH * motion.velM)
+			if ((type & OBSTACLEAREA) && midY < map->lines[startpos].getx() + OBSTACLE_WIDTH * motion.velM && midY > map->lines[startpos].getx() - OBSTACLE_WIDTH * motion.velM)
 			{
 				car->touchobstacle();
 				
@@ -610,7 +615,6 @@ Uint32 Map::move(Uint32 interval, void* para)
 					map->endtime = SDL_GetTicks64() + 3000;
 
 				}
-				//printf("Touch Obstacle\n");
 			}
 
 			//arrive
@@ -632,6 +636,7 @@ Uint32 Map::move(Uint32 interval, void* para)
 				}
 				map->endtime = SDL_GetTicks64() + 3000;
 			}
+
 			//fly
 			//critVel=GRAVITY*|(1+y'^2)/y''|
 			if (((type & INCLINE_BACKWARD) && motion.velLinear > 1e-6) || ((type & INCLINE_FORWARD) && motion.velLinear < -1e-6)) {
@@ -671,89 +676,7 @@ Uint32 Map::move(Uint32 interval, void* para)
 		}
 
 	} while (--times);
-	/*
-	if (map->dualMode)
-	{
-		//collision
-		double dx = map->car1->getPosY() - map->car2->getPosY();
-		double dz = map->car1->getPosX() - map->car2->getPosX();
-
-		if (dx * dx + dz * dz < 4.0 * (CAR_HALF_LENGTH * CAR_HALF_LENGTH + CAR_HALF_WIDTH * CAR_HALF_WIDTH) * 0.9) 
-		{
-			bool col = false;
-			double rd = map->car2->getAxleDegree() - map->car1->getAxleDegree();
-			double cos_ = cos(rd), sin_ = sin(rd);//CAR_HALF_LENGTHcos_  CAR_HALF_WIDTH
-			double rz[4] = { CAR_HALF_LENGTH * cos_ - CAR_HALF_WIDTH * sin_ - dz,CAR_HALF_LENGTH * cos_ + CAR_HALF_WIDTH * sin_ - dz ,
-							-CAR_HALF_LENGTH * cos_ - CAR_HALF_WIDTH * sin_ - dz ,-CAR_HALF_LENGTH * cos_ + CAR_HALF_WIDTH * sin_ - dz };
-			double rx[4] = { CAR_HALF_LENGTH * sin_ + CAR_HALF_WIDTH * cos_ - dx,CAR_HALF_LENGTH * sin_ - CAR_HALF_WIDTH * cos_ - dx,
-							-CAR_HALF_LENGTH * sin_ + CAR_HALF_WIDTH * cos_ - dx,-CAR_HALF_LENGTH * sin_ - CAR_HALF_WIDTH * cos_ - dx };
-			for (int i = 0; i < 4; ++i) {
-				if (rz[i] < CAR_HALF_LENGTH && rz[i] > -CAR_HALF_LENGTH && rx[i] < CAR_HALF_WIDTH && rx[i] > -CAR_HALF_WIDTH) {
-					//collided, 
-					double e = 0.6;
-					
-					double vz1 = map->car1->getVelLinear() * cos(map->car1->getAxleDegree()), vz2 = map->car2->getVelLinear() * cos(map->car2->getAxleDegree());
-					double vx1 = map->car1->getVelLinear() * sin(map->car1->getAxleDegree()), vx2 = map->car2->getVelLinear() * sin(map->car2->getAxleDegree());
-					double vx = ((1 - e) * vx1 + (1 + e) * vx2) / 2.0, vz = ((1 - e) * vz1 + (1 + e) * vz2) / 2.0;
-					map->car1->setVelLinear(sqrt(vx * vx + vz * vz));
-					vx = ((1 + e) * vx1 + (1 - e) * vx2) / 2.0, vz = ((1 + e) * vz1 + (1 - e) * vz2) / 2.0;
-					map->car2->setVelLinear(sqrt(vx * vx + vz * vz));
-
-					cos_ = cos(map->car1->getAxleDegree() - map->car2->getAxleDegree());
-					double v1 = map->car1->getVelLinear(), v2 = map->car2->getVelLinear() * cos_;
-					double v = ((1 - e) * v1 + (1 + e) * v2) / 2.0;
-					map->car1->setVelLinear(v);
-
-					v1 = map->car1->getVelLinear() * cos_, v2 = map->car2->getVelLinear();
-					v = ((1 - e) * v2 + (1 + e) * v1) / 2.0;
-					map->car2->setVelLinear(v);
-
-					if (dz < 0 && map->car1->getRushing()) {
-						map->car1->rush(NONE);
-					}
-					else if (dz > 0 && map->car2->getRushing()) {
-						map->car2->rush(NONE);
-					}
-					col = true;
-					break;
-				}
-			}
-
-			if (!col) 
-			{
-				rd = -rd;
-				sin_ = -sin_;
-				double rz[4] = { CAR_HALF_LENGTH * cos_ - CAR_HALF_WIDTH * sin_ - dz,CAR_HALF_LENGTH * cos_ + CAR_HALF_WIDTH * sin_ - dz ,
-								-CAR_HALF_LENGTH * cos_ - CAR_HALF_WIDTH * sin_ - dz ,-CAR_HALF_LENGTH * cos_ + CAR_HALF_WIDTH * sin_ - dz };
-				double rx[4] = { CAR_HALF_LENGTH * sin_ + CAR_HALF_WIDTH * cos_ - dx,CAR_HALF_LENGTH * sin_ - CAR_HALF_WIDTH * cos_ - dx,
-								-CAR_HALF_LENGTH * sin_ + CAR_HALF_WIDTH * cos_ - dx,-CAR_HALF_LENGTH * sin_ - CAR_HALF_WIDTH * cos_ - dx };
-
-				for (int i = 0; i < 4; ++i) {
-					if (rz[i] < CAR_HALF_LENGTH && rz[i] > -CAR_HALF_LENGTH && rx[i] < CAR_HALF_WIDTH && rx[i] > -CAR_HALF_WIDTH) {
-						//collided, 
-						double e = 0.6;
-						cos_ = cos(map->car1->getAxleDegree() - map->car2->getAxleDegree());
-						double v1 = map->car1->getVelLinear(), v2 = map->car2->getVelLinear() * cos_;
-						double v = ((1 - e) * v1 + (1 + e) * v2) / 2.0;
-						map->car1->setVelLinear(v);
-
-						v1 = map->car1->getVelLinear() * cos_, v2 = map->car2->getVelLinear();
-						v = ((1 - e) * v2 + (1 + e) * v1) / 2.0;
-						map->car2->setVelLinear(v);
-
-						if (dz < 0 && map->car1->getRushing()) {
-							map->car1->rush(NONE);
-						}
-						else if (dz > 0 && map->car2->getRushing()) {
-							map->car2->rush(NONE);
-						}
-						break;
-					}
-				}
-			}
-			
-		}
-	}*/
+	
 	return interval;
 }
 
@@ -1336,3 +1259,126 @@ if ((motion.camDegree <= motion.roadDegree - MAX_ROTATE_DEGREE / motion.velM && 
 		//map->camDegree = motion.roadDegree + MAX_ROTATE_DEGREE / motion.velM;
 	}
 }*/
+
+/*
+if (car->getRushing() != ACCROAD && ((type & ACCELERATE_LEFT) || (type & ACCELERATE_RIGHT))) {
+				if ((type & ACCELERATE_LEFT) && (motion.posY < map->lines[startpos].getx() && motion.posY > map->lines[startpos].getx() - ROAD_WIDTH * motion.velM)) {
+					car->rush(ACCROAD);
+				}
+				else if ((type & ACCELERATE_RIGHT) && (motion.posY > map->lines[startpos].getx() && motion.posY < map->lines[startpos].getx() + ROAD_WIDTH * motion.velM)) {
+					car->rush(ACCROAD);
+				}
+			}
+			//trap
+			if ((type & TRAPAREA) && motion.posY < map->lines[startpos].getx() + TRAP_WIDTH * motion.velM && motion.posY > map->lines[startpos].getx() - TRAP_WIDTH * motion.velM)
+			{
+				car->getTrap()->gettrap(STAIN);
+
+			}
+
+			//tool
+			if ((type & TOOLAREA) && motion.posY < map->lines[startpos].getx() + TOOL_WIDTH * motion.velM && motion.posY > map->lines[startpos].getx() - TOOL_WIDTH * motion.velM)
+			{
+				car->getTools()->getTools();
+			}
+
+			//obstacle
+			if ((type & OBSTACLEAREA) && motion.posY < map->lines[startpos].getx() + OBSTACLE_WIDTH * motion.velM && motion.posY > map->lines[startpos].getx() - OBSTACLE_WIDTH * motion.velM)
+			{
+				car->touchobstacle();
+
+				if (car->getHP() <= 0)
+				{
+					if (map->dualMode)
+						map->endtype = (times == 2 ? PLAYER2 : PLAYER1);
+					else
+						map->endtype = FAILED;
+					map->endtime = SDL_GetTicks64() + 3000;
+
+				}
+			}
+*/
+
+/*
+	if (map->dualMode)
+	{
+		//collision
+		double dx = map->car1->getPosY() - map->car2->getPosY();
+		double dz = map->car1->getPosX() - map->car2->getPosX();
+
+		if (dx * dx + dz * dz < 4.0 * (CAR_HALF_LENGTH * CAR_HALF_LENGTH + CAR_HALF_WIDTH * CAR_HALF_WIDTH) * 0.9)
+		{
+			bool col = false;
+			double rd = map->car2->getAxleDegree() - map->car1->getAxleDegree();
+			double cos_ = cos(rd), sin_ = sin(rd);//CAR_HALF_LENGTHcos_  CAR_HALF_WIDTH
+			double rz[4] = { CAR_HALF_LENGTH * cos_ - CAR_HALF_WIDTH * sin_ - dz,CAR_HALF_LENGTH * cos_ + CAR_HALF_WIDTH * sin_ - dz ,
+							-CAR_HALF_LENGTH * cos_ - CAR_HALF_WIDTH * sin_ - dz ,-CAR_HALF_LENGTH * cos_ + CAR_HALF_WIDTH * sin_ - dz };
+			double rx[4] = { CAR_HALF_LENGTH * sin_ + CAR_HALF_WIDTH * cos_ - dx,CAR_HALF_LENGTH * sin_ - CAR_HALF_WIDTH * cos_ - dx,
+							-CAR_HALF_LENGTH * sin_ + CAR_HALF_WIDTH * cos_ - dx,-CAR_HALF_LENGTH * sin_ - CAR_HALF_WIDTH * cos_ - dx };
+			for (int i = 0; i < 4; ++i) {
+				if (rz[i] < CAR_HALF_LENGTH && rz[i] > -CAR_HALF_LENGTH && rx[i] < CAR_HALF_WIDTH && rx[i] > -CAR_HALF_WIDTH) {
+					//collided,
+					double e = 0.6;
+
+					double vz1 = map->car1->getVelLinear() * cos(map->car1->getAxleDegree()), vz2 = map->car2->getVelLinear() * cos(map->car2->getAxleDegree());
+					double vx1 = map->car1->getVelLinear() * sin(map->car1->getAxleDegree()), vx2 = map->car2->getVelLinear() * sin(map->car2->getAxleDegree());
+					double vx = ((1 - e) * vx1 + (1 + e) * vx2) / 2.0, vz = ((1 - e) * vz1 + (1 + e) * vz2) / 2.0;
+					map->car1->setVelLinear(sqrt(vx * vx + vz * vz));
+					vx = ((1 + e) * vx1 + (1 - e) * vx2) / 2.0, vz = ((1 + e) * vz1 + (1 - e) * vz2) / 2.0;
+					map->car2->setVelLinear(sqrt(vx * vx + vz * vz));
+
+					cos_ = cos(map->car1->getAxleDegree() - map->car2->getAxleDegree());
+					double v1 = map->car1->getVelLinear(), v2 = map->car2->getVelLinear() * cos_;
+					double v = ((1 - e) * v1 + (1 + e) * v2) / 2.0;
+					map->car1->setVelLinear(v);
+
+					v1 = map->car1->getVelLinear() * cos_, v2 = map->car2->getVelLinear();
+					v = ((1 - e) * v2 + (1 + e) * v1) / 2.0;
+					map->car2->setVelLinear(v);
+
+					if (dz < 0 && map->car1->getRushing()) {
+						map->car1->rush(NONE);
+					}
+					else if (dz > 0 && map->car2->getRushing()) {
+						map->car2->rush(NONE);
+					}
+					col = true;
+					break;
+				}
+			}
+
+			if (!col)
+			{
+				rd = -rd;
+				sin_ = -sin_;
+				double rz[4] = { CAR_HALF_LENGTH * cos_ - CAR_HALF_WIDTH * sin_ - dz,CAR_HALF_LENGTH * cos_ + CAR_HALF_WIDTH * sin_ - dz ,
+								-CAR_HALF_LENGTH * cos_ - CAR_HALF_WIDTH * sin_ - dz ,-CAR_HALF_LENGTH * cos_ + CAR_HALF_WIDTH * sin_ - dz };
+				double rx[4] = { CAR_HALF_LENGTH * sin_ + CAR_HALF_WIDTH * cos_ - dx,CAR_HALF_LENGTH * sin_ - CAR_HALF_WIDTH * cos_ - dx,
+								-CAR_HALF_LENGTH * sin_ + CAR_HALF_WIDTH * cos_ - dx,-CAR_HALF_LENGTH * sin_ - CAR_HALF_WIDTH * cos_ - dx };
+
+				for (int i = 0; i < 4; ++i) {
+					if (rz[i] < CAR_HALF_LENGTH && rz[i] > -CAR_HALF_LENGTH && rx[i] < CAR_HALF_WIDTH && rx[i] > -CAR_HALF_WIDTH) {
+						//collided,
+						double e = 0.6;
+						cos_ = cos(map->car1->getAxleDegree() - map->car2->getAxleDegree());
+						double v1 = map->car1->getVelLinear(), v2 = map->car2->getVelLinear() * cos_;
+						double v = ((1 - e) * v1 + (1 + e) * v2) / 2.0;
+						map->car1->setVelLinear(v);
+
+						v1 = map->car1->getVelLinear() * cos_, v2 = map->car2->getVelLinear();
+						v = ((1 - e) * v2 + (1 + e) * v1) / 2.0;
+						map->car2->setVelLinear(v);
+
+						if (dz < 0 && map->car1->getRushing()) {
+							map->car1->rush(NONE);
+						}
+						else if (dz > 0 && map->car2->getRushing()) {
+							map->car2->rush(NONE);
+						}
+						break;
+					}
+				}
+			}
+
+		}
+	}*/
