@@ -493,6 +493,35 @@ Uint32 Map::move(Uint32 interval, void* para)
 			//map->posY = map->lines[originpos].getx() + ROAD_BORDER * ;
 
 		}
+		
+		//collision with the other car
+		if (map->dualMode)
+		{
+			if (car->collided()) 
+			{
+				car->setPosY(motion.posY - velY);
+				car->setPosX(motion.posX - velX);
+
+				double dz = map->car1->getPosX() - map->car2->getPosX();
+				double e = 0.6;
+
+				double cos_ = cos(map->car1->getAxleDegree() - map->car2->getAxleDegree());
+				double v1 = map->car1->getVelLinear(), v2 = map->car2->getVelLinear() * cos_;
+				double v = ((1 - e) * v1 + (1 + e) * v2) / 2.0;
+				map->car1->setVelLinear(v);
+
+				v1 = map->car1->getVelLinear() * cos_, v2 = map->car2->getVelLinear();
+				v = ((1 - e) * v2 + (1 + e) * v1) / 2.0;
+				map->car2->setVelLinear(v);
+
+				if (dz < 0 && map->car1->getRushing()) {
+					map->car1->rush(NONE);
+				}
+				else if (dz > 0 && map->car2->getRushing()) {
+					map->car2->rush(NONE);
+				}
+			}
+		}
 
 		//update startpos and type
 		startpos = motion.posX / SEGMENT_LENGTH;
@@ -510,6 +539,9 @@ Uint32 Map::move(Uint32 interval, void* para)
 			else if (motion.axleDegree >= motion.roadDegree + MAX_ROTATE_DEGREE / motion.velM) {
 				car->setAxleDegree(motion.roadDegree + MAX_ROTATE_DEGREE / motion.velM);
 			}
+		}
+		if (map->dualMode && car->collided()) {
+			car->setAxleDegree(motion.axleDegree - motion.velAngular);
 		}
 
 		//rotate camera
@@ -639,7 +671,7 @@ Uint32 Map::move(Uint32 interval, void* para)
 		}
 
 	} while (--times);
-
+	/*
 	if (map->dualMode)
 	{
 		//collision
@@ -659,12 +691,22 @@ Uint32 Map::move(Uint32 interval, void* para)
 				if (rz[i] < CAR_HALF_LENGTH && rz[i] > -CAR_HALF_LENGTH && rx[i] < CAR_HALF_WIDTH && rx[i] > -CAR_HALF_WIDTH) {
 					//collided, 
 					double e = 0.6;
+					
 					double vz1 = map->car1->getVelLinear() * cos(map->car1->getAxleDegree()), vz2 = map->car2->getVelLinear() * cos(map->car2->getAxleDegree());
 					double vx1 = map->car1->getVelLinear() * sin(map->car1->getAxleDegree()), vx2 = map->car2->getVelLinear() * sin(map->car2->getAxleDegree());
 					double vx = ((1 - e) * vx1 + (1 + e) * vx2) / 2.0, vz = ((1 - e) * vz1 + (1 + e) * vz2) / 2.0;
-					map->car1->setVelLinear(sqrt(vx* vx + vz * vz));
-					vx = ((1 + e) * vx1 + (1 - e) * vx) / 2.0, vz = ((1 + e) * vz1 + (1 - e) * vz2) / 2.0;
-					map->car2->setVelLinear(sqrt(vx* vx + vz * vz));
+					map->car1->setVelLinear(sqrt(vx * vx + vz * vz));
+					vx = ((1 + e) * vx1 + (1 - e) * vx2) / 2.0, vz = ((1 + e) * vz1 + (1 - e) * vz2) / 2.0;
+					map->car2->setVelLinear(sqrt(vx * vx + vz * vz));
+
+					cos_ = cos(map->car1->getAxleDegree() - map->car2->getAxleDegree());
+					double v1 = map->car1->getVelLinear(), v2 = map->car2->getVelLinear() * cos_;
+					double v = ((1 - e) * v1 + (1 + e) * v2) / 2.0;
+					map->car1->setVelLinear(v);
+
+					v1 = map->car1->getVelLinear() * cos_, v2 = map->car2->getVelLinear();
+					v = ((1 - e) * v2 + (1 + e) * v1) / 2.0;
+					map->car2->setVelLinear(v);
 
 					if (dz < 0 && map->car1->getRushing()) {
 						map->car1->rush(NONE);
@@ -690,12 +732,14 @@ Uint32 Map::move(Uint32 interval, void* para)
 					if (rz[i] < CAR_HALF_LENGTH && rz[i] > -CAR_HALF_LENGTH && rx[i] < CAR_HALF_WIDTH && rx[i] > -CAR_HALF_WIDTH) {
 						//collided, 
 						double e = 0.6;
-						double vz1 = map->car1->getVelLinear() * cos(map->car1->getAxleDegree()), vz2 = map->car2->getVelLinear() * cos(map->car2->getAxleDegree());
-						double vx1 = map->car1->getVelLinear() * sin(map->car1->getAxleDegree()), vx2 = map->car2->getVelLinear() * sin(map->car2->getAxleDegree());
-						double vx = ((1 - e) * vx1 + (1 + e) * vx2) / 2.0, vz = ((1 - e) * vz1 + (1 + e) * vz2) / 2.0;
-						map->car1->setVelLinear(sqrt(vx * vx + vz * vz));
-						vx = ((1 + e) * vx1 + (1 - e) * vx) / 2.0, vz = ((1 + e) * vz1 + (1 - e) * vz2) / 2.0;
-						map->car2->setVelLinear(sqrt(vx * vx + vz * vz));
+						cos_ = cos(map->car1->getAxleDegree() - map->car2->getAxleDegree());
+						double v1 = map->car1->getVelLinear(), v2 = map->car2->getVelLinear() * cos_;
+						double v = ((1 - e) * v1 + (1 + e) * v2) / 2.0;
+						map->car1->setVelLinear(v);
+
+						v1 = map->car1->getVelLinear() * cos_, v2 = map->car2->getVelLinear();
+						v = ((1 - e) * v2 + (1 + e) * v1) / 2.0;
+						map->car2->setVelLinear(v);
 
 						if (dz < 0 && map->car1->getRushing()) {
 							map->car1->rush(NONE);
@@ -707,9 +751,9 @@ Uint32 Map::move(Uint32 interval, void* para)
 					}
 				}
 			}
-
+			
 		}
-	}
+	}*/
 	return interval;
 }
 

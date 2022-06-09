@@ -32,6 +32,46 @@ void RacingCar::quit()
 	tools.close();
 	timetext.close();
 }
+
+bool RacingCar::collided() {
+	if (theOtherCar == NULL)
+		return false;
+	//collision
+	double dx = (motion.posY + CAMERA_CARMIDPOINT_DIST * sin(motion.axleDegree)) - (theOtherCar->motion.posY + CAMERA_CARMIDPOINT_DIST * sin(theOtherCar->motion.axleDegree));
+	double dz = (motion.posX + CAMERA_CARMIDPOINT_DIST * cos(motion.axleDegree)) - (theOtherCar->motion.posX + CAMERA_CARMIDPOINT_DIST * cos(theOtherCar->motion.axleDegree));
+
+	if (dx * dx + dz * dz < 4.0 * (CAR_HALF_LENGTH * CAR_HALF_LENGTH + CAR_HALF_WIDTH * CAR_HALF_WIDTH) * 0.9)
+	{
+		double rd = theOtherCar->motion.axleDegree - motion.axleDegree;
+		double cos_ = cos(rd), sin_ = sin(rd);//CAR_HALF_LENGTHcos_  CAR_HALF_WIDTH
+		{
+			double rz[4] = { CAR_HALF_LENGTH * cos_ - CAR_HALF_WIDTH * sin_ - dz,CAR_HALF_LENGTH * cos_ + CAR_HALF_WIDTH * sin_ - dz ,
+							-CAR_HALF_LENGTH * cos_ - CAR_HALF_WIDTH * sin_ - dz ,-CAR_HALF_LENGTH * cos_ + CAR_HALF_WIDTH * sin_ - dz };
+			double rx[4] = { CAR_HALF_LENGTH * sin_ + CAR_HALF_WIDTH * cos_ - dx,CAR_HALF_LENGTH * sin_ - CAR_HALF_WIDTH * cos_ - dx,
+							-CAR_HALF_LENGTH * sin_ + CAR_HALF_WIDTH * cos_ - dx,-CAR_HALF_LENGTH * sin_ - CAR_HALF_WIDTH * cos_ - dx };
+			for (int i = 0; i < 4; ++i) {
+				if (rz[i] < CAR_HALF_LENGTH && rz[i] > -CAR_HALF_LENGTH && rx[i] < CAR_HALF_WIDTH && rx[i] > -CAR_HALF_WIDTH) {
+					//collided
+					return true;
+				}
+			}
+		}
+		rd = -rd;
+		sin_ = -sin_;
+		double rz[4] = { CAR_HALF_LENGTH * cos_ - CAR_HALF_WIDTH * sin_ - dz,CAR_HALF_LENGTH * cos_ + CAR_HALF_WIDTH * sin_ - dz ,
+						-CAR_HALF_LENGTH * cos_ - CAR_HALF_WIDTH * sin_ - dz ,-CAR_HALF_LENGTH * cos_ + CAR_HALF_WIDTH * sin_ - dz };
+		double rx[4] = { CAR_HALF_LENGTH * sin_ + CAR_HALF_WIDTH * cos_ - dx,CAR_HALF_LENGTH * sin_ - CAR_HALF_WIDTH * cos_ - dx,
+						-CAR_HALF_LENGTH * sin_ + CAR_HALF_WIDTH * cos_ - dx,-CAR_HALF_LENGTH * sin_ - CAR_HALF_WIDTH * cos_ - dx };
+
+		for (int i = 0; i < 4; ++i) {
+			if (rz[i] < CAR_HALF_LENGTH && rz[i] > -CAR_HALF_LENGTH && rx[i] < CAR_HALF_WIDTH && rx[i] > -CAR_HALF_WIDTH) {
+				//collided, 
+				return true;
+			}
+		}
+	}
+	return false;
+}
 void RacingCar::draw(SDL_Renderer* renderer,Engine* engine, bool clean)
 {
 	//car image

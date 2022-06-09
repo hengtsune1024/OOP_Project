@@ -72,11 +72,11 @@ void BlenderObject::Load(const char* objectFile)
 				fscanf(f, "%d%c%d%c%d", &a, &s, &b, &s, &c);
 				p2 = {vertices[a - 1].x * scale, vertices[a - 1].y * scale, vertices[a - 1].z * scale, texturePoints[b - 1].u, texturePoints[b - 1].v};
 				triangles.push_back(new Triangle(p0, p2, p1));
-				if (fgetc(f) != '\n') {
-					fscanf(f, "%d%c%d%c%d", &a, &s, &b, &s, &c);
-					p3 = { vertices[a - 1].x * scale, vertices[a - 1].y * scale, vertices[a - 1].z * scale, texturePoints[b - 1].u, texturePoints[b - 1].v };
-					triangles.push_back(new Triangle(p0, p1, p3));
-				}
+				//if (fgetc(f) != '\n') {
+				//	fscanf(f, "%d%c%d%c%d", &a, &s, &b, &s, &c);
+				//	p3 = { vertices[a - 1].x * scale, vertices[a - 1].y * scale, vertices[a - 1].z * scale, texturePoints[b - 1].u, texturePoints[b - 1].v };
+				//	triangles.push_back(new Triangle(p0, p1, p3));
+				//}
 			}
 			else {
 				fscanf(f," ");
@@ -125,6 +125,7 @@ void BlenderObject::draw(Point3D pos, Point3D worldRot, double camDeg, double ca
 			std::vector<Triangle*> clippedTriangles = allTriangles[i]->GetClippedTriangles();
 			for (int j = 0; j < clippedTriangles.size(); ++j) {
 				clippedTriangles[j]->draw(bmp, img, engine->getZBuffer(), maxy);
+				
 				delete clippedTriangles[j];
 			}
 		}

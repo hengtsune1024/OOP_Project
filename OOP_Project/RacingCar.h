@@ -101,7 +101,7 @@ public:
 	void startTimer(Uint32 t);
 	void stopTimer();
 	//void turn(int); // move the object
-
+	bool collided();
 	void usetool(ToolType type);
 
 	void setOtherCar(RacingCar* c) { theOtherCar = c; }
