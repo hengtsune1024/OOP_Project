@@ -1,5 +1,7 @@
 #pragma once
 
+#define PI 3.1415926535
+
 #define POS 100
 #define CUBE_SIZE 1000
 #define ROCK_SIZE 3000

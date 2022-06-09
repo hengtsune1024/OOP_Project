@@ -165,6 +165,23 @@ void Map::drawQuad(SDL_Renderer* renderer, Quad q) {
 	filledPolygonColor(renderer, vx, vy, 4, q.color);
 }
 
+Uint32 Map::Objectlogic(Uint32 interval, void* para)
+{
+	Map* map = (Map*)para;
+	//tools
+	//traps
+	map->car1->getTools()->logic();
+	map->car1->getTrap()->logic();
+	if (map->dualMode){
+		map->car2->getTools()->logic();
+		map->car2->getTrap()->logic();
+	}
+	//physical object
+	map->cube.logic();
+
+	return interval;
+}
+
 void Map::draw(SDL_Renderer* renderer) 
 {
 	if (dualMode)
@@ -298,10 +315,11 @@ void Map::draw(SDL_Renderer* renderer)
 		}
 		Point3D pos = { m.posY,1.0 * camH,m.posX };
 
-		if (startpos <= 300 && startpos > 0)
-			car->getTrap()->drawImg(renderer, &lines[300]);
-
 		bool clean = true;
+
+		if (startpos <= 300 && startpos > 0)
+			car->getTrap()->draw(pos, m.camDegree, m.camDepth, &engine, clean, HEIGHT);
+
 		
 		if (startpos + 300 > POS && cube.getZ() - CUBE_SIZE > m.posX) {
 			cube.drawObj3D(pos, m.camDegree, m.camDepth, &engine, clean, HEIGHT);
@@ -740,6 +758,7 @@ void Map::startTimer() {
 
 	moveTimer = SDL_AddTimer(MOVE_INTERVAL, move, this);
 	accelerateTimer = SDL_AddTimer(ACCELERATE_INTERVAL, accelerate, this);
+	mapObjectTimer = SDL_AddTimer(50, Objectlogic, this);
 
 	car1->startTimer(CAR_INTERVAL);
 	if (dualMode)
@@ -750,6 +769,7 @@ void Map::startTimer() {
 void Map::removeTimer() {
 	SDL_RemoveTimer(moveTimer);
 	SDL_RemoveTimer(accelerateTimer);
+	SDL_RemoveTimer(mapObjectTimer);
 }
 
 

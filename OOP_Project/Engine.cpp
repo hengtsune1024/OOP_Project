@@ -11,7 +11,7 @@ Engine::Engine()
 	fwrite(&tmp, sizeof(tmp), WIDTH * HEIGHT, f);
 	fclose(f);
 
-	Z0 = (WIDTH / 2.0) / tan((FIELD_OF_VIEW / 2.0) * 3.1415926535 / 180.0);
+	Z0 = (WIDTH / 2.0) / tan((FIELD_OF_VIEW / 2.0) * PI / 180.0);
 	img = SDL_LoadBMP("../images/tmp.bmp");
 	pixels = (Uint32*)img->pixels;
 }

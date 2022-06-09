@@ -8,7 +8,6 @@ Tool::~Tool() {
 void Tool::close() {
 	tool1img.close();
 	tool2img.close();
-	removeTimer();
 }
 Tool::Tool(SDL_Renderer* renderer) : Tool1(0), Tool2(0), shownflag(true),
 	tool1img("../images/star.png", renderer), tool2img("../images/star.png", renderer),
@@ -28,9 +27,11 @@ void Trap::draw(SDL_Renderer* renderer, Line *line) {
 	drawImg(renderer, line);
 }
 */
-void Tool::draw(Point3D pos, double camDeg, double camDepth, Engine* engine, bool clean, double maxy) {
-	if (shownflag)
+void Tool::draw(Point3D pos, double camDeg, double camDepth, Engine* engine, bool& clean, double maxy) {
+	if (shownflag){
 		toolBlock.draw(pos, toolBlock.getRotation(), camDeg, camDepth, engine, clean, maxy);
+		clean = false;
+	}
 }
 
 
@@ -73,23 +74,14 @@ void Tool::getTools() {
 	}
 }
 
-Uint32 Tool::changeData(Uint32 interval, void* para) 
+void Tool::logic()
 {
-	Tool* tool = (Tool*)para;
-	double ry = tool->toolBlock.getRotY() + 0.1;
-	if (ry > 3.1415926535 * 2)
-		ry -= 3.1415926535 * 2;
-	tool->toolBlock.setRotation({ 0,ry,0 });
-	return interval;
+	double ry = toolBlock.getRotY() + 0.1;
+	if (ry > PI * 2)
+		ry -= PI * 2;
+	toolBlock.setRotation({ 0,ry,0 });
 }
 
-void Tool::startTimer() {
-	timer = SDL_AddTimer(50, changeData, this);
-}
-
-void Tool::removeTimer() {
-	SDL_RemoveTimer(timer);
-}
 
 int Tool::usetool(ToolType type) {
 	switch (type)

@@ -6,47 +6,40 @@ PhysicalItem::PhysicalItem(const char* objfile, const char* texfile, vector<Line
 {
 }
 PhysicalItem::~PhysicalItem() {
-	SDL_RemoveTimer(timer);
 }
-void PhysicalItem::drawObj3D(Point3D pos, double camDeg, double camDepth, Engine* engine, bool clean, double maxy) {
+void PhysicalItem::drawObj3D(Point3D pos, double camDeg, double camDepth, Engine* engine, bool& clean, double maxy) {
 	obj3D.draw(pos, obj3D.getRotation(), camDeg, camDepth, engine, clean, maxy);
-}
-void PhysicalItem::startTimer() {
-	timer = SDL_AddTimer(50, move, this);
+	clean = false;
 }
 void PhysicalItem::setMoving(bool m) {
-	if (!isMoving && m) {
-		startTimer();
-	}
 	isMoving = m;
 }
-Uint32 PhysicalItem::move(Uint32 interval, void* para)
+void PhysicalItem::logic()
 {
-	PhysicalItem* it = (PhysicalItem*)para;
+	if (!isMoving)
+		return;
+
 	//position
-	Point3D pos = it->obj3D.getPosition();
-	pos.x += it->moveVel * sin(it->moveDegree);
-	pos.z += it->moveVel * cos(it->moveDegree);
-	pos.y = it->lines->at((int)(pos.z / SEGMENT_LENGTH)).gety() + CUBE_SIZE;
-	it->obj3D.setPos(pos);
+	Point3D pos = obj3D.getPosition();
+	pos.x += moveVel * sin(moveDegree);
+	pos.z += moveVel * cos(moveDegree);
+	pos.y = lines->at((int)(pos.z / SEGMENT_LENGTH)).gety() + CUBE_SIZE;
+	obj3D.setPos(pos);
 
 	//velocity
-	it->moveVel -= ITEM_FRICTION;
-	if (it->moveVel < 0) {
-		it->moveVel = 0;
-		it->moveDegree = 0;
-		it->isMoving = false;
-		return 0;
+	moveVel -= ITEM_FRICTION;
+	if (moveVel < 0) {
+		moveVel = 0;
+		moveDegree = 0;
+		isMoving = false;
 	}
 
 	//rotate
-	double d = it->obj3D.getRotY();
-	d += 0.02;
-	if (d > 6.2832)
-		d -= 6.2832;
-	it->obj3D.setRotY(d);
-
-	return interval;
+	double d = obj3D.getRotY();
+	d += 0.04;
+	if (d > 2 * PI)
+		d -= 2 * PI;
+	obj3D.setRotY(d);
 }
 
 void PhysicalItem::collide(RacingCar* car) 
@@ -70,7 +63,6 @@ void PhysicalItem::collide(RacingCar* car)
 				isMoving = true;
 				moveDegree = car->getAxleDegree();
 				moveVel = car->getMotion().velLinear * 1.2;
-				startTimer();
 				break;
 			}
 		}

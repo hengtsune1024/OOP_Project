@@ -97,7 +97,6 @@ void BlenderObject::Logic(double elapsedTime)
 {
 	rotation.y += 1 * elapsedTime;
 }*/
-
 void BlenderObject::draw(Point3D pos, Point3D worldRot, double camDeg, double camDepth, Engine* engine, bool clean, double maxy)
 {
 	Uint32* bmp = engine->getPixels();

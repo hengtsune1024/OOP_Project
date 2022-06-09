@@ -1,8 +1,11 @@
 #pragma once
-#include "Entity.h"
+#include "Image.h"
+#include "constants.h"
+#include "BlenderObject.h"
+#include "Line.h"
+#include <SDL.h>
 
-class Trap :
-    public Entity
+class Trap
 {
 	/*
 	in entity
@@ -10,13 +13,17 @@ class Trap :
 	int numImage;  
 	int state;
 	*/
+	bool shownflag;
 	int staintime;
 	Image stain;
+
+	bool side; //right=1 left=0
+	BlenderObject trap3D;
 
 public:
 	Trap();
 	~Trap();
-	Trap(const char* path, int n, SDL_Renderer* renderer);
+	Trap(SDL_Renderer* renderer, bool side);
 
 	void setTrap(Line *line);
 
@@ -26,6 +33,7 @@ public:
 	void drawStain(SDL_Renderer* renderer);
 
 	void close();
-
+	void draw(Point3D pos, double camDeg, double camDepth, Engine* engine, bool& clean, double maxy = HEIGHT);
+	void logic();
 };
 

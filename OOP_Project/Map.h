@@ -45,6 +45,10 @@ class Map
 	SDL_TimerID accelerateTimer;				// car accelerating timer	
 	static Uint32 accelerate(Uint32, void*);	// the function of car accelerating
 
+	SDL_TimerID mapObjectTimer;
+	static Uint32 Objectlogic(Uint32, void*);	// the function of car accelerating
+
+
 	void removeTimer();							// remove all timers
 
 	//images

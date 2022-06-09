@@ -14,7 +14,7 @@ RacingCar::~RacingCar() {
 }
 
 RacingCar::RacingCar(const char* obfpath, const char* imgpath, SDL_Renderer* renderer, Line* initpos) :
-	virus("../images/coronavirus/", 15, renderer), tools(renderer), rock("../images/rock/rock.txt", "../images/rock/rock.bmp"),
+	virus(renderer, true), tools(renderer), rock("../images/rock/rock.txt", "../images/rock/rock.bmp"),
 	isRushing(NONE), fullEnergy(true), energy(100.0), healthPoint(100.0), motion(MOTION_INIT), accState(0), roadtype(NORMAL),
 	currentPos(initpos), car3D(obfpath, imgpath, 1000), theOtherCar(NULL), starttime(SDL_GetTicks64() + 3000), timing("00:00:000"), arrive(false), totaltime(0), invincible(0),
 	timetext(timing, "../fonts/akabara-cinderella.ttf", 20, 0x02, { 255, 255, 255 }, SHADED, { 0, 0, 0 }, renderer, { 250, 10 }, { 10, 10 }, NULL, SDL_FLIP_NONE, 255)
@@ -72,11 +72,12 @@ bool RacingCar::collided() {
 	}
 	return false;
 }
-void RacingCar::draw(SDL_Renderer* renderer,Engine* engine, bool clean)
+void RacingCar::draw(SDL_Renderer* renderer,Engine* engine, bool& clean)
 {
 	//car image
 
 	car3D.draw({ 0,0,0 }, { -motion.Xangle,car3D.getRotation().y,0 }, 0, motion.camDepth, engine, clean, HEIGHT);
+	clean = false;
 
 	//energy bottle
 	roundedBoxColor(renderer, 10, 10, 10 + WIDTH / 4, 30, 2, 0xff828282);
@@ -106,7 +107,7 @@ void RacingCar::draw(SDL_Renderer* renderer,Engine* engine, bool clean)
 	timetext.draw();
 }
 
-void RacingCar::drawOtherCar(SDL_Renderer* renderer, Engine* engine, bool clean, double maxy, double camH) {
+void RacingCar::drawOtherCar(SDL_Renderer* renderer, Engine* engine, bool& clean, double maxy, double camH) {
 	/*
 	car3D.draw(
 		{ motion.posY - theOtherCar->getPosY() ,camH - theOtherCar->getCamHeight() - theOtherCar->getCurrentPos()->gety(),motion.posX - theOtherCar->getPosX()},
@@ -116,6 +117,7 @@ void RacingCar::drawOtherCar(SDL_Renderer* renderer, Engine* engine, bool clean,
 		{ motion.posY - theOtherCar->getPosY() ,currentPos->gety() - theOtherCar->getCurrentPos()->gety() + 0,motion.posX - theOtherCar->getPosX()},
 		{ -theOtherCar->motion.Xangle,theOtherCar->motion.axleDegree,0 },
 		motion.camDegree, motion.camDepth, engine, clean, maxy);
+	clean = false;
 }
 
 Uint32 RacingCar::changeData(Uint32 interval, void* param)
@@ -158,8 +160,8 @@ void RacingCar::startTimer(Uint32 t)
 {
 	time = t;
 	cartimer = SDL_AddTimer(time, changeData, this); // Set Timer callback
-	virus.startTimer(TRAP_INTERVAL);
-	tools.startTimer();
+	//virus.startTimer(TRAP_INTERVAL);
+	//tools.startTimer();
 	chargeTimer = SDL_AddTimer(CHARGE_INTERVAL, charge, this);
 }
 

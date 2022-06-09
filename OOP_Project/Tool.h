@@ -20,8 +20,6 @@ class Tool
 	BlenderObject toolBlock;
 	bool shownflag;
 
-	static Uint32 changeData(Uint32, void*);
-	void removeTimer();
 	SDL_TimerID timer;
 
 public:
@@ -30,7 +28,6 @@ public:
 	Tool(SDL_Renderer* renderer);
 
 	void setTool(Line* line);
-	void startTimer();
 	//void draw(SDL_Renderer* renderer, Line*);
 	//void setPos(Point3D p) { pos = p; }
 	//Cube* getCube() { return &cube; }
@@ -38,5 +35,6 @@ public:
 	int usetool(ToolType);
 	void drawmytool(SDL_Renderer* renderer);
 	void close();
-	void draw(Point3D pos, double camDeg, double camDepth, Engine* engine, bool clean, double maxy = HEIGHT);
+	void draw(Point3D pos, double camDeg, double camDepth, Engine* engine, bool& clean, double maxy = HEIGHT);
+	void logic();
 };

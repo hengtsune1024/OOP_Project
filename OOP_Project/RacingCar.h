@@ -96,8 +96,8 @@ public:
 	//void setPosition(int xx, int yy);
 	//int getWidth();
 	//int getHeight();
-	void draw(SDL_Renderer* renderer, Engine* engine, bool clean);
-	void drawOtherCar(SDL_Renderer* renderer, Engine* engine, bool clean, double maxy, double camH);
+	void draw(SDL_Renderer* renderer, Engine* engine, bool& clean);
+	void drawOtherCar(SDL_Renderer* renderer, Engine* engine, bool& clean, double maxy, double camH);
 	void startTimer(Uint32 t);
 	void stopTimer();
 	//void turn(int); // move the object
