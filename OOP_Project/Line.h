@@ -40,6 +40,7 @@ public:
     void setx(double _x) { x = _x; }
     void setCurve(double c) { curve = c; }
     void addType(RoadType t) { type |= t; }
+    void setType(unsigned long long t) { type = t; }
     void setAll(double _x, double _y, double _z, double _c) { z = _z; x = _x; y = _y; curve = _c; }
     void setSprite(Image* i, double sX) { sprite = i; spriteX = sX; }
     void setClip(double c) { clip = c; }

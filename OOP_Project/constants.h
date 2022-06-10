@@ -24,7 +24,7 @@
 //map
 #define NUM_LINE 10000		//
 #define INITIAL_POS 30
-#define FINAL_POS 4200
+#define FINAL_POS 9800
 
 //camera
 #define FIELD_OF_VIEW 45

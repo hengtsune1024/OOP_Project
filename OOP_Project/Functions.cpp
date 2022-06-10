@@ -15,7 +15,7 @@ rectext(" ", "../fonts/akabara-cinderella.ttf", 30, 0x00, { 255, 0, 0 }, BLENDED
 quittext("Quit","../fonts/akabara-cinderella.ttf", 26, 0x00, { 0, 0, 255 }, BLENDED, { NULL, NULL, NULL }, window.GetRenderer(), { 1112, 527 }, { NULL, NULL }, NULL, SDL_FLIP_NONE, 255),
 maptext(" ", "../fonts/akabara-cinderella.ttf",40,0x00,{0,0,0}, BLENDED, { NULL, NULL, NULL }, window.GetRenderer(), { 0, 0 }, { NULL, NULL }, NULL, SDL_FLIP_NONE, 255)
 {
-	FILE* f = fopen("../records/record.dat", "rb");
+	FILE* f = fopen("../bin/record.dat", "rb");
 	fseek(f, 0, SEEK_SET);
 	fread(rec, sizeof(rec), 1, f);
 	fclose(f);
@@ -369,7 +369,7 @@ void Functions::setrecord(int r)
 			rec[maptype][j] = r;
 		}
 	}
-	FILE* f = fopen("../records/record.dat", "wb");
+	FILE* f = fopen("../bin/record.dat", "wb");
 	fseek(f, 0, SEEK_SET);
 	fwrite(rec, sizeof(rec), 1, f);
 	fclose(f);

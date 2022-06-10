@@ -15,95 +15,27 @@ Map::Map() : lines(NUM_LINE), number_of_lines(NUM_LINE), cube("../images/cube/cu
 Map::Map(SDL_Renderer* renderer, bool dual) : lines(NUM_LINE), number_of_lines(NUM_LINE), dualMode(dual), endtype(PLAYING), record(0),
 	car1(new RacingCar("../images/car/car.txt", "../images/car/car.bmp", renderer, &lines[INITIAL_POS])),
 	car2(dual ? new RacingCar("../images/car/car.txt", "../images/car/car.bmp", renderer, &lines[INITIAL_POS]) : NULL),
-	streetlight("../images/streetlight.png", renderer),
-	moon("../images/moon.png", renderer), cube("../images/cube/cube.txt", "../images/cube/cube.bmp", &lines, CUBE_SIZE / 2.457335)
+	streetlight("../images/streetlight.png", renderer), moon("../images/moon.png", renderer),
+	cube("../images/cube/cube.txt", "../images/cube/cube.bmp", &lines, CUBE_SIZE / 2.457335)
 {
-	double x = 0, dx = 0;
+	FILE* f = fopen("../bin/map1.dat", "rb");
+	fseek(f, 0, SEEK_SET);
+	struct {
+		double x, y, z;
+		double curve;
+		double slope;
+		bool sprite;
+		unsigned long long type = 0;
+		double maxSpeed;
+	} road;
 	for (int i = 0; i < NUM_LINE; ++i) {
-
-		//curve, default = 0
-		if (i > 100 && i <= 300)		// range of turing road
-			lines[i].setCurve(0.3);
-		else if (i > 300 && i < 600)
-			lines[i].setCurve(-0.4);
-		else if (i > 700 && i < 1000)
-			lines[i].setCurve(-0.15);
-		else if (i > 1200 && i < 1400)
-			lines[i].setCurve(0.4);
-		else if (i > 1500 && i < 2000)
-			lines[i].setCurve(0.3);
-		else if (i > 2200 && i < 2800)
-			lines[i].setCurve(-0.35);
-		
-			
-		// y, default = 0
-		//range of road up and down
-		
-		if (i > 300 && i < 1054) {
-			lines[i].sety(sin((i - 300) / 30.0) * CAMERA_HEIGHT);
-			lines[i].setSlope(lines[i].gety() - lines[i - 1].gety());
-		}
-		else if (i > 1200 && i < 2896){
-			lines[i].sety(sin((i - 1200) / 20.0) * (CAMERA_HEIGHT * 0.6));
-			lines[i].setSlope(lines[i].gety() - lines[i - 1].gety());
-		}
-		else if (i > 3200 && i < 3300) {
-			lines[i].sety((i - 3200) * CAMERA_HEIGHT * 3 / 100.0);
-			lines[i].setSlope(lines[i].gety() - lines[i - 1].gety());
-			lines[i].addType(INCLINE_PLANE);
-		}
-		if (lines[i].getSlope() > 1e-6) {
-			lines[i].addType(INCLINE_BACKWARD);
-		}
-		else if (lines[i].getSlope() < -1e-6) {
-			lines[i].addType(INCLINE_FORWARD);
-		}
-
-		// x
-		x += dx;
-		dx += lines[i].getCurve();
-		lines[i].setx(x);
-
-		// z
-		lines[i].setz(i * SEGMENT_LENGTH);
-
-		//sprite
-		if ((i & 31) == 0) {	// same as i % 32
+		fread(&road, sizeof(road), 1, f);
+		lines[i].setAll(road.x, road.y, road.z, road.curve);
+		lines[i].setSlope(road.slope);
+		if (road.sprite) {
 			lines[i].setSprite(&streetlight, 2.5);
 		}
-
-		// type
-		//20 - 52
-		if (i >= INITIAL_POS - 10 && i < INITIAL_POS + 22)
-			lines[i].addType(STARTPOINT);
-		else if (i >= FINAL_POS - 12 && i < FINAL_POS + 20)
-			lines[i].addType(ENDPOINT);
-		//650 - 670
-		else if (i >= 650 && i < 650 + ACCROAD_LENGHT)
-			lines[i].addType(ACCELERATE_RIGHT);
-		//1800 - 1820
-		else if (i >= 1800 && i < 1800 + ACCROAD_LENGHT)
-			lines[i].addType(ACCELERATE_LEFT);
-		//295 - 300
-		else if (i >= 295 && i < 300)
-			lines[i].addType(TRAPAREA);
-		//195 - 200
-		else if (i >= 195 && i < 200)
-			lines[i].addType(TOOLAREA);
-		//240 - 260
-		else if (i >= 245 && i < 255)
-			lines[i].addType(OBSTACLEAREA);
-		//400 - 600
-		else if (i >= 400 && i < 600)
-			lines[i].addType(HIGH_FRICTION);
-		//700 - 900
-		else if (i >= 700 && i <= 900)
-			lines[i].addType(LOW_FRICTION);
-		else if (i >= 3300 && i <= 3320)
-			lines[i].addType(CLIFF);
-		else
-			lines[i].addType(NORMAL);
-		
+		lines[i].setType(road.type);
 	}
 
 	//type
@@ -1291,3 +1223,93 @@ if (car->getRushing() != ACCROAD && ((type & ACCELERATE_LEFT) || (type & ACCELER
 
 		}
 	}*/
+
+	/*
+		double x = 0, dx = 0;
+		for (int i = 0; i < NUM_LINE; ++i) {
+
+			//curve, default = 0
+			if (i > 100 && i <= 300)		// range of turing road
+				lines[i].setCurve(0.3);
+			else if (i > 300 && i < 600)
+				lines[i].setCurve(-0.4);
+			else if (i > 700 && i < 1000)
+				lines[i].setCurve(-0.15);
+			else if (i > 1200 && i < 1400)
+				lines[i].setCurve(0.4);
+			else if (i > 1500 && i < 2000)
+				lines[i].setCurve(0.3);
+			else if (i > 2200 && i < 2800)
+				lines[i].setCurve(-0.35);
+
+
+			// y, default = 0
+			//range of road up and down
+
+			if (i > 300 && i < 1054) {
+				lines[i].sety(sin((i - 300) / 30.0) * CAMERA_HEIGHT);
+				lines[i].setSlope(lines[i].gety() - lines[i - 1].gety());
+			}
+			else if (i > 1200 && i < 2896){
+				lines[i].sety(sin((i - 1200) / 20.0) * (CAMERA_HEIGHT * 0.6));
+				lines[i].setSlope(lines[i].gety() - lines[i - 1].gety());
+			}
+			else if (i > 3200 && i < 3300) {
+				lines[i].sety((i - 3200) * CAMERA_HEIGHT * 3 / 100.0);
+				lines[i].setSlope(lines[i].gety() - lines[i - 1].gety());
+				lines[i].addType(INCLINE_PLANE);
+			}
+			if (lines[i].getSlope() > 1e-6) {
+				lines[i].addType(INCLINE_BACKWARD);
+			}
+			else if (lines[i].getSlope() < -1e-6) {
+				lines[i].addType(INCLINE_FORWARD);
+			}
+
+			// x
+			x += dx;
+			dx += lines[i].getCurve();
+			lines[i].setx(x);
+
+			// z
+			lines[i].setz(i * SEGMENT_LENGTH);
+
+			//sprite
+			if ((i & 31) == 0) {	// same as i % 32
+				lines[i].setSprite(&streetlight, 2.5);
+			}
+
+			// type
+			//20 - 52
+			if (i >= INITIAL_POS - 10 && i < INITIAL_POS + 22)
+				lines[i].addType(STARTPOINT);
+			else if (i >= FINAL_POS - 12 && i < FINAL_POS + 20)
+				lines[i].addType(ENDPOINT);
+			//650 - 670
+			else if (i >= 650 && i < 650 + ACCROAD_LENGHT)
+				lines[i].addType(ACCELERATE_RIGHT);
+			//1800 - 1820
+			else if (i >= 1800 && i < 1800 + ACCROAD_LENGHT)
+				lines[i].addType(ACCELERATE_LEFT);
+			//295 - 300
+			else if (i >= 295 && i < 300)
+				lines[i].addType(TRAPAREA);
+			//195 - 200
+			else if (i >= 195 && i < 200)
+				lines[i].addType(TOOLAREA);
+			//240 - 260
+			else if (i >= 245 && i < 255)
+				lines[i].addType(OBSTACLEAREA);
+			//400 - 600
+			else if (i >= 400 && i < 600)
+				lines[i].addType(HIGH_FRICTION);
+			//700 - 900
+			else if (i >= 700 && i <= 900)
+				lines[i].addType(LOW_FRICTION);
+			else if (i >= 3300 && i <= 3320)
+				lines[i].addType(CLIFF);
+			else
+				lines[i].addType(NORMAL);
+
+		}
+		*/
