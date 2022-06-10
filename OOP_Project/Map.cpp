@@ -567,12 +567,17 @@ Uint32 Map::move(Uint32 interval, void* para)
 				car->setCamDegree(motion.axleDegree);
 		}
 
+		//update startpos and type
+		startpos = motion.posX / SEGMENT_LENGTH;
+		type = map->lines[startpos].getType();
+		car->setFrictionType(type);
+
 		// Xdegree
 		if (!car->isInAir()) {
 			if(!(map->lines[front].getType() & CLIFF))
 				car->setXangle(atan((map->lines[front].gety() - map->lines[back].gety()) / (2 * dist)));
 		}
-		else {
+		else if (!(type & INCLINE_PLANE)) {
 			if (velX > 0) {
 				car->setXangle(motion.Xangle - 0.02);
 			}
@@ -581,18 +586,46 @@ Uint32 Map::move(Uint32 interval, void* para)
 			}
 		}
 
-		//update startpos and type
-		startpos = motion.posX / SEGMENT_LENGTH;
-		type = map->lines[startpos].getType();
-		car->setFrictionType(type);
 
 		//special road
 		if (!car->isInAir()) 
 		{
-			//rush
+			//fly
+			//critVel=GRAVITY*|(1+y'^2)/y''|
+			if (((type & INCLINE_BACKWARD) && motion.velLinear > 1e-6) || ((type & INCLINE_FORWARD) && motion.velLinear < -1e-6)) {
+				double _cos, _sin, critVel = 0;
+				if (startpos > 300 && startpos < 1054) {
+					//y=sin((startpos-300)/30.0)*CAMH, y'=cos((startpos-300)/30.0)*CAMH/30.0, y''=-sin((startpos-300)/30.0)*CAMH/900.0
+
+					_cos = cos((startpos - 300) / 30.0), _sin = sin((startpos - 300) / 30.0);
+					critVel = GRAVITY * (900 + _cos * _cos * CAMERA_HEIGHT * CAMERA_HEIGHT) / (_sin * CAMERA_HEIGHT) / motion.velM / motion.velM;
+				}
+				else if (startpos > 1200 && startpos < 2896) {
+					//y=sin((startpos-1200)/20.0)*CAMH*0.6, y'=cos((startpos-1200)/20.0)*CAMH*0.03, y''=-sin((startpos-1200)/20.0)*CAMH*0.0015
+
+					_cos = cos((startpos - 1200) / 20.0), _sin = sin((startpos - 1200) / 20.0);
+					critVel = GRAVITY * (400 + _cos * _cos * CAMERA_HEIGHT * CAMERA_HEIGHT * 0.36) / (_sin * CAMERA_HEIGHT * 0.6) / motion.velM / motion.velM;
+				}
+
+				if (critVel < 0)
+					critVel = -critVel;
+				if ((critVel > 1e-6 && velX * velX > critVel * 50) || (map->lines[startpos].getType() & INCLINE_PLANE)) {
+					car->setVelPerpen(velX * (map->lines[startpos].getSlope() / sqrt(SEGMENT_LENGTH * SEGMENT_LENGTH + map->lines[startpos].getSlope() * map->lines[startpos].getSlope())));
+					if (motion.velPerpen < GRAVITY * 5 && !(startpos > 3285 && startpos < 3300)) {
+						car->setVelPerpen(0);
+					}
+					else {
+						car->setInAir(true, map->lines[startpos].gety());
+						cout << "fly: " << sqrt(critVel) << endl;
+					}
+				}
+			}
+
 			startpos = (motion.posX + CAMERA_CARMIDPOINT_DIST) / SEGMENT_LENGTH;
 			double midY = motion.posY + CAMERA_CARMIDPOINT_DIST * sin(motion.axleDegree);
 			type = map->lines[startpos].getType();
+
+			//rush
 			if (car->getRushing() != ACCROAD && ((type & ACCELERATE_LEFT) || (type & ACCELERATE_RIGHT))) {
 				if ((type & ACCELERATE_LEFT) && (midY < map->lines[startpos].getx() && midY > map->lines[startpos].getx() - ROAD_WIDTH * motion.velM)) {
 					car->rush(ACCROAD);
@@ -651,35 +684,7 @@ Uint32 Map::move(Uint32 interval, void* para)
 				map->endtime = SDL_GetTicks64() + 3000;
 			}
 
-			//fly
-			//critVel=GRAVITY*|(1+y'^2)/y''|
-			if (((type & INCLINE_BACKWARD) && motion.velLinear > 1e-6) || ((type & INCLINE_FORWARD) && motion.velLinear < -1e-6)) {
-				double _cos, _sin, critVel = 0;
-				if (startpos > 300 && startpos < 1054) {
-					//y=sin((startpos-300)/30.0)*CAMH, y'=cos((startpos-300)/30.0)*CAMH/30.0, y''=-sin((startpos-300)/30.0)*CAMH/900.0
-
-					_cos = cos((startpos - 300) / 30.0), _sin = ((startpos - 300) / 30.0);
-					critVel = GRAVITY * (900 + _cos * _cos * CAMERA_HEIGHT * CAMERA_HEIGHT) / (_sin * CAMERA_HEIGHT) * motion.velM * motion.velM;
-				}
-				else if (startpos > 1200 && startpos < 2896) {
-					//y=sin((startpos-1200)/20.0)*CAMH*0.6, y'=cos((startpos-1200)/20.0)*CAMH*0.03, y''=-sin((startpos-1200)/20.0)*CAMH*0.0015
-
-					_cos = cos((startpos - 1200) / 20.0), _sin = ((startpos - 1200) / 20.0);
-					critVel = GRAVITY * (400 + _cos * _cos * CAMERA_HEIGHT * CAMERA_HEIGHT * 0.36) / (_sin * CAMERA_HEIGHT * 0.6) * motion.velM * motion.velM;
-				}
-
-				if (critVel < 0)
-					critVel = -critVel;
-				if ((critVel > 1e-6 && motion.velLinear * motion.velLinear > critVel) || (map->lines[startpos].getType() & INCLINE_PLANE)) {
-					car->setVelPerpen(velX * (map->lines[startpos].getSlope() / sqrt(SEGMENT_LENGTH * SEGMENT_LENGTH + map->lines[startpos].getSlope() * map->lines[startpos].getSlope())));
-					if (motion.velPerpen < GRAVITY * 5 && !(startpos > 3295 && startpos < 3300)) {
-						car->setVelPerpen(0);
-					}
-					else {
-						car->setInAir(true, map->lines[startpos].gety());
-					}
-				}
-			}
+			
 			map->cube.collide(car);
 		}
 

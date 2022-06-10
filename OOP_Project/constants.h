@@ -11,9 +11,10 @@
 #define HEIGHT 600
 #define TITLE "OOP Project"		//window title
 
-//image
-//#define ALL_REGION -1	//when drawing image, pass {ALL_REGION} into SDL_Rect src to draw the whole image 
-						//or into SDL_Rect dst to fill image into the whole window 
+//game page
+#define MENU 1
+#define RECORD 2
+#define MAPSELECT 3
 
 //text
 #define SOLID 100

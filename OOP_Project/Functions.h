@@ -8,6 +8,7 @@
 #include "constants.h"
 #include "Text.h"
 #include "Map.h"
+
 class Functions
 {
 	RenderWindow& window;
@@ -22,14 +23,16 @@ class Functions
 	Text gradetext;
 	Text recordtext;
 	Text hinttext;
-
+	Text maptext;
 	Text quittext;
 
-	Uint64 rec[3];
-	Text  rec1text, rec2text, rec3text;
+	Uint64 rec[3][10];
+	Text  rectext;
+	int maptype;
 	int count;
 	char countstring[10];
 	char recordstr[50];
+
 public:
 	~Functions();
 	Functions(RenderWindow& window, bool* d, bool* q, bool* m);
@@ -37,7 +40,7 @@ public:
 	void Counting(Map& map);
 	void Victory(EndType type);
 	void Grade(EndType type, int record);
-	void Record();
+	void Record(SDL_Renderer* renderer);
 	void setrecord(int r);
 	void close();
 };
