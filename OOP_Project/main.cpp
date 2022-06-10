@@ -12,6 +12,7 @@ void eventHandler(SDL_Event&, RenderWindow&, Map&, RacingCar*, RacingCar* = NULL
 int main(int argc, char* argv[]) 
 {
 	bool dual = false;
+	bool menu = true;
 	bool quit = false;
 
 	System sdl;
@@ -20,11 +21,12 @@ int main(int argc, char* argv[])
 	SDL_Event e;
 	window.init(false);
 	Image Ferrari("../images/ferrari.png", window.GetRenderer());
-	Functions func(window, &dual, &quit);
+	Functions func(window, &dual, &quit, &menu);
 	while (!quit)
 	{
 		//Menu
-		while (!quit)
+		menu = true;
+		while (menu && !quit)
 		{
 			window.clear();
 			Ferrari.draw(window.GetRenderer(), NULL, NULL, false);
@@ -32,7 +34,9 @@ int main(int argc, char* argv[])
 			window.display();
 		}
 
-		quit = false;
+		if (quit)
+			break;
+
 		Map map(window.GetRenderer(), dual);
 		map.startTimer();
 		unsigned int st, end, i = 0;

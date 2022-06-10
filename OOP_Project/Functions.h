@@ -13,6 +13,7 @@ class Functions
 	RenderWindow& window;
 	bool* dual;
 	bool* quit;
+	bool* menu;
 	Text starttext;
 	Text icontext;
 	Text modetext;
@@ -21,6 +22,9 @@ class Functions
 	Text gradetext;
 	Text recordtext;
 	Text hinttext;
+
+	Text quittext;
+
 	Uint64 rec[3];
 	Text  rec1text, rec2text, rec3text;
 	int count;
@@ -28,7 +32,7 @@ class Functions
 	char recordstr[50];
 public:
 	~Functions();
-	Functions(RenderWindow& window, bool* d, bool* q);
+	Functions(RenderWindow& window, bool* d, bool* q, bool* m);
 	void Menu(SDL_Renderer* renderer);
 	void Counting(Map& map);
 	void Victory(EndType type);

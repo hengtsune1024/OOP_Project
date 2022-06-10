@@ -2,7 +2,7 @@
 Functions::~Functions()
 {
 }
-Functions::Functions(RenderWindow& w, bool* d, bool* q) : count(3),window(w),
+Functions::Functions(RenderWindow& w, bool* d, bool* q, bool* m) : count(3),window(w),
 starttext("START", "../fonts/akabara-cinderella.ttf", 75, 0x00, { 255, 255, 0 }, BLENDED, { NULL, NULL, NULL }, window.GetRenderer(), { 470, 410 }, { NULL, NULL }, NULL, SDL_FLIP_NONE, 255),
 icontext("3D Racing Car", "../fonts/akabara-cinderella.ttf", 100, 0x00, { 0, 255, 255 }, BLENDED, { NULL, NULL, NULL }, window.GetRenderer(), { 250, 200 }, { NULL, NULL }, NULL, SDL_FLIP_NONE, 255),
 modetext("Single", "../fonts/akabara-cinderella.ttf", 30, 0x00, { 0, 0, 255 }, BLENDED, { NULL, NULL, NULL }, window.GetRenderer(), { 18, 41 }, { NULL, NULL }, NULL, SDL_FLIP_NONE, 255),
@@ -13,8 +13,8 @@ gradetext("GRADE", "../fonts/akabara-cinderella.ttf", 75, 0x00, { 255, 255, 255 
 hinttext("Click to continue", "../fonts/akabara-cinderella.ttf", 50, 0x00, { 211, 211, 211 }, BLENDED, { NULL, NULL, NULL }, window.GetRenderer(), { 390, 500 }, { NULL, NULL }, NULL, SDL_FLIP_NONE, 255),
 rec1text(" ", "../fonts/akabara-cinderella.ttf", 100, 0x00, { 255, 0, 0 }, BLENDED, { NULL, NULL, NULL }, window.GetRenderer(), { 250, 500 }, { NULL, NULL }, NULL, SDL_FLIP_NONE, 255),
 rec2text(" ", "../fonts/akabara-cinderella.ttf", 100, 0x00, { 0, 255, 0 }, BLENDED, { NULL, NULL, NULL }, window.GetRenderer(), { 250, 500 }, { NULL, NULL }, NULL, SDL_FLIP_NONE, 255),
-rec3text(" ", "../fonts/akabara-cinderella.ttf", 100, 0x00, { 0, 255, 255 }, BLENDED, { NULL, NULL, NULL }, window.GetRenderer(), { 250, 500 }, { NULL, NULL }, NULL, SDL_FLIP_NONE, 255)
-
+rec3text(" ", "../fonts/akabara-cinderella.ttf", 100, 0x00, { 0, 255, 255 }, BLENDED, { NULL, NULL, NULL }, window.GetRenderer(), { 250, 500 }, { NULL, NULL }, NULL, SDL_FLIP_NONE, 255),
+quittext("Quit","../fonts/akabara-cinderella.ttf", 26, 0x00, { 0, 0, 255 }, BLENDED, { NULL, NULL, NULL }, window.GetRenderer(), { 1112, 527 }, { NULL, NULL }, NULL, SDL_FLIP_NONE, 255)
 {
 	FILE* f = fopen("../records/record.dat", "rb");
 	fseek(f, 0, SEEK_SET);
@@ -22,6 +22,7 @@ rec3text(" ", "../fonts/akabara-cinderella.ttf", 100, 0x00, { 0, 255, 255 }, BLE
 	fclose(f);
 	dual = d;
 	quit = q;
+	menu = m;
 }
 void Functions::Menu(SDL_Renderer* renderer)
 {
@@ -34,7 +35,7 @@ void Functions::Menu(SDL_Renderer* renderer)
 	{
 		if (e.type == SDL_QUIT || (e.type == SDL_KEYDOWN && e.key.keysym.sym == SDLK_ESCAPE))
 		{
-			exit(0);
+			*quit = true;
 		}
 		if (e.type == SDL_MOUSEBUTTONDOWN)
 		{
@@ -61,13 +62,17 @@ void Functions::Menu(SDL_Renderer* renderer)
 
 				//start
 				else if (x >= 300 && x <= 900 && y >= 400 && y <= 500)
-					(* quit) = true;
+					(*menu) = false;
 
 				//record
 				else if ((x - 60) * (x - 60) <= 2500 && (y - 180) * (y - 180) <= 2500)
 				{
 					Record();
 				}
+
+				//quit
+				else if ((x - 1140) * (x - 1140) <= 2500 && (y - 540) * (y - 540) <= 2500)
+					*quit = true;
 			}
 		}
 	}
@@ -107,6 +112,14 @@ void Functions::Menu(SDL_Renderer* renderer)
 		aacircleRGBA(renderer, 60, 180, 50, 255, 0, 0, 255);
 	recordtext.draw();
 
+	//quit button
+	if ((x - 1140) * (x - 1140) <= 2500 && (y - 540) * (y - 540) <= 2500) {
+		filledCircleRGBA(renderer, 1140, 540, 52, 255, 255, 255, 128);
+		thickCircleRGBA(renderer, 1140, 540, 52, 0, 255, 255, 255, 10);
+	}
+	else
+		aacircleRGBA(renderer, 1140, 540, 52, 255, 0, 0, 255);
+	quittext.draw();
 }
 
 void Functions::Counting(Map& map)
@@ -389,4 +402,7 @@ void Functions::close()
 	gradetext.close();
 	hinttext.close();
 	rec1text.close();
+	rec2text.close();
+	rec3text.close();
+	quittext.close();
 }
