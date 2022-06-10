@@ -22,7 +22,7 @@ void Triangle::calculateWorldPoints(const Point3D& rotation, const Point3D& posi
 		worldPoints[i] = engine->Translate(worldPoints[i], position);
 }
 
-void Triangle::calculateCameraPoints(Point3D pos, double camDeg, Engine* engine) {
+void Triangle::calculateCameraPoints(Point3D pos, double camRot, Engine* engine) {
 
 	//translation
 	pos.x = -pos.x, pos.y = -pos.y, pos.z = -pos.z;
@@ -31,10 +31,7 @@ void Triangle::calculateCameraPoints(Point3D pos, double camDeg, Engine* engine)
 	}
 	//rotate
 	for (int i = 0; i < 3; ++i)
-		cameraPoints[i] = engine->Rotate(cameraPoints[i], { 0,-camDeg,0 });
-
-	//average Z
-	averageZ = (cameraPoints[0].z + cameraPoints[1].z + cameraPoints[2].z) / 3.0;
+		cameraPoints[i] = engine->Rotate(cameraPoints[i], {0,-camRot,0});
 }
 
 void Triangle::calculateDrawPoints(const Point3D& rotation, const Point3D& position,double camDepth, Engine* engine)
@@ -73,6 +70,8 @@ void Triangle::draw(Uint32* bitmap, Image3D& img, double zbuffer[], double maxy)
 	int x1, x2, y, aux1;
 	double vs, ve, us, ue, ws, we, zs, ze, aux2;
 	double u, ustep, v, vstep, w, wstep, z, zstep;
+
+	int width = img.getWidth(), height = img.getHeight();
 
 	if (p0y < p1y) {
 		slope1 = (1.0 * p1x - p0x) / (p1y - p0y);
@@ -115,10 +114,10 @@ void Triangle::draw(Uint32* bitmap, Image3D& img, double zbuffer[], double maxy)
 				ze = aux2;
 			}
 			if (x2 > x1) {
-				u = us * img.width;
-				ustep = (ue - us) / (x2 - x1) * img.width;
-				v = vs * img.height;
-				vstep = (ve - vs) / (x2 - x1) * img.height;
+				u = us * width;
+				ustep = (ue - us) / (x2 - x1) * width;
+				v = vs * height;
+				vstep = (ve - vs) / (x2 - x1) * height;
 				w = ws;
 				wstep = (we - ws) / (x2 - x1);
 				z = zs;
@@ -176,10 +175,10 @@ void Triangle::draw(Uint32* bitmap, Image3D& img, double zbuffer[], double maxy)
 				ze = aux2;
 			}
 			if (x2 > x1) {
-				u = us * img.width;
-				ustep = (ue - us) / (x2 - x1) * img.width;
-				v = vs * img.height;
-				vstep = (ve - vs) / (x2 - x1) * img.height;
+				u = us * width;
+				ustep = (ue - us) / (x2 - x1) * width;
+				v = vs * height;
+				vstep = (ve - vs) / (x2 - x1) * height;
 				w = ws;
 				wstep = (we - ws) / (x2 - x1);
 				z = zs;
@@ -198,10 +197,7 @@ void Triangle::draw(Uint32* bitmap, Image3D& img, double zbuffer[], double maxy)
 		}
 	}
 }
-/*
-bool Triangle::compare(Triangle* a, Triangle* b) {
-	return a->averageZ > b->averageZ;
-}*/
+
 
 std::vector<Triangle*> Triangle::GetClippedTriangles()
 {

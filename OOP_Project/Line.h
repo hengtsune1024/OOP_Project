@@ -18,11 +18,12 @@ class Line
     Image* sprite;
     Image* actsprite;
 
-
 public:
 
     Line();
     ~Line();
+
+    //getter
     double getx() const { return x; }
     double gety() const { return y; }
     double getz() const { return z; }
@@ -33,6 +34,7 @@ public:
     double getSlope() const { return slope; }
     unsigned long long getType() const { return type; }
 
+    //setter
     void setz(double _z) { z = _z; }
     void sety(double _y) { y = _y; }
     void setx(double _x) { x = _x; }
@@ -42,12 +44,14 @@ public:
     void setSprite(Image* i, double sX) { sprite = i; spriteX = sX; }
     void setClip(double c) { clip = c; }
     void setSlope(double s) { slope = s; }
-
-    void project(int camX, int camY, int camZ, double camDegree, double camDepth);
-    void drawSprite(SDL_Renderer*);
-    
     void setActSprite(Image* i, double sX) { actsprite = i; spriteX = sX; }
-    void drawActSprite(SDL_Renderer*, int); 
+
+    //projection
+    void project(int camX, int camY, int camZ, double camDegree, double camDepth);
+
+    //draw image
+    void drawSprite(SDL_Renderer*);
+    void drawActSprite(SDL_Renderer*, int);
 
 };
 

@@ -5,6 +5,7 @@ Line::Line() :curve(0), x(0), y(0), z(0), type(0), clip(0), slope(0), sprite(NUL
 
 Line::~Line() {
     //no need to delete the image, since they all point to the image object in Map class
+    sprite = actsprite = NULL;
 }
 
 void Line::project(int camX, int camY, int camZ, double camDegree, double camDepth)

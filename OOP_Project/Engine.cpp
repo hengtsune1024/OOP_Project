@@ -15,10 +15,12 @@ Engine::Engine()
 	img = SDL_LoadBMP("../images/tmp.bmp");
 	pixels = (Uint32*)img->pixels;
 }
+
 Engine::~Engine()
 {
 	SDL_FreeSurface(img);
 }
+
 Point3D Engine::Translate(const Point3D& original, const Point3D& translation)
 {
 	Point3D toReturn;

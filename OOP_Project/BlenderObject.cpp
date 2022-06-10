@@ -1,33 +1,26 @@
 #include "BlenderObject.h"
 
-BlenderObject::BlenderObject(const char* objectFile, const char* textureFile, double scale): shownflag(true)
+BlenderObject::BlenderObject(const char* objectFile, const char* textureFile, double scale, bool shown): shownflag(true)
 {
-	this->scale = scale;
-
 	position = { 0,-CAMERA_HEIGHT,CAMERA_CARMIDPOINT_DIST };
 	rotation = { 0,0,0 };
-	img.surface = SDL_LoadBMP(textureFile);
-	if (img.surface == NULL) {
-		printf("error: surface cannot be created\n");
-		printf("%s", textureFile);
-		exit(1);
-	}
-	img.pixels = (Uint32*)img.surface->pixels;
-	img.width = img.surface->w;
-	img.height = img.surface->h;
-	Load(objectFile);
+	img.loadSurface(textureFile);
+	Load(objectFile, scale);
 }
 
-BlenderObject::~BlenderObject() {
+BlenderObject::~BlenderObject() 
+{}
+
+void BlenderObject::close() {
 	for (int i = 0; i < triangles.size(); ++i)
 		delete[]triangles[i];
-	SDL_FreeSurface(img.surface);
+	img.close();
 }
 
 void BlenderObject::logic() 
 {}
 
-void BlenderObject::Load(const char* objectFile)
+void BlenderObject::Load(const char* objectFile, double scale)
 {
 	// Load object
 	FILE* f;

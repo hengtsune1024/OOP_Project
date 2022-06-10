@@ -48,7 +48,6 @@ class Map
 	SDL_TimerID mapObjectTimer;
 	static Uint32 Objectlogic(Uint32, void*);	// the function of car accelerating
 
-
 	void removeTimer();							// remove all timers
 
 	//images
@@ -56,7 +55,6 @@ class Map
 	Image moon;
 
 	//3D object
-	//Cube cube;
 	PhysicalItem cube;
 	Engine engine;
 
@@ -68,7 +66,6 @@ class Map
 	static SDL_Rect viewPort0;
 	static SDL_Rect viewPort1;
 	static SDL_Rect viewPort2;
-
 	static unsigned long long type;
 
 	//to end the game
@@ -87,19 +84,22 @@ public:
 	// getters
 	RacingCar* getCar1() { return car1; }
 	RacingCar* getCar2() { return car2; }
-	//Engine* getEngine() { return &engine; }
-
-	// timer
-	void startTimer();
-
-	void quit();				// quit every member that need to be quit
-	void draw(SDL_Renderer*);	// draw the map, car, and tools, etc.
-	void rush(RushType);
-	void usetool(ToolType);
 	EndType getendtype() { return endtype; }
 	int getendtime() { return endtime; }
 	int getrecord() { return record; }
 	Engine* getEng() { return &engine; }
+
+	// timer
+	void startTimer();
+
+	//tools
+	void usetool(ToolType);
+
+	//draw
+	void draw(SDL_Renderer*);	// draw the map, car, and tools, etc.
+
+	//close
+	void quit();				// quit every member that need to be quit
 };
 
 // unused code

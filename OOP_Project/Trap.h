@@ -7,12 +7,6 @@
 
 class Trap : public BlenderObject
 {
-	/*
-	in entity
-	Image* entityImg;
-	int numImage;  
-	int state;
-	*/
 	int staintime;
 	Image stain;
 
@@ -23,16 +17,17 @@ public:
 	~Trap();
 	Trap(SDL_Renderer* renderer, bool side);
 
+	//setter and getter
 	void setTrap(Line *line);
-
-	//void draw(SDL_Renderer* renderer, Line*);
-
 	void gettrap(TrapType);
+	bool getSide() { return side; }
+
 	void drawStain(SDL_Renderer* renderer);
 
-	void close();
+	//virtaul override
 	void draw3D(Point3D campos, double camDeg, double camDepth, Engine* engine, bool& clean, double maxy = HEIGHT) override;
 	void logic() override;
-	bool getSide() { return side; }
+
+	void close();
 };
 

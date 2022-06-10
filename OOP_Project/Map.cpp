@@ -116,21 +116,20 @@ Map::Map(SDL_Renderer* renderer, bool dual) : lines(NUM_LINE), number_of_lines(N
 	
 	//3d object set position
 	cube.setPos({ lines[POS].getx(),lines[POS].gety()+CUBE_SIZE,lines[POS].getz(),0,0,0 });
-	car1->getObstacle()->setPos({ lines[250].getx(),lines[250].gety() + ROCK_SIZE,lines[250].getz(),0,0,0 });
+	//car1->getObstacle()->setPos({ lines[250].getx(),lines[250].gety() + ROCK_SIZE,lines[250].getz(),0,0,0 });
 
 	if (dualMode) {
 		car1->setPosY(lines[INITIAL_POS].getx() - ROAD_WIDTH / 2);
+		car2->setPosY(lines[INITIAL_POS].getx() + ROAD_WIDTH / 2);
+
 		car2->setTrap(&lines[300]);
 		car2->setTool(&lines[200]);
 		car2->setObstacle(&lines[250]);
 
-		//car2->setPosition(WIDTH / 2 - car2->getWidth() / 2, HEIGHT - car2->getHeight() + 20);
-		car2->setPosY(lines[INITIAL_POS].getx() + ROAD_WIDTH / 2);
-		//car2->turn(0);
 		car1->setOtherCar(car2);
 		car2->setOtherCar(car1);
 
-		car2->getObstacle()->setPos({ lines[250].getx(),lines[250].gety() + ROCK_SIZE,lines[250].getz(),0,0,0 });
+		//car2->getObstacle()->setPos({ lines[250].getx(),lines[250].gety() + ROCK_SIZE,lines[250].getz(),0,0,0 });
 	}
 	else {
 		car1->setPosY(lines[INITIAL_POS].getx());
@@ -141,6 +140,7 @@ Map::Map(SDL_Renderer* renderer, bool dual) : lines(NUM_LINE), number_of_lines(N
 
 Map::~Map() {
 	delete car1;
+	std::cout << "delete car1" << endl;
 	car1 = NULL;
 	if (car2 != NULL) {
 		delete car2;
@@ -155,6 +155,8 @@ void Map::quit() {
 	if (dualMode)
 		car2->quit();
 	streetlight.close();
+	moon.close();
+	cube.close();
 	std::cout << "[Map] Map closed" << endl;
 }
 
@@ -198,7 +200,7 @@ void Map::draw(SDL_Renderer* renderer)
 		const Motion& m = car->getMotion();
 		startpos = m.posX / SEGMENT_LENGTH;
 		if (car->isInAir())
-			camH = m.camHeight + car->baseHeight;
+			camH = m.camHeight + m.baseHeight;
 		else
 			camH = m.camHeight + lines[startpos].gety();
 
@@ -386,7 +388,7 @@ Uint32 Map::move(Uint32 interval, void* para)
 
 		//perpendicular (z-direction)
 		car->setCamHeight(motion.camHeight + motion.velPerpen);
-		if (car->isInAir() && (motion.camHeight + car->baseHeight) - (CAMERA_HEIGHT + map->lines[startpos].gety()) < -1e-6) {
+		if (car->isInAir() && (motion.camHeight + motion.baseHeight) - (CAMERA_HEIGHT + map->lines[startpos].gety()) < -1e-6) {
 			car->setCamHeight(CAMERA_HEIGHT);
 			car->setInAir(false);
 			if (car->getCurrentPos()->getSlope()) {
@@ -400,8 +402,7 @@ Uint32 Map::move(Uint32 interval, void* para)
 		}
 		else {
 			if (motion.camHeight - CAMERA_HEIGHT > 1e-6) {
-				car->setInAir(true);
-				car->baseHeight = map->lines[startpos].gety();
+				car->setInAir(true, map->lines[startpos].gety());
 			}
 			else {
 				car->setCamHeight(CAMERA_HEIGHT);
@@ -681,8 +682,7 @@ Uint32 Map::move(Uint32 interval, void* para)
 						car->setVelPerpen(0);
 					}
 					else {
-						car->setInAir(true);
-						car->baseHeight = map->lines[startpos].gety();
+						car->setInAir(true, map->lines[startpos].gety());
 					}
 				}
 			}

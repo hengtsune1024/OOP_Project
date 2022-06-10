@@ -1,19 +1,24 @@
 #include "PhysicalItem.h"
 
 
-PhysicalItem::PhysicalItem(const char* objfile, const char* texfile, vector<Line>* l, double scale) : BlenderObject(objfile, texfile, scale),
+PhysicalItem::PhysicalItem(const char* objfile, const char* texfile, vector<Line>* l, double scale) : BlenderObject(objfile, texfile, scale, true),
 	moveDegree(0), moveVel(0), isMoving(false), lines(l)
+{}
+
+PhysicalItem::~PhysicalItem() 
 {
+	lines = NULL;
 }
-PhysicalItem::~PhysicalItem() {
+
+void PhysicalItem::close() {
+	BlenderObject::close();
 }
+
 void PhysicalItem::draw3D(Point3D pos, double camDeg, double camDepth, Engine* engine, bool& clean, double maxy) {
 	BlenderObject_draw(pos, rotation, camDeg, camDepth, engine, clean, maxy);
 	clean = false;
 }
-void PhysicalItem::setMoving(bool m) {
-	isMoving = m;
-}
+
 void PhysicalItem::logic()
 {
 	if (!isMoving)

@@ -1,15 +1,17 @@
 #include "Trap.h"
-Trap::Trap(): BlenderObject("../images/trap/trap.txt", "../images/trap/trap.bmp", 100) {
+Trap::Trap(): BlenderObject("../images/trap/trap.txt", "../images/trap/trap.bmp", 100, true) {
 
 }
 
 Trap::~Trap() {
 }
+
 void Trap::close() {
+	BlenderObject::close();
 	stain.close();
 }
 Trap::Trap(SDL_Renderer* renderer, bool _side): side(_side),
-	stain("../images/stain.png", renderer), BlenderObject("../images/trap/trap.txt", "../images/trap/trap.bmp", 500)
+	stain("../images/stain.png", renderer), BlenderObject("../images/trap/trap.txt", "../images/trap/trap.bmp", 500, true)
 {
 	staintime = SDL_GetTicks64() - STAIN_INTERVAL;
 }

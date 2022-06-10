@@ -1,35 +1,27 @@
 #include "RacingCar.h"
 RacingCar::RacingCar() :
 	isRushing(NONE), fullEnergy(true), energy(100.0), healthPoint(100.0),
-	motion(MOTION_INIT), roadtype(NORMAL), outOfRoad(false), inAir(false), BlenderObject("../images/car1.txt", "../images/car1.bmp", 500)
+	motion(MOTION_INIT), roadtype(NORMAL), outOfRoad(false), inAir(false), BlenderObject("../images/car1.txt", "../images/car1.bmp", 500, true)
 {}
 
-RacingCar::~RacingCar() {
-	/*
-	if (image != NULL) {
-		delete[]image;
-		image = NULL;
-	}
-	*/
-}
+RacingCar::~RacingCar()
+{}
 
 RacingCar::RacingCar(const char* obfpath, const char* imgpath, SDL_Renderer* renderer, Line* initpos) :
 	virus(renderer, true), tools(renderer), rock("../images/rock/rock.txt", "../images/rock/rock.bmp"),
 	isRushing(NONE), fullEnergy(true), energy(100.0), healthPoint(100.0), motion(MOTION_INIT), accState(0), roadtype(NORMAL),
-	currentPos(initpos), BlenderObject(obfpath, imgpath, 1000), theOtherCar(NULL), starttime(SDL_GetTicks64() + 3000), timing("00:00:000"), arrive(false), totaltime(0), invincible(0),
+	currentPos(initpos), BlenderObject(obfpath, imgpath, 1000, true), theOtherCar(NULL), starttime(SDL_GetTicks64() + 3000), timing("00:00:000"), arrive(false), totaltime(0), invincible(0),
 	timetext(timing, "../fonts/akabara-cinderella.ttf", 20, 0x02, { 255, 255, 255 }, SHADED, { 0, 0, 0 }, renderer, { 250, 10 }, { 10, 10 }, NULL, SDL_FLIP_NONE, 255)
-
-{
-	
-}
+{}
 
 void RacingCar::quit()
 {
 	// Remove timer in case the call back was not called	
 	SDL_RemoveTimer(cartimer);
-	SDL_RemoveTimer(chargeTimer);
+	BlenderObject::close();
 	virus.close();
 	tools.close();
+	rock.close();
 	timetext.close();
 }
 
@@ -72,11 +64,13 @@ bool RacingCar::collided() {
 	}
 	return false;
 }
+
 void RacingCar::draw3D(Point3D campos, double camDeg, double camDepth, Engine* engine, bool& clean, double maxy) 
 {
 	BlenderObject_draw(campos, { -motion.Xangle,rotation.y,0 }, 0, motion.camDepth, engine, clean, maxy);
 	clean = false;
 }
+
 void RacingCar::draw(SDL_Renderer* renderer, Engine* engine, bool& clean)
 {
 	//car image
@@ -125,33 +119,46 @@ void RacingCar::drawOtherCar(SDL_Renderer* renderer, Engine* engine, bool& clean
 
 Uint32 RacingCar::changeData(Uint32 interval, void* param)
 {
-	RacingCar* p = (RacingCar*)param;
-	if (!p->arrive)
+	RacingCar* car = (RacingCar*)param;
+
+	//time counting
+	if (!car->arrive)
 	{
-		int totaltime = SDL_GetTicks64() - p->starttime;
+		int totaltime = SDL_GetTicks64() - car->starttime;
 		totaltime < 0 ? totaltime = 0 : 1;
 		int ms = totaltime % 1000;
 		totaltime /= 1000;
 		int sec = totaltime % 60;
 		totaltime -= sec;
 		int min = totaltime / 60;
-		sprintf_s(p->timing, "%02d:%02d:%03d", min, sec, ms);
+		sprintf_s(car->timing, "%02d:%02d:%03d", min, sec, ms);
 	}
-	if (SDL_GetTicks64() - p->invincible >= 5000)
-		p->invincible = 0;
 
+	//invincible tool
+	if (SDL_GetTicks64() - car->invincible >= 5000)
+		car->invincible = 0;
 
-	double dif = p->motion.axleDegree - p->motion.camDegree;
+	//car rotation
+	double dif = car->motion.axleDegree - car->motion.camDegree;
 
 	if (dif < -1e-6) {
-		p->rotation.y -= 0.06;
-		if (p->rotation.y < dif)
-			p->rotation.y = dif;
+		car->rotation.y -= 0.06;
+		if (car->rotation.y < dif)
+			car->rotation.y = dif;
 	}
 	else if (dif > 1e-6) {
-		p->rotation.y += 0.06;
-		if (p->rotation.y > dif)
-			p->rotation.y = dif;
+		car->rotation.y += 0.06;
+		if (car->rotation.y > dif)
+			car->rotation.y = dif;
+	}
+
+	//charge
+	if (!car->fullEnergy) {
+		car->energy += ENERGY_RECOVER;
+		if (car->energy > 100.0) {
+			car->energy = 100.0;
+			car->fullEnergy = true;
+		}
 	}
 
 	return interval;
@@ -159,23 +166,8 @@ Uint32 RacingCar::changeData(Uint32 interval, void* param)
 
 void RacingCar::startTimer(Uint32 t)
 {
-	time = t;
-	cartimer = SDL_AddTimer(time, changeData, this); // Set Timer callback
-	//virus.startTimer(TRAP_INTERVAL);
-	//tools.startTimer();
-	chargeTimer = SDL_AddTimer(CHARGE_INTERVAL, charge, this);
+	cartimer = SDL_AddTimer(50, changeData, this); // Set Timer callback
 }
-
-
-void RacingCar::RacingCar::stopTimer()
-{
-	time = 0;
-}
-/*
-void RacingCar::turn(int d)
-{
-	direct = d;
-} */
 
 void RacingCar::setFrictionType(unsigned long long rt) {
 	if ((rt & NORMAL) || (rt & HIGH_FRICTION) || (rt & LOW_FRICTION)) {
@@ -261,23 +253,6 @@ void RacingCar::brake(int type)
 	//cout << motion.accLinear << ',' << motion.velLinear << endl;
 }
 
-Uint32 RacingCar::charge(Uint32 interval, void* para) {
-
-	RacingCar* car = (RacingCar*)para;
-
-	if (car->fullEnergy){
-		return interval;
-	}
-
-	car->energy += ENERGY_RECOVER;
-	if (car->energy > 100.0) {
-		car->energy = 100.0;
-		car->fullEnergy = true;
-	}
-
-	return interval;
-}
-
 void RacingCar::rush(RushType r) 
 {
 	switch (r)
@@ -360,7 +335,6 @@ void RacingCar::touchobstacle()
 	}
 }
 
-
 void RacingCar::isarrive() 
 {
 	if (!arrive)
@@ -371,62 +345,14 @@ void RacingCar::isarrive()
 	}
 
 }
-//previous code
-/*
-void RacingCar::init() {
-	state = 0;
-	//acc = 0;
-	direct = FRONT;
-	healthPoint = MAX_HP;
-	fullyDamaged = false;
-	energyPoint = MAX_ENERGY;
-	fullyCharged = true;
-	rechargeInterval = 0;
-	for (int i = 0; i < NUM_CARIMG; ++i) {
-		setImage(RACINGCAR_PATH, NUM_CARIMG, renderer,0);
-	}
 
-	map = &m;
-	map->setCar(this);
-	cout << "[RacingCar] Car initialized" << endl;
+void RacingCar::setInAir(bool ia, double baseheight) {
+	inAir = ia;
+	if (inAir)
+		motion.baseHeight = baseheight;
 }
 
-
-		switch (roadtype) {
-			case NORMAL:
-				motion.accLinear = sign * FRICTION_ACC;
-				break;
-			case HIGH_FRICTION:
-				motion.accLinear = sign * HIGH_FRICTION_ACC;
-				break;
-			case LOW_FRICTION:
-				motion.accLinear = sign * LOW_FRICTION_ACC;
-				break;
-		}
-		switch (roadtype) {
-			case NORMAL:
-				motion.accLinear = ACCELERATION - FRICTION_ACC;
-				break;
-			case HIGH_FRICTION:
-				motion.accLinear = ACCELERATION - HIGH_FRICTION_ACC;
-				break;
-			case LOW_FRICTION:
-				motion.accLinear = ACCELERATION - LOW_FRICTION_ACC;
-				break;
-		}
-		switch (roadtype) {
-			case NORMAL:
-				motion.accLinear = -ACCELERATION + FRICTION_ACC;
-				break;
-			case HIGH_FRICTION:
-				motion.accLinear = -ACCELERATION + HIGH_FRICTION_ACC;
-				break;
-			case LOW_FRICTION:
-				motion.accLinear = -ACCELERATION + LOW_FRICTION_ACC;
-				break;
-		}
-*/
-
+//previous code
 
 /*
 void RacingCar::setPosition(int xx, int yy)

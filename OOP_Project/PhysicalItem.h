@@ -18,12 +18,17 @@ class PhysicalItem: public BlenderObject
 public:
 	PhysicalItem(const char* objfile, const char* texfile, vector<Line>* l, double scale);
 	~PhysicalItem();
-	void draw3D(Point3D pos, double camDeg, double camDepth, Engine* engine, bool& clean, double maxy = HEIGHT) override;
-	void setMove(double mv, double md) { moveDegree = md, moveVel = mv; }
-	void setMoving(bool m);
-	void setPos(Point3D p) {position = p; }
+
+	//getter
 	double getZ() { return position.z; }
+
+	//isCollided
 	void collide(RacingCar*);
-	void logic();
+
+	//virtual override
+	void draw3D(Point3D pos, double camDeg, double camDepth, Engine* engine, bool& clean, double maxy = HEIGHT) override;
+	void logic() override;
+	
+	void close();
 };
 

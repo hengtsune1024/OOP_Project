@@ -1,32 +1,27 @@
 #include "Tool.h"
-Tool::Tool():BlenderObject("../images/tool/tool.txt", "../images/tool/tool.bmp", 100) {
+Tool::Tool():BlenderObject("../images/tool/tool.txt", "../images/tool/tool.bmp", 100, true) {
 
 }
 Tool::~Tool() {
 }
 
 void Tool::close() {
+	BlenderObject::close();
 	tool1img.close();
 	tool2img.close();
 }
-Tool::Tool(SDL_Renderer* renderer) : Tool1(0), Tool2(0), shownflag(true),
+
+Tool::Tool(SDL_Renderer* renderer) : Tool1(0), Tool2(0),
 	tool1img("../images/star.png", renderer), tool2img("../images/star.png", renderer),
-	BlenderObject("../images/tool/tool.txt", "../images/tool/tool.bmp", 750)
+	BlenderObject("../images/tool/tool.txt", "../images/tool/tool.bmp", 750, true)
 {
 	gettime = SDL_GetTicks64() - STAIN_INTERVAL;
 }
 
 void Tool::setTool(Line* line) {
 	position = { line->getx(),line->gety() + 1500,line->getz(),0,0,0 };
-	//setEntity(line);
-	//setPos({ line->getx(),line->gety() + 100 + CUBE_SIZE,line->getz(),0,0,0 });
 }
-/*
-void Trap::draw(SDL_Renderer* renderer, Line *line) {
 
-	drawImg(renderer, line);
-}
-*/
 void Tool::draw3D(Point3D pos, double camDeg, double camDepth, Engine* engine, bool& clean, double maxy) {
 	if (shownflag){
 		BlenderObject_draw(pos, rotation, camDeg, camDepth, engine, clean, maxy);

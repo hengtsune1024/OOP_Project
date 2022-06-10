@@ -1,17 +1,21 @@
 #include "Obstacle.h"
-Obstacle::Obstacle() : BlenderObject(NULL, NULL, ROCK_SIZE)
+Obstacle::Obstacle() : BlenderObject(NULL, NULL, ROCK_SIZE, true)
 {
 }
 Obstacle::~Obstacle()
 {
 }
-Obstacle::Obstacle(const char* objpath, const char* imgpath) : BlenderObject(objpath, imgpath, ROCK_SIZE)
+
+Obstacle::Obstacle(const char* objpath, const char* imgpath) : BlenderObject(objpath, imgpath, ROCK_SIZE, true)
 {
 	touchtime = 0;
 }
+void Obstacle::close() {
+	BlenderObject::close();
+}
 void Obstacle::setObstacle(Line* line)
 {
-	
+	position = { line->getx(),line->gety() + ROCK_SIZE,line->getz(),0,0,0 };
 }
 int Obstacle::istouching()
 {
