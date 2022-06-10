@@ -21,7 +21,7 @@
 #define BLENDED 102
 
 //map
-#define NUM_LINE 5000		//
+#define NUM_LINE 10000		//
 #define INITIAL_POS 30
 #define FINAL_POS 4200
 

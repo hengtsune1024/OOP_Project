@@ -33,5 +33,6 @@ public:
 	void close();
 	void draw3D(Point3D campos, double camDeg, double camDepth, Engine* engine, bool& clean, double maxy = HEIGHT) override;
 	void logic() override;
+	bool getSide() { return side; }
 };
 

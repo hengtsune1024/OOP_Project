@@ -19,7 +19,6 @@ Map::Map(SDL_Renderer* renderer, bool dual) : lines(NUM_LINE), number_of_lines(N
 	moon("../images/moon.png", renderer), cube("../images/cube/cube.txt", "../images/cube/cube.bmp", &lines, CUBE_SIZE / 2.457335)
 {
 	double x = 0, dx = 0;
-
 	for (int i = 0; i < NUM_LINE; ++i) {
 
 		//curve, default = 0
@@ -608,10 +607,11 @@ Uint32 Map::move(Uint32 interval, void* para)
 				}
 			}
 			//trap
-			if ((type & TRAPAREA) && midY < map->lines[startpos].getx() + TRAP_WIDTH * motion.velM && midY > map->lines[startpos].getx() - TRAP_WIDTH * motion.velM)
+			if (type & TRAPAREA)
 			{
-				car->getTrap()->gettrap(STAIN);
-				
+				if ((car->getTrap()->getSide() && midY < map->lines[startpos].getx() + (ROAD_WIDTH / 2.0 + TRAP_WIDTH) * motion.velM && midY > map->lines[startpos].getx() + (ROAD_WIDTH / 2.0 - TRAP_WIDTH) * motion.velM) ||
+					(!car->getTrap()->getSide() && midY < map->lines[startpos].getx() + (-ROAD_WIDTH / 2.0 + TRAP_WIDTH) * motion.velM && midY > map->lines[startpos].getx() + (-ROAD_WIDTH / 2.0 - TRAP_WIDTH) * motion.velM))
+					car->getTrap()->gettrap(STAIN);
 			}
 			
 			//tool
