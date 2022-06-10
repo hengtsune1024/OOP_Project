@@ -54,9 +54,6 @@ class RacingCar: public BlenderObject
 	bool inAir;
 
 	//map object
-	Trap virus;
-	Tool tools;
-	Obstacle rock;
 
 	//road type
 	unsigned long long roadtype;
@@ -85,7 +82,7 @@ public:
 	//timer
 	void startTimer(Uint32 t);
 	bool collided();
-	void usetool(ToolType type);
+	void usetool(ToolType type, Tool* tools, bool car);
 
 	//getter
 	RacingCar* getOtherCar() { return theOtherCar; }
@@ -100,9 +97,6 @@ public:
 	double getVelAngular() { return motion.velAngular; }
 	double getAccLinear() { return motion.accLinear; }
 	double getRoadMod() { return motion.roadMod; }
-	Trap* getTrap() { return &virus; }
-	Tool* getTools() { return &tools; }
-	Obstacle* getObstacle() { return &rock; }
 	bool isOutofRoad() { return outOfRoad; }
 	bool isInAir() { return inAir; }
 	Line* getCurrentPos() { return currentPos; }
@@ -120,9 +114,6 @@ public:
 	void setVelPerpen(double vp) { motion.velPerpen = vp; }
 	void setInAir(bool ia, double baseheight = 0);
 	void setFrictionType(unsigned long long);
-	void setTrap(Line* l) { virus.setTrap(l); }
-	void setTool(Line* l) { tools.setTool(l); }
-	void setObstacle(Line* l) { rock.setObstacle(l); }
 	void setOutofRoad(bool o) { outOfRoad = o; }
 	void setPosX(double x) { motion.posX = x; }
 	void setPosY(double y) { motion.posY = y; }
@@ -138,6 +129,6 @@ public:
 
 	void rush(RushType rushtype);
 	void brake(int type = -1);		//car accelerating
-	void touchobstacle();
+	void touchobstacle(Obstacle& rock);
 	void isarrive();
 };

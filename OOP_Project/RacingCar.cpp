@@ -8,7 +8,7 @@ RacingCar::~RacingCar()
 {}
 
 RacingCar::RacingCar(const char* obfpath, const char* imgpath, SDL_Renderer* renderer, Line* initpos) :
-	virus(renderer, true), tools(renderer), rock("../images/rock/rock.txt", "../images/rock/rock.bmp"),
+	
 	isRushing(NONE), fullEnergy(true), energy(100.0), healthPoint(100.0), motion(MOTION_INIT), accState(0), roadtype(NORMAL),
 	currentPos(initpos), BlenderObject(obfpath, imgpath, 1000, true), theOtherCar(NULL), starttime(SDL_GetTicks64() + 3000), timing("00:00:000"), arrive(false), totaltime(0), invincible(0),
 	timetext(timing, "../fonts/akabara-cinderella.ttf", 20, 0x02, { 255, 255, 255 }, SHADED, { 0, 0, 0 }, renderer, { 250, 10 }, { 10, 10 }, NULL, SDL_FLIP_NONE, 255)
@@ -19,9 +19,6 @@ void RacingCar::quit()
 	// Remove timer in case the call back was not called	
 	SDL_RemoveTimer(cartimer);
 	BlenderObject::close();
-	virus.close();
-	tools.close();
-	rock.close();
 	timetext.close();
 }
 
@@ -300,21 +297,21 @@ void RacingCar::rush(RushType r)
 	*/
 }
 
-void RacingCar::usetool(ToolType type)
+void RacingCar::usetool(ToolType type, Tool* tools, bool car)
 {
-	switch (tools.usetool(type))
+	switch (tools->usetool(type, car))
 	{
-	case SPEEDUP:
-		rush(TOOL);
-		break;
-	case INVINCIBLE:
-		printf("INVINCIBLE NOW\n");
-		invincible = SDL_GetTicks64();
-		break;
+		case SPEEDUP:
+			rush(TOOL);
+			break;
+		case INVINCIBLE:
+			printf("INVINCIBLE NOW\n");
+			invincible = SDL_GetTicks64();
+			break;
 	}
 }
 
-void RacingCar::touchobstacle()
+void RacingCar::touchobstacle(Obstacle& rock)
 {
 	if (!rock.istouching())
 	{

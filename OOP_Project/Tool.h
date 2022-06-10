@@ -7,13 +7,18 @@
 #include "BlenderObject.h"
 using namespace std;
 
-class Tool: public BlenderObject
-{
+struct ToolSet {
 	int Tool1;	//speedup
 	int Tool2;	//invincible
 	//int Tool3;	//
+};
 
+class Tool: public BlenderObject
+{
+	ToolSet car1tool;
+	ToolSet car2tool;
 	int gettime;
+
 	Image tool1img;
 	Image tool2img;
 
@@ -24,11 +29,11 @@ public:
 
 	//setter and getter
 	void setTool(Line* line);
-	void getTools();
+	void getTools(bool car);
 
 	//tool function
-	int usetool(ToolType);
-	void drawmytool(SDL_Renderer* renderer);
+	int usetool(ToolType, bool car);
+	void drawmytool(SDL_Renderer* renderer, bool car);	//car=1 for car1, car=0 for car2
 
 	//virtual override
 	void draw3D(Point3D pos, double camDeg, double camDepth, Engine* engine, bool& clean, double maxy = HEIGHT) override;

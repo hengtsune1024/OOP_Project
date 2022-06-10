@@ -55,8 +55,12 @@ class Map
 	Image moon;
 
 	//3D object
-	PhysicalItem cube;
 	Engine engine;
+	PhysicalItem cube;
+	Trap virus;
+	Tool tools;
+	Obstacle rock;
+
 
 	//static member
 	static Uint32 grass;
@@ -87,6 +91,7 @@ public:
 	EndType getendtype() { return endtype; }
 	int getendtime() { return endtime; }
 	int getrecord() { return record; }
+	Tool* getTool() { return &tools; }
 	Engine* getEng() { return &engine; }
 
 	// timer

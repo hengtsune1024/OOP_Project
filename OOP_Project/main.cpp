@@ -118,10 +118,10 @@ void eventHandler(SDL_Event& e, RenderWindow& w, Map& map, RacingCar* car1, Raci
 				break;
 			*/
 			case SDLK_1:
-				car1->usetool(SPEEDUP);
+				car1->usetool(SPEEDUP, map.getTool(), true);
 				break;
 			case SDLK_2:
-				car1->usetool(INVINCIBLE);
+				car1->usetool(INVINCIBLE, map.getTool(), true);
 				break;
 			case SDLK_3:
 
@@ -158,10 +158,10 @@ void eventHandler(SDL_Event& e, RenderWindow& w, Map& map, RacingCar* car1, Raci
 				car2->setVelPerpen(car2->getVelPerpen() - 300);
 				*/
 			case SDLK_KP_1:
-				car2->usetool(SPEEDUP);
+				car2->usetool(SPEEDUP, map.getTool(), false);
 				break;
 			case SDLK_KP_2:
-				car2->usetool(INVINCIBLE);
+				car2->usetool(INVINCIBLE, map.getTool(), false);
 				break;
 			case SDLK_KP_3:
 

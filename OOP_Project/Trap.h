@@ -5,11 +5,16 @@
 #include "Line.h"
 #include <SDL.h>
 
+struct TrapSet {
+	int staintime;
+};
+
 class Trap : public BlenderObject
 {
-	int staintime;
-	Image stain;
+	TrapSet car1trap;
+	TrapSet car2trap;
 
+	Image stain;
 	bool side; //right=1 left=0
 
 public:
@@ -19,10 +24,10 @@ public:
 
 	//setter and getter
 	void setTrap(Line *line);
-	void gettrap(TrapType);
+	void gettrap(TrapType, bool car);
 	bool getSide() { return side; }
 
-	void drawStain(SDL_Renderer* renderer);
+	void drawStain(SDL_Renderer* renderer,  bool car);
 
 	//virtaul override
 	void draw3D(Point3D campos, double camDeg, double camDepth, Engine* engine, bool& clean, double maxy = HEIGHT) override;

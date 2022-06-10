@@ -11,7 +11,7 @@ void Tool::close() {
 	tool2img.close();
 }
 
-Tool::Tool(SDL_Renderer* renderer) : Tool1(0), Tool2(0),
+Tool::Tool(SDL_Renderer* renderer) : car1tool{ 0,0 }, car2tool{ 0,0 },
 	tool1img("../images/star.png", renderer), tool2img("../images/star.png", renderer),
 	BlenderObject("../images/tool/tool.txt", "../images/tool/tool.bmp", 750, true)
 {
@@ -30,14 +30,24 @@ void Tool::draw3D(Point3D pos, double camDeg, double camDepth, Engine* engine, b
 }
 
 
-void Tool::drawmytool(SDL_Renderer* renderer) {
+void Tool::drawmytool(SDL_Renderer* renderer, bool car) {
 	SDL_Rect loc1 = { 13,73,60,50 };
 	SDL_Rect loc2 = { 53,73,60,50 };
-	
-	if (Tool1)
-		tool1img.draw(renderer, NULL, &loc1);
-	if (Tool2)
-		tool2img.draw(renderer, NULL, &loc2);
+
+	if (car) {
+		//car1
+		if (car1tool.Tool1)
+			tool1img.draw(renderer, NULL, &loc1);
+		if (car1tool.Tool2)
+			tool2img.draw(renderer, NULL, &loc2);
+	}
+	else {
+		//car2
+		if (car2tool.Tool1)
+			tool1img.draw(renderer, NULL, &loc1);
+		if (car2tool.Tool2)
+			tool2img.draw(renderer, NULL, &loc2);
+	}
 
 	if (SDL_GetTicks64() - gettime < 3000)
 		shownflag = false;
@@ -45,26 +55,45 @@ void Tool::drawmytool(SDL_Renderer* renderer) {
 		shownflag = true;
 }
 
-void Tool::getTools() {
+void Tool::getTools(bool car) {
 
 	srand(std::time(NULL));
 	if (shownflag)
 	{
 		gettime = SDL_GetTicks64();
-		switch (rand() % 2)
-		{
-		case SPEEDUP:
-			if (!Tool1)
-				Tool1 = 1;
-			else
-				Tool2 = 1;
-			break;
-		case INVINCIBLE:
-			if (!Tool2)
-				Tool2 = 1;
-			else
-				Tool1 = 1;
-			break;
+		if (car) {
+			switch (rand() % 2)
+			{
+				case SPEEDUP:
+					if (!car1tool.Tool1)
+						car1tool.Tool1 = 1;
+					else
+						car1tool.Tool2 = 1;
+					break;
+				case INVINCIBLE:
+					if (!car1tool.Tool2)
+						car1tool.Tool2 = 1;
+					else
+						car1tool.Tool1 = 1;
+					break;
+			}
+		}
+		else {
+			switch (rand() % 2)
+			{
+				case SPEEDUP:
+					if (!car2tool.Tool1)
+						car2tool.Tool1 = 1;
+					else
+						car2tool.Tool2 = 1;
+					break;
+				case INVINCIBLE:
+					if (!car2tool.Tool2)
+						car2tool.Tool2 = 1;
+					else
+						car2tool.Tool1 = 1;
+					break;
+			}
 		}
 	}
 }
@@ -77,23 +106,44 @@ void Tool::logic()
 }
 
 
-int Tool::usetool(ToolType type) {
-	switch (type)
-	{
-	case SPEEDUP:
-		if (Tool1)
+int Tool::usetool(ToolType type, bool car) {
+	if (car) {
+		switch (type)
 		{
-			Tool1 = 0;
-			return SPEEDUP;
+			case SPEEDUP:
+				if (car1tool.Tool1)
+				{
+					car1tool.Tool1 = 0;
+					return SPEEDUP;
+				}
+				break;
+			case INVINCIBLE:
+				if (car1tool.Tool2)
+				{
+					car1tool.Tool2 = 0;
+					return INVINCIBLE;
+				}
+				break;
 		}
-		break;
-	case INVINCIBLE:
-		if (Tool2)
+	}
+	else{
+		switch (type)
 		{
-			Tool2 = 0;
-			return INVINCIBLE;
+			case SPEEDUP:
+				if (car2tool.Tool1)
+				{
+					car2tool.Tool1 = 0;
+					return SPEEDUP;
+				}
+				break;
+			case INVINCIBLE:
+				if (car2tool.Tool2)
+				{
+					car2tool.Tool2 = 0;
+					return INVINCIBLE;
+				}
+				break;
 		}
-		break;
 	}
 	return -1;
 }
