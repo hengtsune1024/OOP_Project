@@ -1,6 +1,6 @@
 #include "Line.h"
 
-Line::Line() : x(0), y(0), z(0), type(0), clip(0), slope(0), sprite(NULL), actsprite(NULL)
+Line::Line() : x(0), y(0), z(0), curve(0), type(0), clip(0), slope(0), sprite(NULL), actsprite(NULL)
 {}
 
 Line::~Line() {

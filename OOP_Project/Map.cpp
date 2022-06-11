@@ -60,6 +60,7 @@ void Map::generateMap()
 	vector<int> trapindex(NUM_TRAP, 0);
 	vector<int> toolindex(NUM_TOOL, 0);
 	vector<int> obstacleindex(NUM_OBSTACLE, 0);
+	bool table[9000] = { false };
 
 	int upper, lower, minDist, range;
 	range = 9000 / NUM_TRAP;
@@ -69,7 +70,11 @@ void Map::generateMap()
 		if (i > 0 && lower < trapindex[i - 1] + minDist + 1)
 			lower = trapindex[i - 1] + minDist + 1;
 		upper = 100 + range * (i + 1);
-		trapindex[i] = (upper - lower) * (rand() / (RAND_MAX + 1.0)) + lower;
+		do {
+			trapindex[i] = (upper - lower) * (rand() / (RAND_MAX + 1.0)) + lower;
+		} while (table[trapindex[i]]);
+		for (int j = trapindex[i] >= 10 ? trapindex[i] - 10 : 0; j <= trapindex[i] + 10 && j < 9000; ++j)
+			table[j] = true;
 	}
 	range = 9000 / NUM_TOOL;
 	minDist = range / 2;
@@ -78,7 +83,11 @@ void Map::generateMap()
 		if (i > 0 && lower < toolindex[i - 1] + minDist + 1)
 			lower = toolindex[i - 1] + minDist + 1;
 		upper = 100 + range * (i + 1);
-		toolindex[i] = (upper - lower) * (rand() / (RAND_MAX + 1.0)) + lower;
+		do {
+			toolindex[i] = (upper - lower) * (rand() / (RAND_MAX + 1.0)) + lower;
+		} while (table[toolindex[i]]);
+		for (int j = toolindex[i] >= 10 ? toolindex[i] - 10 : 0; j <= toolindex[i] + 10 && j < 9000; ++j)
+			table[j] = true;
 	}
 	range = 9000 / NUM_OBSTACLE;
 	minDist = range / 2;
@@ -87,28 +96,136 @@ void Map::generateMap()
 		if (i > 0 && lower < obstacleindex[i - 1] + minDist + 1)
 			lower = obstacleindex[i - 1] + minDist + 1;
 		upper = 100 + range * (i + 1);
-		obstacleindex[i] = (upper - lower) * (rand() / (RAND_MAX + 1.0)) + lower;
+		do {
+			obstacleindex[i] = (upper - lower) * (rand() / (RAND_MAX + 1.0)) + lower;
+		} while (table[obstacleindex[i]]);
+		for (int j = obstacleindex[i] >= 10 ? obstacleindex[i] - 10 : 0; j <= obstacleindex[i] + 10 && j < 9000; ++j)
+			table[j] = true;
 	}
 
 	//road design
-	double x = 0, z = 0, dx = 0, curve = 0;
-	for (int i = 0; i < NUM_LINE; ++i) 
+	struct Pair {
+		int start;
+		int end;
+		union {
+			double curve;
+			struct {
+				double height;
+				double period;
+			};
+			unsigned int type;
+		};
+	} generator;
+
+	// xchange
+	// divide 9000 to 10 parts with length 900, the ychange range is within 200 to 800
+	double divert = 0;
+	int sign = 1;
+	for (int i = 0; i < 10; ++i) 
+	{
+		if (divert < 1e-6 && divert > -1e-6)
+			sign = (rand() & 1) ? 1 : -1;
+		else if (divert > 0)
+			sign = -1;
+		else
+			sign = 1;
+		generator.curve = sign * ((1.0 - 0.1) * (rand() / (RAND_MAX + 1.0)) + 0.1);
+		range = (800 - 200) * (rand() / (RAND_MAX + 1.0)) + 200;
+		generator.start = (900 - range) * (rand() / (RAND_MAX + 1.0)) + 900 * i + 100;
+		generator.end = generator.start + range;
+		divert += range * (range - 1) * generator.curve / 2.0;
+		for (int j = generator.start; j <= generator.end; ++j) {
+			lines[j].setCurve(generator.curve);
+		}
+	}
+	// ychange
+	// divide 9000 to 6 parts with length 1500
+	// range between 900 adn 1400, height between 0.5 and 1.2 (CAMERA_HEIGHT), period between 20 and 40
+	int n;
+	double cos_, sin_, critV;
+	for (int i = 0; i < 6; ++i) 
+	{
+		generator.height = ((1.2 - 0.5) * (rand() / (RAND_MAX + 1.0)) + 0.5) * CAMERA_HEIGHT;
+		generator.period = (40 - 20) * (rand() / (RAND_MAX + 1.0)) + 20;
+		n = ((1400 - 900) * (rand() / (RAND_MAX + 1.0)) + 900) / (2 * PI * generator.period);
+		range = n * (2 * PI * generator.period);
+		generator.start = (1500 - range) * (rand() / (RAND_MAX + 1.0)) + 1500 * i + 100;
+		generator.end = generator.start + range;
+		for (int j = generator.start; j <= generator.end; ++j) {
+			cos_ = cos((j - generator.start) / generator.period);
+			sin_ = sin((j - generator.start) / generator.period);
+			critV = GRAVITY * (generator.period * generator.period + cos_ * cos_ * generator.height * generator.height) / (sin_ * generator.height) / lines[j].getRoadVelM() / lines[j].getRoadVelM() * 50;
+			if (critV < 0)
+				critV = -critV;
+			lines[j].sety(sin_ * generator.height);
+			lines[j].setCritVel(critV);
+			lines[j].setSlope(lines[j].gety() - lines[j - 1].gety());
+
+			if (lines[j].getSlope() > 1e-6)
+				lines[j].addType(INCLINE_BACKWARD);
+			else if(lines[j].getSlope() < -1e-6)
+				lines[j].addType(INCLINE_FORWARD);
+
+			//[left undone] incline_plan
+		}
+	}
+	// special roads
+	// divide 9000 to 9 parts with length 1000
+	minDist = 300;
+	int previous = -500;
+	for (int i = 0; i < 9; ++i) 
+	{
+		// acceleration road
+		do {
+			generator.start = 1000 * (rand() / (RAND_MAX + 1.0)) + 1000 * i + 100;
+		} while (generator.start - previous < minDist && generator.start - previous > -minDist);
+
+		if (rand() & 1) {
+			for (int j = generator.start; j <= generator.start + ACCROAD_LENGHT; ++j)
+				lines[j].addType(ACCELERATE_RIGHT);
+		}
+		else {
+			for (int j = generator.start; j <= generator.start + ACCROAD_LENGHT; ++j)
+				lines[j].addType(ACCELERATE_LEFT);
+		}
+		previous = generator.start;
+
+		// different friction
+		// high_friction range between 50 and 300, low_friction range between 100 and 400
+		for (int k = 0; k < 2; ++k) 
+		{
+			switch (rand() & 3) {
+				case 0:
+				case 1:
+					range = (300 - 50) * (rand() / (RAND_MAX + 1.0)) + 50;
+					generator.start = (500 - range) * (rand() / (RAND_MAX + 1.0)) + 1000 * i + k * 500 + 100;
+					generator.end = generator.start + range;
+					for (int j = generator.start; j <= generator.end; ++j)
+						lines[j].addType(HIGH_FRICTION);
+					break;
+				case 2:
+				case 3:
+					range = (400 - 100) * (rand() / (RAND_MAX + 1.0)) + 100;
+					generator.start = (500 - range) * (rand() / (RAND_MAX + 1.0)) + 1000 * i + k * 500 + 100;
+					generator.end = generator.start + range;
+					for (int j = generator.start; j <= generator.end; ++j)
+						lines[j].addType(LOW_FRICTION);
+					break;
+			}
+		}
+	}
+
+	double z = 0, x = 0, dx = 0;
+	for (int i = 0; i < NUM_LINE; ++i)
 	{
 		//z
 		lines[i].setz(z);
 		z += SEGMENT_LENGTH;
-		
-		//curve
-		
 
 		//x
 		x += dx;
-		dx += curve;
+		dx += lines[i].getCurve();
 		lines[i].setx(x);
-
-		//y
-		lines[i].sety(0);
-
 
 		//streetlight
 		if ((i & 31) == 0)
@@ -130,10 +247,10 @@ void Map::generateMap()
 		else
 			lines[i].addType(NORMAL);
 
-		//left undone: acceleration road and different firction
+		//[left undone] acceleration road and different firction
 	}
 
-	//add type to lines and set obhects' positions
+	//add type to lines and set objects' positions
 	for (int i = 0; i < NUM_TRAP; ++i) 
 	{
 		virus.setTrap(&lines[trapindex[i]], trapindex[i], i);
@@ -250,17 +367,7 @@ void Map::draw(SDL_Renderer* renderer)
 
 			//road type
 			type = lines[i].getType();
-			if ((type & NORMAL) || (type & TRAPAREA) || (type & TOOLAREA) || (type & OBSTACLEAREA) || (type & CLIFF)) {
-				rumble = (i >> 2) & 1 ? 0xffffffff : 0xff000000;
-				road = (i >> 2) & 1 ? 0xff6b6b6b : 0xff696969;
-				drawQuad(renderer, { rumble, p.getX(), p.getY(), p.getW() * 1.2, l.getX(), l.getY(), l.getW() * 1.2 });
-				drawQuad(renderer, { road, p.getX(), p.getY(), p.getW(), l.getX(), l.getY(), l.getW() });
-
-				if ((i >> 3) & 1) {
-					drawQuad(renderer, { laneLine, p.getX(), p.getY(), p.getW() * LANELINE_WIDTH / ROAD_WIDTH, l.getX(), l.getY(),l.getW() * LANELINE_WIDTH / ROAD_WIDTH });
-				}
-			}
-			else if ((type & LOW_FRICTION)) {
+			if ((type & LOW_FRICTION)) {
 				rumble = (i >> 2) & 1 ? 0xffffffff : 0xff000000;
 				road = (i >> 2) & 1 ? 0xffffff80 : 0xffffffff;
 				drawQuad(renderer, { rumble, p.getX(), p.getY(), p.getW() * 1.2, l.getX(), l.getY(), l.getW() * 1.2 });
@@ -282,24 +389,25 @@ void Map::draw(SDL_Renderer* renderer)
 					drawQuad(renderer, { rumble,p.getX(), p.getY(), p.getW() * width_scale, l.getX(), l.getY(), l.getW() * width_scale });
 				}
 			}
-			else if ((type & ACCELERATE_RIGHT) || (type & ACCELERATE_LEFT)) {
+			else if ((type & NORMAL) || (type & TRAPAREA) || (type & TOOLAREA) || (type & OBSTACLEAREA) || (type & CLIFF)) {
 				rumble = (i >> 2) & 1 ? 0xffffffff : 0xff000000;
 				road = (i >> 2) & 1 ? 0xff6b6b6b : 0xff696969;
-				Uint32 accRoad = ((i - (colorChange1 >> 3)) >> 1) & 1 ? 0xff00ffff : 0xff0000ff;
-
-
-				int sign = (type & ACCELERATE_RIGHT) ? 1 : -1;
-
 				drawQuad(renderer, { rumble, p.getX(), p.getY(), p.getW() * 1.2, l.getX(), l.getY(), l.getW() * 1.2 });
 				drawQuad(renderer, { road, p.getX(), p.getY(), p.getW(), l.getX(), l.getY(), l.getW() });
 
 				if ((i >> 3) & 1) {
 					drawQuad(renderer, { laneLine, p.getX(), p.getY(), p.getW() * LANELINE_WIDTH / ROAD_WIDTH, l.getX(), l.getY(),l.getW() * LANELINE_WIDTH / ROAD_WIDTH });
 				}
+			}
+
+			if ((type & ACCELERATE_RIGHT) || (type & ACCELERATE_LEFT)) 
+			{
+				Uint32 accRoad = ((i - (colorChange1 >> 3)) >> 1) & 1 ? 0xff00ffff : 0xff0000ff;
+
+				int sign = (type & ACCELERATE_RIGHT) ? 1 : -1;
 
 				drawQuad(renderer, { accRoad, p.getX() + sign * p.getW() / 2, p.getY(), p.getW() / 2, l.getX() + sign * l.getW() / 2, l.getY(), l.getW() / 2 });
 			}
-
 			
 		}
 
@@ -610,14 +718,16 @@ Uint32 Map::move(Uint32 interval, void* para)
 			//critVel=GRAVITY*|(1+y'^2)/y''|
 			if (((type & INCLINE_BACKWARD) && motion.velLinear > 1e-6) || ((type & INCLINE_FORWARD) && motion.velLinear < -1e-6)) {
 				double critVel = car->getCurrentPos()->getCritVel();
+				cout << critVel << endl;
 				if ((critVel > -1e-6 && velX * velX > critVel) || (map->lines[startpos].getType() & INCLINE_PLANE)) {
 					car->setVelPerpen(velX * (map->lines[startpos].getSlope() / sqrt(SEGMENT_LENGTH * SEGMENT_LENGTH + map->lines[startpos].getSlope() * map->lines[startpos].getSlope())));
-					cout << startpos << endl;
+				
 					if (motion.velPerpen < GRAVITY * 5 && !(type & CLIFF)) {
 						car->setVelPerpen(0);
 					}
 					else {
 						car->setInAir(true, map->lines[startpos].gety());
+						
 					}
 				}
 			}

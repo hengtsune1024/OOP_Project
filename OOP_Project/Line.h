@@ -12,6 +12,7 @@ class Line
     double spriteX;
     double clip;
     double slope;
+    double curve;
     unsigned long long type;    // type of road (RoadType)
     double roadDegree;
     double roadVelM;
@@ -37,6 +38,7 @@ public:
     double getRoadDegree() { return roadDegree; }
     double getRoadVelM() { return roadVelM; }
     double getCritVel() { return criticalVel; }
+    double getCurve() { return curve; }
 
     //setter
     void setz(double _z) { z = _z; }
@@ -50,6 +52,9 @@ public:
     void setActSprite(Image* i, double sX) { actsprite = i; spriteX = sX; }
     void setRoadVelM(double rvm) { roadVelM = rvm; }
     void setRoadDegree(double rd) { roadDegree = rd; }
+    void setCritVel(double cv) { criticalVel = cv; }
+    void setCurve(double c) { curve = c; }
+    void setSlope(double s) { slope = s; }
 
     //projection
     void project(int camX, int camY, int camZ, double camDegree, double camDepth);
