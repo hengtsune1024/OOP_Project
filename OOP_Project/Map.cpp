@@ -18,36 +18,10 @@ Map::Map(SDL_Renderer* renderer, bool dual) : lines(NUM_LINE), number_of_lines(N
 	cube("../images/cube/cube.txt", "../images/cube/cube.bmp", &lines, CUBE_SIZE / 2.457335),
 	virus(renderer), tools(renderer), rock("../images/rock/rock.txt", "../images/rock/rock.bmp")
 {
-	FILE* f = fopen("../bin/map.dat", "rb");
-	fseek(f, 0, SEEK_SET);
-	struct {
-		double x, y, z;
-		double slope;
-		bool sprite;
-		unsigned long long type = 0;
-		double maxSpeed;
-		double roadDeg;
-		double roadVelM;
-	} road;
-
-	for (int i = 0; i < NUM_LINE; ++i) {
-		fread(&road, sizeof(road), 1, f);
-		lines[i].setAll(road.x, road.y, road.z, road.slope, road.type, road.roadDeg, road.roadVelM, road.maxSpeed);
-		if (road.sprite) {
-			lines[i].setSprite(&streetlight, 2.5);
-		}
-
-	}
+	generateMap();
 
 	//map object
-	virus.setTrap(&lines[300], 300, 0);
-	tools.setTool(&lines[200], 200, 0);
-	rock.setObstacle(&lines[250], 250, 0);
 	cube.setItem(&lines[150], 150, 0);
-
-	virus.setTrap(&lines[500], 500, 1);
-	tools.setTool(&lines[600], 600, 1);
-	rock.setObstacle(&lines[700], 700, 1);
 	cube.setItem(&lines[450], 450, 1);
 	
 
@@ -75,52 +49,66 @@ Map::~Map() {
 		car2 = NULL;
 	}
 }
-/*
+
 void Map::generateMap() 
 {
-	srand(std::time(NULL));
 	// index ranges from 0 to 10000, car starts at 30 and ends at 9500.
 	// map object and road design take place from 100 to 9100.
+	srand(std::time(NULL));
+
+	//generate indices for map object
+	vector<int> trapindex(NUM_TRAP, 0);
+	vector<int> toolindex(NUM_TOOL, 0);
+	vector<int> obstacleindex(NUM_OBSTACLE, 0);
 
 	int upper, lower, minDist, range;
 	range = 9000 / NUM_TRAP;
 	minDist = range / 2;
 	for (int i = 0; i < NUM_TRAP; ++i) {
 		lower = 100 + range * i + 1;
-		if (i > 0 && lower < virus[i - 1].getIndex() + minDist + 1)
-			lower = virus[i - 1].getIndex() + minDist + 1;
+		if (i > 0 && lower < trapindex[i - 1] + minDist + 1)
+			lower = trapindex[i - 1] + minDist + 1;
 		upper = 100 + range * (i + 1);
-		virus[i].setIndex((upper - lower) * (rand() / (RAND_MAX + 1.0)) + lower);
+		trapindex[i] = (upper - lower) * (rand() / (RAND_MAX + 1.0)) + lower;
 	}
 	range = 9000 / NUM_TOOL;
 	minDist = range / 2;
 	for (int i = 0; i < NUM_TOOL; ++i) {
 		lower = 100 + range * i + 1;
-		if (i > 0 && lower < tools[i - 1].getIndex() + minDist + 1)
-			lower = tools[i - 1].getIndex() + minDist + 1;
+		if (i > 0 && lower < toolindex[i - 1] + minDist + 1)
+			lower = toolindex[i - 1] + minDist + 1;
 		upper = 100 + range * (i + 1);
-		tools[i].setIndex((upper - lower) * (rand() / (RAND_MAX + 1.0)) + lower);
+		toolindex[i] = (upper - lower) * (rand() / (RAND_MAX + 1.0)) + lower;
 	}
 	range = 9000 / NUM_OBSTACLE;
 	minDist = range / 2;
 	for (int i = 0; i < NUM_OBSTACLE; ++i) {
 		lower = 100 + range * i + 1;
-		if (i > 0 && lower < rock[i - 1].getIndex() + minDist + 1)
-			lower = rock[i - 1].getIndex() + minDist + 1;
+		if (i > 0 && lower < obstacleindex[i - 1] + minDist + 1)
+			lower = obstacleindex[i - 1] + minDist + 1;
 		upper = 100 + range * (i + 1);
-		rock[i].setIndex((upper - lower) * (rand() / (RAND_MAX + 1.0)) + lower);
+		obstacleindex[i] = (upper - lower) * (rand() / (RAND_MAX + 1.0)) + lower;
 	}
 
-	double x = 0, dx = 0, curve = 0;
+	//road design
+	double x = 0, z = 0, dx = 0, curve = 0;
 	for (int i = 0; i < NUM_LINE; ++i) 
 	{
-		//road design
 		//z
-		lines[i].setz(i * SEGMENT_LENGTH);
+		lines[i].setz(z);
+		z += SEGMENT_LENGTH;
 		
+		//curve
+		
+
 		//x
+		x += dx;
+		dx += curve;
+		lines[i].setx(x);
 
 		//y
+		lines[i].sety(0);
+
 
 		//streetlight
 		if ((i & 31) == 0)
@@ -139,18 +127,32 @@ void Map::generateMap()
 			lines[i].addType(STARTPOINT);
 		else if (i >= FINAL_POS - 12 && i < FINAL_POS + 20)
 			lines[i].addType(ENDPOINT);
+		else
+			lines[i].addType(NORMAL);
+
+		//left undone: acceleration road and different firction
 	}
 
-	for (int i = 0; i < NUM_TRAP; ++i) {
-		virus[i].setTrap(&lines[virus[i].getIndex()]);
+	//add type to lines and set obhects' positions
+	for (int i = 0; i < NUM_TRAP; ++i) 
+	{
+		virus.setTrap(&lines[trapindex[i]], trapindex[i], i);
+		for (int j = trapindex[i] - TRAP_HALFLENGTH; j <= trapindex[i] + TRAP_HALFLENGTH; ++j)
+			lines[j].addType(TRAPAREA);
 	}
-	for (int i = 0; i < NUM_TOOL; ++i) {
-		tools[i].setTool(&lines[tools[i].getIndex()]);
+	for (int i = 0; i < NUM_TOOL; ++i) 
+	{
+		tools.setTool(&lines[toolindex[i]], toolindex[i], i);
+		for (int j = toolindex[i] - TOOL_HALFLENGTH; j <= toolindex[i] + TOOL_HALFLENGTH; ++j)
+			lines[j].addType(TOOLAREA);
 	}
-	for (int i = 0; i < NUM_OBSTACLE; ++i) {
-		rock[i].setObstacle(&lines[rock[i].getIndex()]);
+	for (int i = 0; i < NUM_OBSTACLE; ++i) 
+	{
+		rock.setObstacle(&lines[obstacleindex[i]], obstacleindex[i], i);
+		for (int j = obstacleindex[i] - OBSTACLE_HALFLENGTH; j <= obstacleindex[i] + OBSTACLE_HALFLENGTH; ++j)
+			lines[j].addType(OBSTACLEAREA);
 	}
-}*/
+}
 
 void Map::quit() {
 	removeTimer();

@@ -24,10 +24,13 @@
 #define NUM_LINE 10000		//
 #define INITIAL_POS 30
 #define FINAL_POS 9500
-#define NUM_OBSTACLE 2
-#define NUM_TRAP 2
-#define NUM_TOOL 2
+#define NUM_OBSTACLE 18
+#define NUM_TRAP 9
+#define NUM_TOOL 3
 #define NUM_PHYSICALITEM 2
+#define OBSTACLE_HALFLENGTH 10
+#define TOOL_HALFLENGTH 5
+#define TRAP_HALFLENGTH 5
 
 //camera
 #define FIELD_OF_VIEW 45
