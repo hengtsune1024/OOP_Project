@@ -8,11 +8,15 @@
 #include "Line.h"
 #define ITEM_FRICTION 50
 
+struct Move {
+	double moveDegree = 0;
+	double moveVel = 0;
+	bool isMoving = false;
+};
+
 class PhysicalItem: public BlenderObject
 {
-	double moveDegree;
-	double moveVel;
-	bool isMoving;
+	vector<Move> move;
 	vector<Line>* lines;
 	
 public:
@@ -20,13 +24,13 @@ public:
 	~PhysicalItem();
 
 	//getter
-	double getZ() { return position.z; }
+	double getZ(int ind) { return objectList[ind].position.z; }
 
 	//isCollided
 	void collide(RacingCar*);
 
 	//virtual override
-	void draw3D(Point3D pos, double camDeg, double camDepth, Engine* engine, bool& clean, double maxy = HEIGHT) override;
+	void draw3D(Point3D pos, double camDeg, double camDepth, Engine* engine, bool& clean, int ind, double maxy = HEIGHT) override;
 	void logic() override;
 	
 	void close();

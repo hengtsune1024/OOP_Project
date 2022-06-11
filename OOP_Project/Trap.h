@@ -23,14 +23,14 @@ public:
 	Trap(SDL_Renderer* renderer, bool side);
 
 	//setter and getter
-	void setTrap(Line *line);
-	void gettrap(TrapType, bool car);
+	void setTrap(Line *line, int lineindex, int ind);
+	void gettrap(TrapType, bool car, int startpos);
 	bool getSide() { return side; }
 
 	void drawStain(SDL_Renderer* renderer,  bool car);
 
 	//virtaul override
-	void draw3D(Point3D campos, double camDeg, double camDepth, Engine* engine, bool& clean, double maxy = HEIGHT) override;
+	void draw3D(Point3D campos, double camDeg, double camDepth, Engine* engine, bool& clean, int ind, double maxy = HEIGHT) override;
 	void logic() override;
 
 	void close();

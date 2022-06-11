@@ -9,17 +9,16 @@ SDL_Rect Map::viewPort1 = { 0,0,WIDTH,HEIGHT };
 SDL_Rect Map::viewPort2 = { WIDTH,0,WIDTH,HEIGHT };
 unsigned long long Map::type = 0;
 
-Map::Map() : lines(NUM_LINE), number_of_lines(NUM_LINE), cube("../images/cube/cube.txt", "../images/cube/cube.bmp", NULL, CUBE_SIZE / 2.457335)
-{}
+Map::Map() {}
 
 Map::Map(SDL_Renderer* renderer, bool dual) : lines(NUM_LINE), number_of_lines(NUM_LINE), dualMode(dual), endtype(PLAYING), record(0),
 	car1(new RacingCar("../images/car/car.txt", "../images/car/car.bmp", renderer, &lines[INITIAL_POS])),
 	car2(dual ? new RacingCar("../images/car/car.txt", "../images/car/car.bmp", renderer, &lines[INITIAL_POS]) : NULL),
 	streetlight("../images/streetlight.png", renderer), moon("../images/moon.png", renderer),
-	cube("../images/cube/cube.txt", "../images/cube/cube.bmp", &lines, CUBE_SIZE / 2.457335),
-	virus(renderer, true), tools(renderer), rock("../images/rock/rock.txt", "../images/rock/rock.bmp")
+	//cube("../images/cube/cube.txt", "../images/cube/cube.bmp", &lines, CUBE_SIZE / 2.457335),
+	virus(renderer,true), tools(renderer), rock("../images/rock/rock.txt", "../images/rock/rock.bmp")
 {
-	FILE* f = fopen("../bin/map1.dat", "rb");
+	FILE* f = fopen("../bin/map.dat", "rb");
 	fseek(f, 0, SEEK_SET);
 	struct {
 		double x, y, z;
@@ -41,12 +40,16 @@ Map::Map(SDL_Renderer* renderer, bool dual) : lines(NUM_LINE), number_of_lines(N
 	}
 
 	//type
-	virus.setTrap(&lines[300]);
-	tools.setTool(&lines[200]);
-	rock.setObstacle(&lines[250]);
+	virus.setTrap(&lines[300], 300, 0);
+	tools.setTool(&lines[200], 200, 0);
+	rock.setObstacle(&lines[250], 250, 0);
+
+	virus.setTrap(&lines[500], 500, 1);
+	tools.setTool(&lines[600], 600, 1);
+	rock.setObstacle(&lines[700], 700, 1);
 	
 	//3d object set position
-	cube.setPos({ lines[POS].getx(),lines[POS].gety()+CUBE_SIZE,lines[POS].getz(),0,0,0 });
+	//cube.setPos({ lines[POS].getx(),lines[POS].gety()+CUBE_SIZE,lines[POS].getz(),0,0,0 });
 
 	if (dualMode) {
 		car1->setPosY(lines[INITIAL_POS].getx() - ROAD_WIDTH / 2);
@@ -72,6 +75,82 @@ Map::~Map() {
 		car2 = NULL;
 	}
 }
+/*
+void Map::generateMap() 
+{
+	srand(std::time(NULL));
+	// index ranges from 0 to 10000, car starts at 30 and ends at 9500.
+	// map object and road design take place from 100 to 9100.
+
+	int upper, lower, minDist, range;
+	range = 9000 / NUM_TRAP;
+	minDist = range / 2;
+	for (int i = 0; i < NUM_TRAP; ++i) {
+		lower = 100 + range * i + 1;
+		if (i > 0 && lower < virus[i - 1].getIndex() + minDist + 1)
+			lower = virus[i - 1].getIndex() + minDist + 1;
+		upper = 100 + range * (i + 1);
+		virus[i].setIndex((upper - lower) * (rand() / (RAND_MAX + 1.0)) + lower);
+	}
+	range = 9000 / NUM_TOOL;
+	minDist = range / 2;
+	for (int i = 0; i < NUM_TOOL; ++i) {
+		lower = 100 + range * i + 1;
+		if (i > 0 && lower < tools[i - 1].getIndex() + minDist + 1)
+			lower = tools[i - 1].getIndex() + minDist + 1;
+		upper = 100 + range * (i + 1);
+		tools[i].setIndex((upper - lower) * (rand() / (RAND_MAX + 1.0)) + lower);
+	}
+	range = 9000 / NUM_OBSTACLE;
+	minDist = range / 2;
+	for (int i = 0; i < NUM_OBSTACLE; ++i) {
+		lower = 100 + range * i + 1;
+		if (i > 0 && lower < rock[i - 1].getIndex() + minDist + 1)
+			lower = rock[i - 1].getIndex() + minDist + 1;
+		upper = 100 + range * (i + 1);
+		rock[i].setIndex((upper - lower) * (rand() / (RAND_MAX + 1.0)) + lower);
+	}
+
+	double x = 0, dx = 0, curve = 0;
+	for (int i = 0; i < NUM_LINE; ++i) 
+	{
+		//road design
+		//z
+		lines[i].setz(i * SEGMENT_LENGTH);
+		
+		//x
+
+		//y
+
+		//streetlight
+		if ((i & 31) == 0)
+			lines[i].setSprite(&streetlight, 2.5);
+
+		//road Degree
+		if (i > 0)
+			lines[i].setRoadDegree(atan((lines[i].getx() - lines[i - 1].getx()) / SEGMENT_LENGTH));
+
+		//road modify
+		if (i > 0)
+			lines[i].setRoadVelM((sin(lines[i].getRoadDegree()) * (lines[i].getx() - lines[i - 1].getx()) + cos(lines[i].getRoadDegree()) * SEGMENT_LENGTH) / SEGMENT_LENGTH);
+
+		// type
+		if (i >= INITIAL_POS - 10 && i < INITIAL_POS + 22)
+			lines[i].addType(STARTPOINT);
+		else if (i >= FINAL_POS - 12 && i < FINAL_POS + 20)
+			lines[i].addType(ENDPOINT);
+	}
+
+	for (int i = 0; i < NUM_TRAP; ++i) {
+		virus[i].setTrap(&lines[virus[i].getIndex()]);
+	}
+	for (int i = 0; i < NUM_TOOL; ++i) {
+		tools[i].setTool(&lines[tools[i].getIndex()]);
+	}
+	for (int i = 0; i < NUM_OBSTACLE; ++i) {
+		rock[i].setObstacle(&lines[rock[i].getIndex()]);
+	}
+}*/
 
 void Map::quit() {
 	removeTimer();
@@ -80,7 +159,7 @@ void Map::quit() {
 		car2->quit();
 	streetlight.close();
 	moon.close();
-	cube.close();
+	//cube.close();
 	virus.close();
 	tools.close();
 	rock.close();
@@ -100,8 +179,9 @@ Uint32 Map::Objectlogic(Uint32 interval, void* para)
 	//traps
 	map->tools.logic();
 	map->virus.logic();
+
 	//physical object
-	map->cube.logic();
+	//map->cube.logic();
 
 	return interval;
 }
@@ -241,19 +321,24 @@ void Map::draw(SDL_Renderer* renderer)
 
 		bool clean = true;
 
-		if (startpos <= 300 && startpos > 0)
-			virus.draw3D(pos, m.camDegree, m.camDepth, &engine, clean, HEIGHT);
+		for (int i = 0; i < NUM_TRAP; ++i)
+			if (startpos >= virus.getIndex(i) - 300 && startpos <= virus.getIndex(i))
+				virus.draw3D(pos, m.camDegree, m.camDepth, &engine, clean, i, HEIGHT);
 
 		
-		if (startpos + 300 > POS && cube.getZ() - CUBE_SIZE > m.posX) {
-			cube.draw3D(pos, m.camDegree, m.camDepth, &engine, clean, HEIGHT);
-			clean = false;
-		}
+		//if (startpos + 300 > POS && cube.getZ() - CUBE_SIZE > m.posX) {
+		//	cube.draw3D(pos, m.camDegree, m.camDepth, &engine, clean, HEIGHT);
+		//}
 
-		if (startpos <= 250 && startpos > 0) {
-			rock.draw3D(pos, m.camDegree, m.camDepth, &engine, clean);
-			clean = false;
-		}
+		for (int i = 0; i < NUM_OBSTACLE; ++i)
+			if (startpos >= rock.getIndex(i) - 300 && startpos <= rock.getIndex(i)) {
+				rock.draw3D(pos, m.camDegree, m.camDepth, &engine, clean, i);
+			}
+
+		for (int i = 0; i < NUM_TOOL; ++i)
+			if (startpos >= tools.getIndex(i) - 300 && startpos <= tools.getIndex(i)) {
+				tools.draw3D(pos, m.camDegree, m.camDepth, &engine, clean, i, HEIGHT);
+			}
 
 		if (otherCar != NULL && otherCar->getPosX() > m.posX - 50 * SEGMENT_LENGTH && otherCar->getPosX() - m.posX < 300 * SEGMENT_LENGTH) {
 			if (otherCar->getPosX() > critz) {
@@ -265,10 +350,7 @@ void Map::draw(SDL_Renderer* renderer)
 			clean = false;
 		}
 
-		if (startpos <= 200 && startpos > 0) {
-			tools.draw3D(pos, m.camDegree, m.camDepth, &engine, clean, HEIGHT);
-			clean = false;
-		}
+		
 
 		//car
 		car->draw(renderer, &engine, clean);
@@ -276,10 +358,10 @@ void Map::draw(SDL_Renderer* renderer)
 		engine.drawAll(renderer);
 
 		/**************************/
-		virus.drawStain(renderer, times - 1);	//only draws stain
+		virus.drawStain(renderer, (dualMode ? times - 1 : true));	//only draws stain
 		/**************************/
 
-		tools.drawmytool(renderer, times - 1);
+		tools.drawmytool(renderer, (dualMode ? times - 1 : true));
 
 
 		if (dualMode) {
@@ -303,7 +385,7 @@ Uint32 Map::move(Uint32 interval, void* para)
 	int times = map->dualMode ? 2 : 1;
 	int startpos;
 	double punish;
-
+	
 	do {
 		const Motion& motion = car->getMotion();
 		startpos = motion.posX / SEGMENT_LENGTH;
@@ -556,13 +638,13 @@ Uint32 Map::move(Uint32 interval, void* para)
 			{
 				if ((map->virus.getSide() && midY < map->lines[startpos].getx() + (ROAD_WIDTH / 2.0 + TRAP_WIDTH) * motion.velM && midY > map->lines[startpos].getx() + (ROAD_WIDTH / 2.0 - TRAP_WIDTH) * motion.velM) ||
 					(!map->virus.getSide() && midY < map->lines[startpos].getx() + (-ROAD_WIDTH / 2.0 + TRAP_WIDTH) * motion.velM && midY > map->lines[startpos].getx() + (-ROAD_WIDTH / 2.0 - TRAP_WIDTH) * motion.velM))
-					map->virus.gettrap(STAIN, times - 1);
+					map->virus.gettrap(STAIN, (map->dualMode ? times - 1 : true), startpos);
 			}
 			
 			//tool
 			if ((type & TOOLAREA) && midY < map->lines[startpos].getx() + TOOL_WIDTH * motion.velM && midY > map->lines[startpos].getx() - TOOL_WIDTH * motion.velM)
 			{
-				map->tools.getTools(times - 1);
+				map->tools.getTools((map->dualMode ? times - 1 : true), startpos);
 			}
 
 			//obstacle
@@ -602,7 +684,7 @@ Uint32 Map::move(Uint32 interval, void* para)
 			}
 
 			
-			map->cube.collide(car);
+			//map->cube.collide(car);
 		}
 
 		if (map->dualMode) 

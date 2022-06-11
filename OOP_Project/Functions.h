@@ -26,9 +26,8 @@ class Functions
 	Text maptext;
 	Text quittext;
 
-	Uint64 rec[3][10];
+	Uint64 rec[10];
 	Text  rectext;
-	int maptype;
 	int count;
 	char countstring[10];
 	char recordstr[50];

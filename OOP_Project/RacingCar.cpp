@@ -1,7 +1,7 @@
 #include "RacingCar.h"
 RacingCar::RacingCar() :
 	isRushing(NONE), fullEnergy(true), energy(100.0), healthPoint(100.0),
-	motion(MOTION_INIT), roadtype(NORMAL), outOfRoad(false), inAir(false), BlenderObject("../images/car1.txt", "../images/car1.bmp", 500, true)
+	motion(MOTION_INIT), roadtype(NORMAL), outOfRoad(false), inAir(false), BlenderObject("../images/car1.txt", "../images/car1.bmp", 500, 1)
 {}
 
 RacingCar::~RacingCar()
@@ -10,7 +10,7 @@ RacingCar::~RacingCar()
 RacingCar::RacingCar(const char* obfpath, const char* imgpath, SDL_Renderer* renderer, Line* initpos) :
 	
 	isRushing(NONE), fullEnergy(true), energy(100.0), healthPoint(100.0), motion(MOTION_INIT), accState(0), roadtype(NORMAL),
-	currentPos(initpos), BlenderObject(obfpath, imgpath, 1000, true), theOtherCar(NULL), starttime(SDL_GetTicks64() + 3000), timing("00:00:000"), arrive(false), totaltime(0), invincible(0),
+	currentPos(initpos), BlenderObject(obfpath, imgpath, 1000, 1), theOtherCar(NULL), starttime(SDL_GetTicks64() + 3000), timing("00:00:000"), arrive(false), totaltime(0), invincible(0),
 	timetext(timing, "../fonts/akabara-cinderella.ttf", 20, 0x02, { 255, 255, 255 }, SHADED, { 0, 0, 0 }, renderer, { 250, 10 }, { 10, 10 }, NULL, SDL_FLIP_NONE, 255)
 {}
 
@@ -62,9 +62,9 @@ bool RacingCar::collided() {
 	return false;
 }
 
-void RacingCar::draw3D(Point3D campos, double camDeg, double camDepth, Engine* engine, bool& clean, double maxy) 
+void RacingCar::draw3D(Point3D campos, double camDeg, double camDepth, Engine* engine, bool& clean, int ind, double maxy) 
 {
-	BlenderObject_draw(campos, { -motion.Xangle,rotation.y,0 }, 0, motion.camDepth, engine, clean, maxy);
+	BlenderObject_draw(campos, { -motion.Xangle,objectList[0].rotation.y,0 }, 0, motion.camDepth, engine, clean, maxy, 0);
 	clean = false;
 }
 
@@ -110,7 +110,7 @@ void RacingCar::drawOtherCar(SDL_Renderer* renderer, Engine* engine, bool& clean
 	theOtherCar->BlenderObject_draw(
 		{ motion.posY - theOtherCar->getPosY() ,currentPos->gety() - theOtherCar->getCurrentPos()->gety() + 0,motion.posX - theOtherCar->getPosX()},
 		{ -theOtherCar->motion.Xangle,theOtherCar->motion.axleDegree,0 },
-		motion.camDegree, motion.camDepth, engine, clean, maxy);
+		motion.camDegree, motion.camDepth, engine, clean, maxy, 0);
 	clean = false;
 }
 
@@ -139,14 +139,14 @@ Uint32 RacingCar::changeData(Uint32 interval, void* param)
 	double dif = car->motion.axleDegree - car->motion.camDegree;
 
 	if (dif < -1e-6) {
-		car->rotation.y -= 0.06;
-		if (car->rotation.y < dif)
-			car->rotation.y = dif;
+		car->objectList[0].rotation.y -= 0.06;
+		if (car->objectList[0].rotation.y < dif)
+			car->objectList[0].rotation.y = dif;
 	}
 	else if (dif > 1e-6) {
-		car->rotation.y += 0.06;
-		if (car->rotation.y > dif)
-			car->rotation.y = dif;
+		car->objectList[0].rotation.y += 0.06;
+		if (car->objectList[0].rotation.y > dif)
+			car->objectList[0].rotation.y = dif;
 	}
 
 	//charge

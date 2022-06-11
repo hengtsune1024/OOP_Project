@@ -2,7 +2,7 @@
 Functions::~Functions()
 {
 }
-Functions::Functions(RenderWindow& w, bool* d, bool* q, bool* m) : count(3),window(w), maptype(2),
+Functions::Functions(RenderWindow& w, bool* d, bool* q, bool* m) : count(3),window(w),
 starttext("START", "../fonts/akabara-cinderella.ttf", 75, 0x00, { 255, 255, 0 }, BLENDED, { NULL, NULL, NULL }, window.GetRenderer(), { 470, 410 }, { NULL, NULL }, NULL, SDL_FLIP_NONE, 255),
 icontext("3D Racing Car", "../fonts/akabara-cinderella.ttf", 100, 0x00, { 0, 255, 255 }, BLENDED, { NULL, NULL, NULL }, window.GetRenderer(), { 250, 200 }, { NULL, NULL }, NULL, SDL_FLIP_NONE, 255),
 modetext("Single", "../fonts/akabara-cinderella.ttf", 30, 0x00, { 0, 0, 255 }, BLENDED, { NULL, NULL, NULL }, window.GetRenderer(), { 18, 41 }, { NULL, NULL }, NULL, SDL_FLIP_NONE, 255),
@@ -11,7 +11,7 @@ recordtext("Record", "../fonts/akabara-cinderella.ttf", 26, 0x00, { 0, 0, 255 },
 endtext("WIN", "../fonts/akabara-cinderella.ttf", 100, 0x00, { 255, 255, 255 }, BLENDED, { NULL, NULL, NULL }, window.GetRenderer(), { 260, 175 }, { NULL, NULL }, NULL, SDL_FLIP_NONE, 255),
 gradetext("GRADE", "../fonts/akabara-cinderella.ttf", 75, 0x00, { 255, 255, 255 }, BLENDED, { NULL, NULL, NULL }, window.GetRenderer(), { 470, 10 }, { NULL, NULL }, NULL, SDL_FLIP_NONE, 255),
 hinttext("Click to continue", "../fonts/akabara-cinderella.ttf", 50, 0x00, { 211, 211, 211 }, BLENDED, { NULL, NULL, NULL }, window.GetRenderer(), { 390, 520 }, { NULL, NULL }, NULL, SDL_FLIP_NONE, 255),
-rectext(" ", "../fonts/akabara-cinderella.ttf", 30, 0x00, { 255, 0, 0 }, BLENDED, { NULL, NULL, NULL }, window.GetRenderer(), { 250, 500 }, { NULL, NULL }, NULL, SDL_FLIP_NONE, 255),
+rectext(" ", "../fonts/akabara-cinderella.ttf", 55, 0x00, { 255, 0, 0 }, BLENDED, { NULL, NULL, NULL }, window.GetRenderer(), { 250, 500 }, { NULL, NULL }, NULL, SDL_FLIP_NONE, 255),
 quittext("Quit","../fonts/akabara-cinderella.ttf", 26, 0x00, { 0, 0, 255 }, BLENDED, { NULL, NULL, NULL }, window.GetRenderer(), { 1112, 527 }, { NULL, NULL }, NULL, SDL_FLIP_NONE, 255),
 maptext(" ", "../fonts/akabara-cinderella.ttf",40,0x00,{0,0,0}, BLENDED, { NULL, NULL, NULL }, window.GetRenderer(), { 0, 0 }, { NULL, NULL }, NULL, SDL_FLIP_NONE, 255)
 {
@@ -290,43 +290,36 @@ void Functions::Record(SDL_Renderer* renderer)
 	int record;
 	int ms, sec, min;
 	char recordstring[50] = "\0";
-	char mapstring[6] = "Map 1";
-	SDL_Color color[3] = { {255,0,0},{0,255,0},{0,0,255} };
 
-	boxColor(renderer, 130, 30, 1080, 510, 0x80ffffff);
+	boxColor(renderer, 100, 70, 1110, 500, 0x80ffffff);
 
-	for (int i = 0; i < 3; ++i) 
+	for (int j = 0; j < 10; ++j)
 	{
-		maptext.close();
-		mapstring[4] = i + 1 + '0';
-		maptext.setString(mapstring);
-		maptext.setPos({ 210 + 344 * i, 50 });
-		maptext.generateTexture();
-		maptext.draw();
-
-		for (int j = 0; j < 10; ++j)
+		record = rec[j];
+		if (record != 0)
 		{
-			record = rec[i][j];
-			if (record != 0)
-			{
-				ms = record % 1000;
-				record /= 1000;
-				sec = record % 60;
-				record -= sec;
-				min = record / 60;
-				sprintf_s(recordstring, "%2d.  %02d : %02d : %03d", j + 1, min, sec, ms);
-			}
-			else {
-				sprintf_s(recordstring, "%2d.  -- : -- : ---", j + 1);
-			}
-			rectext.close();
-			rectext.setFgColor(color[i]);
-			rectext.setString(recordstring);
-			rectext.setPos({ 150 + 344 * i, 100 + j * 40 });
-			rectext.generateTexture();
-			rectext.draw();
+			ms = record % 1000;
+			record /= 1000;
+			sec = record % 60;
+			record -= sec;
+			min = record / 60;
+			sprintf_s(recordstring, "%2d.  %02d : %02d : %03d", j + 1, min, sec, ms);
 		}
-
+		else {
+			sprintf_s(recordstring, "%2d.  -- : -- : ---", j + 1);
+		}
+		rectext.close();
+		rectext.setString(recordstring);
+		if (j < 5) {
+			rectext.setPos({ WIDTH - 50 - 440, 100 + j * 75 });
+		}
+		else {
+			rectext.setPos({ WIDTH + 25, 100 + (j - 5) * 75});
+		}
+		
+		rectext.generateTexture();
+		printf("%d %d \n", rectext.getWidth(), rectext.getHeight());
+		rectext.draw();
 	}
 
 	hinttext.draw();
@@ -352,21 +345,21 @@ void Functions::Record(SDL_Renderer* renderer)
 void Functions::setrecord(int r)
 {
 	int k = 9;
-	while (k >= 0 && rec[maptype][k] == 0)
+	while (k >= 0 && rec[k] == 0)
 		--k;
 	++k;
 	if (k >= 0 && k <= 9) {
-		rec[maptype][k] = r;
+		rec[k] = r;
 	}
 	else if (k == 10) {
-		if (r < rec[maptype][9]) {
+		if (r < rec[9]) {
 			int j = 8;
-			while (j >= 0 && r < rec[maptype][j])
+			while (j >= 0 && r < rec[j])
 				--j;
 			++j;
 			for (int i = 9; i > j; --i)
-				rec[maptype][i] = rec[maptype][i - 1];
-			rec[maptype][j] = r;
+				rec[i] = rec[i - 1];
+			rec[j] = r;
 		}
 	}
 	FILE* f = fopen("../bin/record.dat", "wb");

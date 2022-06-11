@@ -1,9 +1,7 @@
 #include "BlenderObject.h"
 
-BlenderObject::BlenderObject(const char* objectFile, const char* textureFile, double scale, bool shown): shownflag(true)
+BlenderObject::BlenderObject(const char* objectFile, const char* textureFile, double scale, int num): objectList(num)
 {
-	position = { 0,-CAMERA_HEIGHT,CAMERA_CARMIDPOINT_DIST };
-	rotation = { 0,0,0 };
 	img.loadSurface(textureFile);
 	Load(objectFile, scale);
 }
@@ -93,7 +91,7 @@ void BlenderObject::Logic(double elapsedTime)
 {
 	rotation.y += 1 * elapsedTime;
 }*/
-void BlenderObject::BlenderObject_draw(Point3D pos, Point3D worldRot, double camDeg, double camDepth, Engine* engine, bool clean, double maxy)
+void BlenderObject::BlenderObject_draw(Point3D pos, Point3D worldRot, double camDeg, double camDepth, Engine* engine, bool clean, double maxy, int ind)
 {
 	Uint32* bmp = engine->getPixels();
 	if (clean) {
@@ -104,7 +102,7 @@ void BlenderObject::BlenderObject_draw(Point3D pos, Point3D worldRot, double cam
 	std::vector<Triangle*> allTriangles;
 	for (int i = 0; i < triangles.size(); ++i) {
 		//axle rotate
-		triangles[i]->calculateWorldPoints(worldRot, position, engine);
+		triangles[i]->calculateWorldPoints(worldRot, objectList[ind].position, engine);
 		triangles[i]->calculateCameraPoints(pos, camDeg, engine);
 
 		std::vector<Triangle*> clippedTriangles = triangles[i]->GetZClippedTriangles();
@@ -115,7 +113,7 @@ void BlenderObject::BlenderObject_draw(Point3D pos, Point3D worldRot, double cam
 
 	for (int i = 0; i < allTriangles.size(); ++i) {
 		//camera rotate
-		allTriangles[i]->calculateDrawPoints({ 0,0,0 }, position, camDepth, engine);
+		allTriangles[i]->calculateDrawPoints({ 0,0,0 }, objectList[ind].position, camDepth, engine);
 		if (allTriangles[i]->getNormalZ() < 0) {
 			std::vector<Triangle*> clippedTriangles = allTriangles[i]->GetClippedTriangles();
 			for (int j = 0; j < clippedTriangles.size(); ++j) {

@@ -48,6 +48,8 @@ public:
     void setSprite(Image* i, double sX) { sprite = i; spriteX = sX; }
     void setClip(double c) { clip = c; }
     void setActSprite(Image* i, double sX) { actsprite = i; spriteX = sX; }
+    void setRoadVelM(double rvm) { roadVelM = rvm; }
+    void setRoadDegree(double rd) { roadDegree = rd; }
 
     //projection
     void project(int camX, int camY, int camZ, double camDegree, double camDepth);

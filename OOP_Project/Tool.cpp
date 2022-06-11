@@ -1,6 +1,7 @@
 #include "Tool.h"
-Tool::Tool():BlenderObject("../images/tool/tool.txt", "../images/tool/tool.bmp", 100, true) {
-
+Tool::Tool(): BlenderObject("../images/tool/tool.txt", "../images/tool/tool.bmp", 750, NUM_TOOL)
+{
+	gettime = SDL_GetTicks64() - STAIN_INTERVAL;
 }
 Tool::~Tool() {
 }
@@ -13,18 +14,19 @@ void Tool::close() {
 
 Tool::Tool(SDL_Renderer* renderer) : car1tool{ 0,0 }, car2tool{ 0,0 },
 	tool1img("../images/star.png", renderer), tool2img("../images/star.png", renderer),
-	BlenderObject("../images/tool/tool.txt", "../images/tool/tool.bmp", 750, true)
+	BlenderObject("../images/tool/tool.txt", "../images/tool/tool.bmp", 750, NUM_TOOL)
 {
 	gettime = SDL_GetTicks64() - STAIN_INTERVAL;
 }
 
-void Tool::setTool(Line* line) {
-	position = { line->getx(),line->gety() + 1500,line->getz(),0,0,0 };
+void Tool::setTool(Line* line, int lineindex, int ind) {
+	objectList[ind].position = { line->getx(),line->gety() + 1500,line->getz(),0,0,0 };
+	objectList[ind].index = lineindex;
 }
 
-void Tool::draw3D(Point3D pos, double camDeg, double camDepth, Engine* engine, bool& clean, double maxy) {
-	if (shownflag){
-		BlenderObject_draw(pos, rotation, camDeg, camDepth, engine, clean, maxy);
+void Tool::draw3D(Point3D pos, double camDeg, double camDepth, Engine* engine, bool& clean, int ind, double maxy) {
+	if (objectList[ind].shownflag){
+		BlenderObject_draw(pos, objectList[ind].rotation, camDeg, camDepth, engine, clean, maxy, ind);
 		clean = false;
 	}
 }
@@ -48,17 +50,31 @@ void Tool::drawmytool(SDL_Renderer* renderer, bool car) {
 		if (car2tool.Tool2)
 			tool2img.draw(renderer, NULL, &loc2);
 	}
-
+	/*
 	if (SDL_GetTicks64() - gettime < 3000)
 		shownflag = false;
 	else
-		shownflag = true;
+		shownflag = true;*/
 }
 
-void Tool::getTools(bool car) {
-
+void Tool::getTools(bool car, int startpos) 
+{
 	srand(std::time(NULL));
-	if (shownflag)
+	int index;
+	for (int i = 0; i < NUM_TOOL; ++i) {
+		if (startpos - objectList[i].index <= 0) {
+			if (i == 0)
+				index = 0;
+			else if (objectList[i].index + objectList[i - 1].index < 2 * startpos) {
+				index = i;
+			}
+			else
+				index = i - 1;
+			break;
+		}
+	}
+
+	if (objectList[index].shownflag)
 	{
 		gettime = SDL_GetTicks64();
 		if (car) {
@@ -95,14 +111,17 @@ void Tool::getTools(bool car) {
 					break;
 			}
 		}
+		objectList[index].shownflag = false;
 	}
 }
 
 void Tool::logic()
 {
-	rotation.y += 0.1;
-	if (rotation.y > PI * 2)
-		rotation.y -= PI * 2;
+	for (int i = 0; i < NUM_TOOL; ++i) {
+		objectList[i].rotation.y += 0.1;
+		if (objectList[i].rotation.y > PI * 2)
+			objectList[i].rotation.y -= PI * 2;
+	}
 }
 
 

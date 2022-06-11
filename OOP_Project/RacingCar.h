@@ -75,7 +75,7 @@ public:
 	void quit();
 
 	//draw
-	void draw3D(Point3D campos, double camDeg, double camDepth, Engine* engine, bool& clean, double maxy = HEIGHT) override;
+	void draw3D(Point3D campos, double camDeg, double camDepth, Engine* engine, bool& clean, int ind, double maxy = HEIGHT) override;
 	void draw(SDL_Renderer* renderer, Engine* engine, bool& clean);
 	void drawOtherCar(SDL_Renderer* renderer, Engine* engine, bool& clean, double maxy, double camH);
 

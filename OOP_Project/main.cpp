@@ -150,7 +150,8 @@ void eventHandler(SDL_Event& e, RenderWindow& w, Map& map, RacingCar* car1, Raci
 				}
 				break;
 			case SDLK_RETURN:
-				car2->rush(ENERGY);
+				if (car2)
+					car2->rush(ENERGY);
 				break;
 
 				/*
@@ -158,10 +159,12 @@ void eventHandler(SDL_Event& e, RenderWindow& w, Map& map, RacingCar* car1, Raci
 				car2->setVelPerpen(car2->getVelPerpen() - 300);
 				*/
 			case SDLK_KP_1:
-				car2->usetool(SPEEDUP, map.getTool(), false);
+				if (car2)
+					car2->usetool(SPEEDUP, map.getTool(), false);
 				break;
 			case SDLK_KP_2:
-				car2->usetool(INVINCIBLE, map.getTool(), false);
+				if (car2)
+					car2->usetool(INVINCIBLE, map.getTool(), false);
 				break;
 			case SDLK_KP_3:
 

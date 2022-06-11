@@ -15,7 +15,8 @@
 #include "SDL_ttf.h"
 using namespace std;
 
-struct Quad {
+struct Quad 
+{
 	Uint32 color;
 	double x1;
 	double y1;
@@ -27,7 +28,6 @@ struct Quad {
 
 class Map
 {
-
 	//road
 	vector<Line> lines;						// road segments constituting the whole road
 	int number_of_lines;					// the number of road segments
@@ -56,7 +56,8 @@ class Map
 
 	//3D object
 	Engine engine;
-	PhysicalItem cube;
+	//PhysicalItem cube;
+
 	Trap virus;
 	Tool tools;
 	Obstacle rock;
@@ -84,6 +85,8 @@ public:
 	Map();					// default constructor (initialize nothing)
 	Map(SDL_Renderer*, bool = false);		// initialize all members except timers
 	~Map();
+
+	void generateMap();
 
 	// getters
 	RacingCar* getCar1() { return car1; }

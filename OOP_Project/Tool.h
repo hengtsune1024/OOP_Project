@@ -28,15 +28,15 @@ public:
 	Tool(SDL_Renderer* renderer);
 
 	//setter and getter
-	void setTool(Line* line);
-	void getTools(bool car);
+	void setTool(Line* line, int lineindex, int ind);
+	void getTools(bool car, int startpos);
 
 	//tool function
 	int usetool(ToolType, bool car);
 	void drawmytool(SDL_Renderer* renderer, bool car);	//car=1 for car1, car=0 for car2
 
 	//virtual override
-	void draw3D(Point3D pos, double camDeg, double camDepth, Engine* engine, bool& clean, double maxy = HEIGHT) override;
+	void draw3D(Point3D pos, double camDeg, double camDepth, Engine* engine, bool& clean, int ind, double maxy = HEIGHT) override;
 	void logic() override;
 
 	void close();

@@ -13,7 +13,7 @@ public:
 	~Obstacle();
 
 	//setter
-	void setObstacle(Line* line);
+	void setObstacle(Line* line, int lineindex, int ind);
 
 	//state
 	int istouching(); 
@@ -21,6 +21,6 @@ public:
 	void close();
 
 	//virtaul override
-	void draw3D(Point3D pos, double camDeg, double camDepth, Engine* engine, bool& clean, double maxy = HEIGHT) override;
+	void draw3D(Point3D pos, double camDeg, double camDepth, Engine* engine, bool& clean, int ind, double maxy = HEIGHT) override;
 };
 
