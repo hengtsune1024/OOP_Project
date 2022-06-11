@@ -76,7 +76,7 @@
 #define LANELINE_WIDTH 150
 #define TRAP_WIDTH 1000
 #define TOOL_WIDTH 2000
-#define OBSTACLE_WIDTH 2000
+#define OBSTACLE_WIDTH 1000
 
 //racing car
 #define CAR_HALF_LENGTH 1900

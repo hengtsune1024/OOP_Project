@@ -11,14 +11,40 @@ Obstacle::Obstacle(const char* objpath, const char* imgpath) : BlenderObject(obj
 {
 	touchtime = 0;
 }
+
+bool Obstacle::hitObstacle(double carx, double mod, int ind)
+{
+	return carx > objectList[ind].position.x - OBSTACLE_WIDTH && carx < objectList[ind].position.x + OBSTACLE_WIDTH;
+}
+
 void Obstacle::close() {
 	BlenderObject::close();
 }
+
+int Obstacle::getNearestObstacle(int startpos)
+{
+	for (int i = 0; i < NUM_OBSTACLE; ++i) 
+	{
+		if (startpos - objectList[i].index <= 0) {
+			if (i == 0)
+				return 0;
+			else if (objectList[i].index + objectList[i - 1].index < 2 * startpos) {
+				return i;
+			}
+			else
+				return i - 1;
+		}
+	}
+	return 0;
+}
+
 void Obstacle::setObstacle(Line* line, int lineindex, int ind)
 {
-	objectList[ind].position = { line->getx(),line->gety() + ROCK_SIZE,line->getz(),0,0,0 };
+	double shift = (ROAD_WIDTH * 0.9 * 2) * rand() / (RAND_MAX + 1.0) - ROAD_WIDTH * 0.9;
+	objectList[ind].position = { line->getx() + shift,line->gety() + ROCK_SIZE,line->getz(),0,0,0 };
 	objectList[ind].index = lineindex;
 }
+
 int Obstacle::istouching()
 {
 	if (SDL_GetTicks64() - touchtime < 250)

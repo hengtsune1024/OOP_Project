@@ -10,10 +10,15 @@ void Trap::close() {
 	BlenderObject::close();
 	stain.close();
 }
-Trap::Trap(SDL_Renderer* renderer): side(NUM_TRAP),
+Trap::Trap(SDL_Renderer* renderer):
 	stain("../images/stain.png", renderer), BlenderObject("../images/trap/trap.txt", "../images/trap/trap.bmp", 500, NUM_TRAP)
 {
 	car1trap.staintime = car2trap.staintime = SDL_GetTicks64() - STAIN_INTERVAL;
+}
+
+bool Trap::hitTrap(double carx, double mod, int ind) 
+{
+	return carx > objectList[ind].position.x - TRAP_WIDTH * mod && carx < objectList[ind].position.x + TRAP_WIDTH * mod;
 }
 
 int Trap::getNearestTrap(int startpos) 
@@ -51,14 +56,9 @@ void Trap::logic()
 
 void Trap::setTrap(Line *line, int lineindex, int ind) 
 {
-	side[ind] = rand() & 1;
-	if (side[ind])
-		objectList[ind].position = { line->getx() + ROAD_WIDTH / 2.0, line->gety() + 1200 ,line->getz(),0,0,0 };
-	else
-		objectList[ind].position =  { line->getx() - ROAD_WIDTH / 2.0, line->gety() + 1200 ,line->getz(),0,0,0 };
-
+	double shift = ROAD_WIDTH * rand() / (RAND_MAX + 1.0) - ROAD_WIDTH * 0.5;
+	objectList[ind].position = { line->getx() + shift, line->gety() + 1200 ,line->getz(),0,0,0 };
 	objectList[ind].index = lineindex;
-	//trap3D.setRotY(atan(((line + 1)->getx() - line->getx()) / SEGMENT_LENGTH));
 }
 
 void Trap::draw3D(Point3D pos, double camDeg, double camDepth, Engine* engine, bool& clean, int ind, double maxy)

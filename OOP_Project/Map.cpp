@@ -709,8 +709,7 @@ Uint32 Map::move(Uint32 interval, void* para)
 				car->setXangle(motion.Xangle + 0.02);
 			}
 		}
-
-
+		
 		//special road
 		if (!car->isInAir()) 
 		{
@@ -718,7 +717,7 @@ Uint32 Map::move(Uint32 interval, void* para)
 			//critVel=GRAVITY*|(1+y'^2)/y''|
 			if (((type & INCLINE_BACKWARD) && motion.velLinear > 1e-6) || ((type & INCLINE_FORWARD) && motion.velLinear < -1e-6)) {
 				double critVel = car->getCurrentPos()->getCritVel();
-				cout << critVel << endl;
+
 				if ((critVel > -1e-6 && velX * velX > critVel) || (map->lines[startpos].getType() & INCLINE_PLANE)) {
 					car->setVelPerpen(velX * (map->lines[startpos].getSlope() / sqrt(SEGMENT_LENGTH * SEGMENT_LENGTH + map->lines[startpos].getSlope() * map->lines[startpos].getSlope())));
 				
@@ -735,7 +734,6 @@ Uint32 Map::move(Uint32 interval, void* para)
 			startpos = (motion.posX + CAMERA_CARMIDPOINT_DIST) / SEGMENT_LENGTH;
 			double midY = motion.posY + CAMERA_CARMIDPOINT_DIST * sin(motion.axleDegree);
 			type = map->lines[startpos].getType();
-
 			//rush
 			if (car->getRushing() != ACCROAD && ((type & ACCELERATE_LEFT) || (type & ACCELERATE_RIGHT))) {
 				if ((type & ACCELERATE_LEFT) && (midY < map->lines[startpos].getx() && midY > map->lines[startpos].getx() - ROAD_WIDTH * motion.velM)) {
@@ -749,30 +747,35 @@ Uint32 Map::move(Uint32 interval, void* para)
 			if (type & TRAPAREA)
 			{
 				int index = map->virus.getNearestTrap(startpos);
-				if ((map->virus.getSide(index) && midY < map->lines[startpos].getx() + (ROAD_WIDTH / 2.0 + TRAP_WIDTH) * motion.velM && midY > map->lines[startpos].getx() + (ROAD_WIDTH / 2.0 - TRAP_WIDTH) * motion.velM) ||
-					(!map->virus.getSide(index) && midY < map->lines[startpos].getx() + (-ROAD_WIDTH / 2.0 + TRAP_WIDTH) * motion.velM && midY > map->lines[startpos].getx() + (-ROAD_WIDTH / 2.0 - TRAP_WIDTH) * motion.velM))
+				if (map->virus.hitTrap(midY, motion.velM, index))
 					map->virus.gettrap(STAIN, (map->dualMode ? times - 1 : true), index);
 			}
 			
 			//tool
-			if ((type & TOOLAREA) && midY < map->lines[startpos].getx() + TOOL_WIDTH * motion.velM && midY > map->lines[startpos].getx() - TOOL_WIDTH * motion.velM)
+			if (type & TOOLAREA)
 			{
-				map->tools.getTools((map->dualMode ? times - 1 : true), map->tools.getNearestTool(startpos));
+				int index = map->tools.getNearestTool(startpos);
+				if (map->tools.hitTool(midY, motion.velM, index))
+					map->tools.getTools((map->dualMode ? times - 1 : true), index);
 			}
 
 			//obstacle
-			if ((type & OBSTACLEAREA) && midY < map->lines[startpos].getx() + OBSTACLE_WIDTH * motion.velM && midY > map->lines[startpos].getx() - OBSTACLE_WIDTH * motion.velM)
+			if (type & OBSTACLEAREA)
 			{
-				car->touchobstacle(map->rock);
-				
-				if (car->getHP() <= 0)
+				int index = map->rock.getNearestObstacle(startpos);
+				if (map->rock.hitObstacle(midY, motion.velM, index)) 
 				{
-					if (map->dualMode)
-						map->endtype = (times == 2 ? PLAYER2 : PLAYER1);
-					else
-						map->endtype = FAILED;
-					map->endtime = SDL_GetTicks64() + 3000;
+					car->touchobstacle(map->rock);
 
+					if (car->getHP() <= 0)
+					{
+						if (map->dualMode)
+							map->endtype = (times == 2 ? PLAYER2 : PLAYER1);
+						else
+							map->endtype = FAILED;
+						map->endtime = SDL_GetTicks64() + 3000;
+
+					}
 				}
 			}
 
@@ -1185,7 +1188,7 @@ void Map::removeTimer() {
 				if ((type & OBSTACLEAREA) && motion.posY < map->lines[startpos].getx() + TOOL_WIDTH * motion.velM && motion.posY > map->lines[startpos].getx() - TOOL_WIDTH * motion.velM)
 				{
 					car->touchobstacle();
-					//printf("Touch Obstacle\n");
+					//("Touch Obstacle\n");
 				}
 			}
 

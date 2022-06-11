@@ -16,7 +16,9 @@ public:
 	void setObstacle(Line* line, int lineindex, int ind);
 
 	//state
-	int istouching(); 
+	int istouching();
+	bool hitObstacle(double carx, double mod, int ind);
+	int getNearestObstacle(int startpos);
 	
 	void close();
 
