@@ -124,11 +124,16 @@ void Tool::getTools(bool car, int ind)
 
 void Tool::logic()
 {
+	static double t = 0;
+	static double base = objectList[0].position.y;
+	double y = sin(t * 20) * 500 + base;
 	for (int i = 0; i < NUM_TOOL; ++i) {
 		objectList[i].rotation.y += 0.1;
 		if (objectList[i].rotation.y > PI * 2)
 			objectList[i].rotation.y -= PI * 2;
+		objectList[i].position.y = y;
 	}
+	t += 0.01;
 }
 
 
