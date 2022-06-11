@@ -16,7 +16,7 @@ Map::Map(SDL_Renderer* renderer, bool dual) : lines(NUM_LINE), number_of_lines(N
 	car2(dual ? new RacingCar("../images/car/car.txt", "../images/car/car.bmp", renderer, &lines[INITIAL_POS]) : NULL),
 	streetlight("../images/streetlight.png", renderer), moon("../images/moon.png", renderer),
 	cube("../images/cube/cube.txt", "../images/cube/cube.bmp", &lines, CUBE_SIZE / 2.457335),
-	virus(renderer,true), tools(renderer), rock("../images/rock/rock.txt", "../images/rock/rock.bmp")
+	virus(renderer), tools(renderer), rock("../images/rock/rock.txt", "../images/rock/rock.bmp")
 {
 	FILE* f = fopen("../bin/map.dat", "rb");
 	fseek(f, 0, SEEK_SET);
@@ -636,15 +636,16 @@ Uint32 Map::move(Uint32 interval, void* para)
 			//trap
 			if (type & TRAPAREA)
 			{
-				if ((map->virus.getSide() && midY < map->lines[startpos].getx() + (ROAD_WIDTH / 2.0 + TRAP_WIDTH) * motion.velM && midY > map->lines[startpos].getx() + (ROAD_WIDTH / 2.0 - TRAP_WIDTH) * motion.velM) ||
-					(!map->virus.getSide() && midY < map->lines[startpos].getx() + (-ROAD_WIDTH / 2.0 + TRAP_WIDTH) * motion.velM && midY > map->lines[startpos].getx() + (-ROAD_WIDTH / 2.0 - TRAP_WIDTH) * motion.velM))
-					map->virus.gettrap(STAIN, (map->dualMode ? times - 1 : true), startpos);
+				int index = map->virus.getNearestTrap(startpos);
+				if ((map->virus.getSide(index) && midY < map->lines[startpos].getx() + (ROAD_WIDTH / 2.0 + TRAP_WIDTH) * motion.velM && midY > map->lines[startpos].getx() + (ROAD_WIDTH / 2.0 - TRAP_WIDTH) * motion.velM) ||
+					(!map->virus.getSide(index) && midY < map->lines[startpos].getx() + (-ROAD_WIDTH / 2.0 + TRAP_WIDTH) * motion.velM && midY > map->lines[startpos].getx() + (-ROAD_WIDTH / 2.0 - TRAP_WIDTH) * motion.velM))
+					map->virus.gettrap(STAIN, (map->dualMode ? times - 1 : true), index);
 			}
 			
 			//tool
 			if ((type & TOOLAREA) && midY < map->lines[startpos].getx() + TOOL_WIDTH * motion.velM && midY > map->lines[startpos].getx() - TOOL_WIDTH * motion.velM)
 			{
-				map->tools.getTools((map->dualMode ? times - 1 : true), startpos);
+				map->tools.getTools((map->dualMode ? times - 1 : true), map->tools.getNearestTool(startpos));
 			}
 
 			//obstacle

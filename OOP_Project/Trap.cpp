@@ -10,10 +10,26 @@ void Trap::close() {
 	BlenderObject::close();
 	stain.close();
 }
-Trap::Trap(SDL_Renderer* renderer, bool _side): side(_side),
+Trap::Trap(SDL_Renderer* renderer): side(NUM_TRAP),
 	stain("../images/stain.png", renderer), BlenderObject("../images/trap/trap.txt", "../images/trap/trap.bmp", 500, NUM_TRAP)
 {
 	car1trap.staintime = car2trap.staintime = SDL_GetTicks64() - STAIN_INTERVAL;
+}
+
+int Trap::getNearestTrap(int startpos) 
+{
+	for (int i = 0; i < NUM_TRAP; ++i) {
+		if (startpos - objectList[i].index <= 0) {
+			if (i == 0)
+				return 0;
+			else if (objectList[i].index + objectList[i - 1].index < 2 * startpos) {
+				return i;
+			}
+			else
+				return i - 1;
+		}
+	}
+	return 0;
 }
 
 void Trap::logic()
@@ -35,7 +51,8 @@ void Trap::logic()
 
 void Trap::setTrap(Line *line, int lineindex, int ind) 
 {
-	if (side)
+	side[ind] = rand() & 1;
+	if (side[ind])
 		objectList[ind].position = { line->getx() + ROAD_WIDTH / 2.0, line->gety() + 1200 ,line->getz(),0,0,0 };
 	else
 		objectList[ind].position =  { line->getx() - ROAD_WIDTH / 2.0, line->gety() + 1200 ,line->getz(),0,0,0 };
@@ -76,30 +93,16 @@ void Trap::drawStain(SDL_Renderer* renderer, bool car)
 	}
 }
 
-void Trap::gettrap(TrapType type, bool car, int startpos) 
+void Trap::gettrap(TrapType type, bool car, int ind) 
 {
-	int index;
-	for (int i = 0; i < NUM_TRAP; ++i) {
-		if (startpos - objectList[i].index <= 0) {
-			if (i == 0)
-				index = 0;
-			else if (objectList[i].index + objectList[i - 1].index < 2 * startpos) {
-				index = i;
-			}
-			else
-				index = i - 1;
-			break;
-		}
-	}
-
 	if (car) 
 	{
 		switch (type)
 		{
 			case STAIN:
-				if (objectList[index].shownflag == true){
+				if (objectList[ind].shownflag == true){
 					car1trap.staintime = SDL_GetTicks64();
-					objectList[index].shownflag = false;
+					objectList[ind].shownflag = false;
 				}
 				break;
 			case DIZZY:
@@ -115,9 +118,9 @@ void Trap::gettrap(TrapType type, bool car, int startpos)
 		switch (type)
 		{
 			case STAIN:
-				if (objectList[index].shownflag == true) {
+				if (objectList[ind].shownflag == true) {
 					car2trap.staintime = SDL_GetTicks64();
-					objectList[index].shownflag = false;
+					objectList[ind].shownflag = false;
 				}
 				break;
 			case DIZZY:

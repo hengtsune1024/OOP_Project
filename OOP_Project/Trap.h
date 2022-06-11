@@ -14,18 +14,19 @@ class Trap : public BlenderObject
 	TrapSet car1trap;
 	TrapSet car2trap;
 
+	vector<bool> side;
 	Image stain;
-	bool side; //right=1 left=0
 
 public:
 	Trap();
 	~Trap();
-	Trap(SDL_Renderer* renderer, bool side);
+	Trap(SDL_Renderer* renderer);
 
 	//setter and getter
 	void setTrap(Line *line, int lineindex, int ind);
-	void gettrap(TrapType, bool car, int startpos);
-	bool getSide() { return side; }
+	void gettrap(TrapType, bool car, int ind);
+	bool getSide(int ind) { return side[ind]; }
+	int getNearestTrap(int startpos);
 
 	void drawStain(SDL_Renderer* renderer,  bool car);
 

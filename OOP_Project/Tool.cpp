@@ -19,6 +19,22 @@ Tool::Tool(SDL_Renderer* renderer) : car1tool{ 0,0 }, car2tool{ 0,0 },
 	gettime = SDL_GetTicks64() - STAIN_INTERVAL;
 }
 
+int Tool::getNearestTool(int startpos)
+{
+	for (int i = 0; i < NUM_TOOL; ++i) {
+		if (startpos - objectList[i].index <= 0) {
+			if (i == 0)
+				return 0;
+			else if (objectList[i].index + objectList[i - 1].index < 2 * startpos) {
+				return i;
+			}
+			else
+				return i - 1;
+		}
+	}
+	return 0;
+}
+
 void Tool::setTool(Line* line, int lineindex, int ind) {
 	objectList[ind].position = { line->getx(),line->gety() + 1500,line->getz(),0,0,0 };
 	objectList[ind].index = lineindex;
@@ -57,24 +73,10 @@ void Tool::drawmytool(SDL_Renderer* renderer, bool car) {
 		shownflag = true;*/
 }
 
-void Tool::getTools(bool car, int startpos) 
+void Tool::getTools(bool car, int ind) 
 {
 	srand(std::time(NULL));
-	int index;
-	for (int i = 0; i < NUM_TOOL; ++i) {
-		if (startpos - objectList[i].index <= 0) {
-			if (i == 0)
-				index = 0;
-			else if (objectList[i].index + objectList[i - 1].index < 2 * startpos) {
-				index = i;
-			}
-			else
-				index = i - 1;
-			break;
-		}
-	}
-
-	if (objectList[index].shownflag)
+	if (objectList[ind].shownflag)
 	{
 		gettime = SDL_GetTicks64();
 		if (car) {
@@ -111,7 +113,7 @@ void Tool::getTools(bool car, int startpos)
 					break;
 			}
 		}
-		objectList[index].shownflag = false;
+		objectList[ind].shownflag = false;
 	}
 }
 
