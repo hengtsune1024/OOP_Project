@@ -304,11 +304,11 @@ void Functions::Record()
 		sec = record % 60;
 		record -= sec;
 		min = record / 60;
-		sprintf_s(recordstr, "1.  %02d : %02d : %03d", min, sec, ms);
+		sprintf_s(recordstr, "2.  %02d : %02d : %03d", min, sec, ms);
 	}
 	else
 	{
-		sprintf_s(recordstr, "1.  -- : -- : ---");
+		sprintf_s(recordstr, "2.  -- : -- : ---");
 	}
 	rec2text.close();
 	rec2text.setString(recordstr);
@@ -324,11 +324,11 @@ void Functions::Record()
 		sec = record % 60;
 		record -= sec;
 		min = record / 60;
-		sprintf_s(recordstr, "1.  %02d : %02d : %03d", min, sec, ms);
+		sprintf_s(recordstr, "3.  %02d : %02d : %03d", min, sec, ms);
 	}
 	else
 	{
-		sprintf_s(recordstr, "1.  -- : -- : ---");
+		sprintf_s(recordstr, "3.  -- : -- : ---");
 	}
 	rec3text.close();
 	rec3text.setString(recordstr);

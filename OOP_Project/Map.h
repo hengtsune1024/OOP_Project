@@ -96,6 +96,7 @@ public:
 	int getendtime() { return endtime; }
 	int getrecord() { return record; }
 	Engine* getEng() { return &engine; }
+	void changecar();
 };
 
 // unused code

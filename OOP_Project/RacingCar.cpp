@@ -17,8 +17,7 @@ RacingCar::RacingCar(const char* obfpath, const char* imgpath, SDL_Renderer* ren
 	virus("../images/coronavirus/", 15, renderer), tools("../images/star/", 5, renderer), rock("../images/rock/rock.txt", "../images/rock/rock.bmp"),
 	isRushing(NONE), fullEnergy(true), energy(100.0), healthPoint(100.0), motion(MOTION_INIT), accState(0), roadtype(NORMAL),
 	currentPos(initpos), car3D(obfpath, imgpath, 1000), theOtherCar(NULL), starttime(SDL_GetTicks64() + 3000), timing("00:00:000"), arrive(false), totaltime(0), invincible(0),
-	timetext(timing, "../fonts/akabara-cinderella.ttf", 20, 0x02, { 255, 255, 255 }, SHADED, { 0, 0, 0 }, renderer, { 250, 10 }, { 10, 10 }, NULL, SDL_FLIP_NONE, 255)
-
+	timetext(timing, "../fonts/akabara-cinderella.ttf", 20, 0x02, { 255, 255, 255 }, SHADED, { 0, 0, 0 }, renderer, { 200, 10 }, { 10, 10 }, NULL, SDL_FLIP_NONE, 255)
 {
 	
 }
@@ -55,9 +54,14 @@ void RacingCar::draw(SDL_Renderer* renderer,Engine* engine, bool clean)
 		roundedBoxColor(renderer, 13, 43, 13 + (WIDTH / 4 - 6) * 0.02, 57, 1, 0xff0000ff);
 
 	//tool column
-	roundedRectangleRGBA(renderer, 25, 80, 60, 115, 1, 255, 0, 255, 255);
-	roundedRectangleRGBA(renderer, 65, 80, 100, 115, 1, 255, 0, 255, 255);
-	roundedRectangleRGBA(renderer, 105, 80, 140, 115, 1, 255, 0, 255, 255);
+	roundedRectangleRGBA(renderer, 350, 10, 385, 45, 1, 255, 0, 255, 255);
+	roundedRectangleRGBA(renderer, 390, 10, 425, 45, 1, 255, 0, 255, 255);
+	roundedRectangleRGBA(renderer, 430, 10, 465, 45, 1, 255, 0, 255, 255);
+	roundedRectangleRGBA(renderer, 470, 10, 505, 45, 1, 255, 0, 255, 255);
+	roundedRectangleRGBA(renderer, 510, 10, 545, 45, 1, 255, 0, 255, 255);
+	roundedRectangleRGBA(renderer, 550, 10, 585, 45, 1, 255, 0, 255, 255);
+
+
 
 	//timing
 	timetext.close();

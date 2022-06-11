@@ -70,7 +70,7 @@ void PhysicalItem::collide(RacingCar* car)
 				double e = 0.6;
 				isMoving = true;
 				moveDegree = car->getAxleDegree();
-				moveVel = car->getMotion().velLinear;
+				moveVel = car->getMotion().velLinear * 1.2;
 				startTimer();
 				break;
 			}

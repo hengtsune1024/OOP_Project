@@ -49,7 +49,7 @@ Map::Map(SDL_Renderer* renderer, bool dual) : lines(NUM_LINE), number_of_lines(N
 			lines[i].setSlope(lines[i].gety() - lines[i - 1].gety());
 		}
 		else if (i > 3200 && i < 3300) {
-			lines[i].sety((i - 3200) * CAMERA_HEIGHT / 100.0);
+			lines[i].sety((i - 3200) * CAMERA_HEIGHT * 3 / 100.0);
 			lines[i].setSlope(lines[i].gety() - lines[i - 1].gety());
 			lines[i].addType(INCLINE_PLANE);
 		}
@@ -327,8 +327,11 @@ void Map::draw(SDL_Renderer* renderer)
 			car->getTools()->drawImg(renderer, &lines[200]);
 		}
 
+
 		//car
 		car->draw(renderer, &engine, clean);
+
+		engine.drawAll(renderer);
 
 		/**************************/
 		car->getTrap()->drawStain(renderer);	//only draws stain
@@ -337,7 +340,6 @@ void Map::draw(SDL_Renderer* renderer)
 		car->getTools()->drawmytool(renderer);
 
 
-		engine.drawAll(renderer);
 
 		if (dualMode) {
 			car = car2;
@@ -766,6 +768,31 @@ Uint32 Map::accelerate(Uint32 interval, void* para)
 	} while (--times);
 
 	return interval;
+}
+
+void Map::changecar()
+{
+	printf("%lf\n", car1->getPosX());
+	printf("%lf\n", car2->getPosX());
+
+	double data = car1->getPosX();
+	car1->setPosX(car2->getPosX());
+	car2->setPosX(data);
+	data = car1->getPosY();
+	car1->setPosY(car2->getPosY());
+	car2->setPosY(data);
+	data = car1->getCamHeight();
+	car1->setCamHeight(car2->getCamHeight() * 1.5);
+	car2->setCamHeight(data * 1.5);
+	
+	/*
+	SDL_Delay(1000);
+	car1 = car2;
+	car2 = car;
+	//printf("camH= %lf\n", car1->getCamHeight());
+	car1->setCamHeight(car1->getCamHeight() * 1.5);
+	car2->setCamHeight(car2->getCamHeight() * 1.5);
+	*/
 }
 
 void Map::startTimer() {

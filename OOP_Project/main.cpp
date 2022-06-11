@@ -11,7 +11,7 @@ void eventHandler(SDL_Event&, RenderWindow&, Map&, RacingCar*, RacingCar* = NULL
 
 int main(int argc, char* argv[]) 
 {
-	bool dual = false;
+	bool dual = true;
 	bool quit = false;
 
 	System sdl;
@@ -21,9 +21,10 @@ int main(int argc, char* argv[])
 	window.init(false);
 	Image Ferrari("../images/ferrari.png", window.GetRenderer());
 	Functions func(window, &dual, &quit);
-	while (!quit)
+	while (!quit) 
 	{
 		//Menu
+		/*
 		while (!quit)
 		{
 			window.clear();
@@ -31,6 +32,7 @@ int main(int argc, char* argv[])
 			func.Menu(window.GetRenderer());
 			window.display();
 		}
+		*/
 
 		quit = false;
 		Map map(window.GetRenderer(), dual);
@@ -163,11 +165,16 @@ void eventHandler(SDL_Event& e, RenderWindow& w, Map& map, RacingCar* car1, Raci
 
 				break;
 
+			case SDLK_0:
+				map.changecar();
+				break;
+
 			default:;
 		}
 	}
 	else if (e.type == SDL_KEYUP && e.key.repeat == 0)
 	{
+
 		switch (e.key.keysym.sym) 
 		{
 			//car 1
@@ -208,11 +215,13 @@ void eventHandler(SDL_Event& e, RenderWindow& w, Map& map, RacingCar* car1, Raci
 					//car2->turn(0);
 				}
 				break;
+				
 				/*
 			case SDLK_l:
 				car2->setVelPerpen(car2->getVelPerpen() + 300);
 				break;
 				*/
+
 			default:;
 		}
 	}

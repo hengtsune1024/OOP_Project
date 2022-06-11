@@ -9,7 +9,11 @@ class Tool : public Entity
 {
 	int Tool1;	//speedup
 	int Tool2;	//invincible
-	//int Tool3;	//
+	int Tool3;	//healing
+	int Tool4;	//navigation
+	int Tool5;	//lightning
+	int Tool6;	//ghost
+	int Tool7;	//SWITCH
 
 	int gettime;
 	Image tool1img;

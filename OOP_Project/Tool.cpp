@@ -82,6 +82,41 @@ int Tool::usetool(ToolType type) {
 			return INVINCIBLE;
 		}
 		break;
+	case HEALING:
+		if (Tool3)
+		{
+			Tool3 = 0;
+			return HEALING;
+		}
+		break;
+	case NAVIGATION:
+		if (Tool4)
+		{
+			Tool4 = 0;
+			return NAVIGATION;
+		}
+		break;
+	case LIGHTNING:
+		if (Tool5)
+		{
+			Tool5 = 0;
+			return LIGHTNING;
+		}
+		break;
+	case GHOST:
+		if (Tool6)
+		{
+			Tool6 = 0;
+			return GHOST;
+		}
+		break;
+	case SWITCH:
+		if (Tool7)
+		{
+			Tool7 = 0;
+			return SWITCH;
+		}
+		break;
 	}
 	return -1;
 }
