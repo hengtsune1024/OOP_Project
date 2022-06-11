@@ -20,9 +20,11 @@ class PhysicalItem: public BlenderObject
 	vector<Line>* lines;
 	
 public:
+	PhysicalItem() {}
 	PhysicalItem(const char* objfile, const char* texfile, vector<Line>* l, double scale);
 	~PhysicalItem();
 
+	void setItem(Line* line, int lineindex, int ind);
 	//getter
 	double getZ(int ind) { return objectList[ind].position.z; }
 

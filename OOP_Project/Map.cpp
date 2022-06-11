@@ -15,7 +15,7 @@ Map::Map(SDL_Renderer* renderer, bool dual) : lines(NUM_LINE), number_of_lines(N
 	car1(new RacingCar("../images/car/car.txt", "../images/car/car.bmp", renderer, &lines[INITIAL_POS])),
 	car2(dual ? new RacingCar("../images/car/car.txt", "../images/car/car.bmp", renderer, &lines[INITIAL_POS]) : NULL),
 	streetlight("../images/streetlight.png", renderer), moon("../images/moon.png", renderer),
-	//cube("../images/cube/cube.txt", "../images/cube/cube.bmp", &lines, CUBE_SIZE / 2.457335),
+	cube("../images/cube/cube.txt", "../images/cube/cube.bmp", &lines, CUBE_SIZE / 2.457335),
 	virus(renderer,true), tools(renderer), rock("../images/rock/rock.txt", "../images/rock/rock.bmp")
 {
 	FILE* f = fopen("../bin/map.dat", "rb");
@@ -39,17 +39,17 @@ Map::Map(SDL_Renderer* renderer, bool dual) : lines(NUM_LINE), number_of_lines(N
 
 	}
 
-	//type
+	//map object
 	virus.setTrap(&lines[300], 300, 0);
 	tools.setTool(&lines[200], 200, 0);
 	rock.setObstacle(&lines[250], 250, 0);
+	cube.setItem(&lines[150], 150, 0);
 
 	virus.setTrap(&lines[500], 500, 1);
 	tools.setTool(&lines[600], 600, 1);
 	rock.setObstacle(&lines[700], 700, 1);
+	cube.setItem(&lines[450], 450, 1);
 	
-	//3d object set position
-	//cube.setPos({ lines[POS].getx(),lines[POS].gety()+CUBE_SIZE,lines[POS].getz(),0,0,0 });
 
 	if (dualMode) {
 		car1->setPosY(lines[INITIAL_POS].getx() - ROAD_WIDTH / 2);
@@ -159,7 +159,7 @@ void Map::quit() {
 		car2->quit();
 	streetlight.close();
 	moon.close();
-	//cube.close();
+	cube.close();
 	virus.close();
 	tools.close();
 	rock.close();
@@ -181,7 +181,7 @@ Uint32 Map::Objectlogic(Uint32 interval, void* para)
 	map->virus.logic();
 
 	//physical object
-	//map->cube.logic();
+	map->cube.logic();
 
 	return interval;
 }
@@ -325,10 +325,10 @@ void Map::draw(SDL_Renderer* renderer)
 			if (startpos >= virus.getIndex(i) - 300 && startpos <= virus.getIndex(i))
 				virus.draw3D(pos, m.camDegree, m.camDepth, &engine, clean, i, HEIGHT);
 
-		
-		//if (startpos + 300 > POS && cube.getZ() - CUBE_SIZE > m.posX) {
-		//	cube.draw3D(pos, m.camDegree, m.camDepth, &engine, clean, HEIGHT);
-		//}
+
+		for (int i = 0; i < NUM_PHYSICALITEM; ++i)
+			if (startpos >= cube.getIndex(i) - 300 && startpos <= cube.getIndex(i))
+				cube.draw3D(pos, m.camDegree, m.camDepth, &engine, clean, i, HEIGHT);
 
 		for (int i = 0; i < NUM_OBSTACLE; ++i)
 			if (startpos >= rock.getIndex(i) - 300 && startpos <= rock.getIndex(i)) {
@@ -684,7 +684,7 @@ Uint32 Map::move(Uint32 interval, void* para)
 			}
 
 			
-			//map->cube.collide(car);
+			map->cube.collide(car);
 		}
 
 		if (map->dualMode) 

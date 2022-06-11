@@ -2,7 +2,6 @@
 
 #define PI 3.1415926535
 
-#define POS 100
 #define CUBE_SIZE 1000
 #define ROCK_SIZE 3000
 
@@ -28,7 +27,7 @@
 #define NUM_OBSTACLE 2
 #define NUM_TRAP 2
 #define NUM_TOOL 2
-#define NUM_PHYSICALITEM 10
+#define NUM_PHYSICALITEM 2
 
 //camera
 #define FIELD_OF_VIEW 45

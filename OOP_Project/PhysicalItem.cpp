@@ -19,11 +19,18 @@ void PhysicalItem::draw3D(Point3D pos, double camDeg, double camDepth, Engine* e
 	clean = false;
 }
 
+void PhysicalItem::setItem(Line* line, int lineindex, int ind) 
+{
+	objectList[ind].position = { line->getx() , line->gety() + CUBE_SIZE ,line->getz(),0,0,0 };
+	objectList[ind].index = lineindex;
+}
+
 void PhysicalItem::logic()
 {
-	for (int i = 0; i < NUM_PHYSICALITEM; ++i) {
+	for (int i = 0; i < NUM_PHYSICALITEM; ++i) 
+	{
 		if (!move[i].isMoving)
-			return;
+			continue;
 
 		//position
 		objectList[i].position.x += move[i].moveVel * sin(move[i].moveDegree);
@@ -42,6 +49,9 @@ void PhysicalItem::logic()
 			move[i].moveDegree = 0;
 			move[i].isMoving = false;
 		}
+
+		//index
+		objectList[i].index = objectList[i].position.z / SEGMENT_LENGTH;
 	}
 }
 

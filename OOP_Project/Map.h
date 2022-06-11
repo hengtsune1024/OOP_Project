@@ -56,7 +56,7 @@ class Map
 
 	//3D object
 	Engine engine;
-	//PhysicalItem cube;
+	PhysicalItem cube;
 
 	Trap virus;
 	Tool tools;
