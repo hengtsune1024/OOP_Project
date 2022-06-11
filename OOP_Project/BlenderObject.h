@@ -22,6 +22,7 @@ class BlenderObject
 protected:
 	void BlenderObject_draw(Point3D camPos, Point3D worldRot, double camDeg, double camDepth, Engine* engine, bool clean, double maxy, int ind);
 	void close();
+	double clip;
 	std::vector<Location> objectList;
 
 public:
@@ -41,6 +42,7 @@ public:
 	void setPos(Point3D p, int i) { objectList[i].position = p; }
 	void setRotY(double yd, int i) { objectList[i].rotation.y = yd; }
 	void setIndex(int ind, int i) { objectList[i].index = ind; }
+	void setClip(double c) { clip = c; }
 
 	//virtual function
 	virtual void logic();

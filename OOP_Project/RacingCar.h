@@ -104,6 +104,8 @@ public:
 	double getVelPerpen() { return motion.velPerpen; }
 	const Motion& getMotion() { return motion; }
 	Uint64 gettotaltime() { return totaltime; }
+	double getVelM() { return motion.velM; }
+	int getIndex() { return motion.posX / SEGMENT_LENGTH; }
 
 	//setter
 	void setOtherCar(RacingCar* c) { theOtherCar = c; }

@@ -39,6 +39,7 @@ public:
     double getRoadVelM() { return roadVelM; }
     double getCritVel() { return criticalVel; }
     double getCurve() { return curve; }
+    double getClip() { return clip; }
 
     //setter
     void setz(double _z) { z = _z; }

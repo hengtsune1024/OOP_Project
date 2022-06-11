@@ -1,6 +1,6 @@
 #include "BlenderObject.h"
 
-BlenderObject::BlenderObject(const char* objectFile, const char* textureFile, double scale, int num): objectList(num)
+BlenderObject::BlenderObject(const char* objectFile, const char* textureFile, double scale, int num): objectList(num), clip(HEIGHT)
 {
 	img.loadSurface(textureFile);
 	Load(objectFile, scale);

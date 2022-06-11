@@ -77,7 +77,7 @@ void PhysicalItem::collide(RacingCar* car)
 					//collided
 					move[j].isMoving = true;
 					move[j].moveDegree = car->getAxleDegree();
-					move[j].moveVel = car->getMotion().velLinear * 1.2;
+					move[j].moveVel = car->getVelLinear() * 1.2 * car->getVelM();
 					break;
 				}
 			}

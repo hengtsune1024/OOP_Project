@@ -105,7 +105,7 @@ void Map::generateMap()
 	// divide 9000 to 10 parts with length 900, the ychange range is within 200 to 800
 	range = 900;
 	for (int i = 0; i < 10; ++i) {
-		lower = i * range + 10;
+		lower = i * range + 100;
 		upper = lower + range;
 		for (int j = 0; j < 10; ++j) {
 			do {
@@ -330,7 +330,7 @@ void Map::draw(SDL_Renderer* renderer)
 	RacingCar* car = car1;
 	RacingCar* otherCar = car2;
 	int times = dualMode ? 2 : 1;
-	int startpos, camH,maxy, moonW, critz(0);
+	int startpos, camH,maxy, moonW;
 
 	do {
 
@@ -374,7 +374,6 @@ void Map::draw(SDL_Renderer* renderer)
 				continue;
 
 			maxy = l.getY();
-			critz = l.getz();
 
 			//grass
 			grass = (i >> 2) & 1 ? 0xff10c810 : 0xff009A00;
@@ -448,34 +447,26 @@ void Map::draw(SDL_Renderer* renderer)
 
 		for (int i = 0; i < NUM_TRAP; ++i)
 			if (startpos >= virus.getIndex(i) - 300 && startpos <= virus.getIndex(i))
-				virus.draw3D(pos, m.camDegree, m.camDepth, &engine, clean, i, HEIGHT);
+				virus.draw3D(pos, m.camDegree, m.camDepth, &engine, clean, i, lines[virus.getIndex(i)].getClip());
 
 
 		for (int i = 0; i < NUM_PHYSICALITEM; ++i)
 			if (startpos >= cube.getIndex(i) - 300 && startpos <= cube.getIndex(i))
-				cube.draw3D(pos, m.camDegree, m.camDepth, &engine, clean, i, HEIGHT);
+				cube.draw3D(pos, m.camDegree, m.camDepth, &engine, clean, i, lines[cube.getIndex(i)].getClip());
 
 		for (int i = 0; i < NUM_OBSTACLE; ++i)
 			if (startpos >= rock.getIndex(i) - 300 && startpos <= rock.getIndex(i)) {
-				rock.draw3D(pos, m.camDegree, m.camDepth, &engine, clean, i);
+				rock.draw3D(pos, m.camDegree, m.camDepth, &engine, clean, i, lines[rock.getIndex(i)].getClip());
 			}
 
 		for (int i = 0; i < NUM_TOOL; ++i)
 			if (startpos >= tools.getIndex(i) - 300 && startpos <= tools.getIndex(i)) {
-				tools.draw3D(pos, m.camDegree, m.camDepth, &engine, clean, i, HEIGHT);
+				tools.draw3D(pos, m.camDegree, m.camDepth, &engine, clean, i, lines[tools.getIndex(i)].getClip());
 			}
 
 		if (otherCar != NULL && otherCar->getPosX() > m.posX - 50 * SEGMENT_LENGTH && otherCar->getPosX() - m.posX < 300 * SEGMENT_LENGTH) {
-			if (otherCar->getPosX() > critz) {
-				car->drawOtherCar(renderer, &engine, clean, maxy, camH);
-			}
-			else {
-				car->drawOtherCar(renderer, &engine, clean, HEIGHT, camH);
-			}
-			clean = false;
+			car->drawOtherCar(renderer, &engine, clean, lines[otherCar->getIndex()].getClip(), camH);
 		}
-
-		
 
 		//car
 		car->draw(renderer, &engine, clean);
