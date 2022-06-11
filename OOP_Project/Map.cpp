@@ -494,7 +494,7 @@ Uint32 Map::move(Uint32 interval, void* para)
 	RacingCar* car = map->car1;
 	int times = map->dualMode ? 2 : 1;
 	int startpos;
-	double punish;
+	double punish, midY;
 	
 	do {
 		const Motion& motion = car->getMotion();
@@ -732,7 +732,7 @@ Uint32 Map::move(Uint32 interval, void* para)
 			}
 
 			startpos = (motion.posX + CAMERA_CARMIDPOINT_DIST) / SEGMENT_LENGTH;
-			double midY = motion.posY + CAMERA_CARMIDPOINT_DIST * sin(motion.axleDegree);
+			midY = motion.posY + CAMERA_CARMIDPOINT_DIST * sin(motion.axleDegree);
 			type = map->lines[startpos].getType();
 			//rush
 			if (car->getRushing() != ACCROAD && ((type & ACCELERATE_LEFT) || (type & ACCELERATE_RIGHT))) {
@@ -743,64 +743,66 @@ Uint32 Map::move(Uint32 interval, void* para)
 					car->rush(ACCROAD);
 				}
 			}
-			//trap
-			if (type & TRAPAREA)
-			{
-				int index = map->virus.getNearestTrap(startpos);
-				if (map->virus.hitTrap(midY, motion.velM, index))
-					map->virus.gettrap(STAIN, (map->dualMode ? times - 1 : true), index);
-			}
-			
-			//tool
-			if (type & TOOLAREA)
-			{
-				int index = map->tools.getNearestTool(startpos);
-				if (map->tools.hitTool(midY, motion.velM, index))
-					map->tools.getTools((map->dualMode ? times - 1 : true), index);
-			}
+			map->cube.collide(car);
+		}
 
-			//obstacle
-			if (type & OBSTACLEAREA)
+		startpos = (motion.posX + CAMERA_CARMIDPOINT_DIST) / SEGMENT_LENGTH;
+		midY = motion.posY + CAMERA_CARMIDPOINT_DIST * sin(motion.axleDegree);
+		type = map->lines[startpos].getType();
+		//trap
+		if (type & TRAPAREA)
+		{
+			int index = map->virus.getNearestTrap(startpos);
+			if (map->virus.hitTrap(midY, motion.camHeight - 1500 + map->lines[startpos].gety(), motion.velM, index))
+				map->virus.gettrap(STAIN, (map->dualMode ? times - 1 : true), index);
+		}
+
+		//tool
+		if (type & TOOLAREA)
+		{
+			int index = map->tools.getNearestTool(startpos);
+			if (map->tools.hitTool(midY, motion.camHeight - 1500 + map->lines[startpos].gety(), motion.velM, index))
+				map->tools.getTools((map->dualMode ? times - 1 : true), index);
+		}
+
+		//obstacle
+		if (type & OBSTACLEAREA)
+		{
+			int index = map->rock.getNearestObstacle(startpos);
+			if (map->rock.hitObstacle(midY, motion.camHeight - 1500 + map->lines[startpos].gety(), motion.velM, index))
 			{
-				int index = map->rock.getNearestObstacle(startpos);
-				if (map->rock.hitObstacle(midY, motion.velM, index)) 
+				car->touchobstacle(map->rock);
+
+				if (car->getHP() <= 0)
 				{
-					car->touchobstacle(map->rock);
+					if (map->dualMode)
+						map->endtype = (times == 2 ? PLAYER2 : PLAYER1);
+					else
+						map->endtype = FAILED;
+					map->endtime = SDL_GetTicks64() + 3000;
 
-					if (car->getHP() <= 0)
-					{
-						if (map->dualMode)
-							map->endtype = (times == 2 ? PLAYER2 : PLAYER1);
-						else
-							map->endtype = FAILED;
-						map->endtime = SDL_GetTicks64() + 3000;
-
-					}
 				}
 			}
+		}
 
-			//arrive
-			if ((type & ENDPOINT))
+		//arrive
+		if ((type & ENDPOINT))
+		{
+			car->isarrive();
+			if (map->dualMode)
 			{
-				car->isarrive();
-				if (map->dualMode)
+				if (!map->endtype)
 				{
-					if (!map->endtype)
-					{
-						map->endtype = (times == 1 ? PLAYER2 : PLAYER1);
-						map->record = car->gettotaltime();
-					}
-				}
-				else
-				{
-					map->endtype = VICTORY;
+					map->endtype = (times == 1 ? PLAYER2 : PLAYER1);
 					map->record = car->gettotaltime();
 				}
-				map->endtime = SDL_GetTicks64() + 3000;
 			}
-
-			
-			map->cube.collide(car);
+			else
+			{
+				map->endtype = VICTORY;
+				map->record = car->gettotaltime();
+			}
+			map->endtime = SDL_GetTicks64() + 3000;
 		}
 
 		if (map->dualMode) 

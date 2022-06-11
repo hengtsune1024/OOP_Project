@@ -12,9 +12,10 @@ Obstacle::Obstacle(const char* objpath, const char* imgpath) : BlenderObject(obj
 	touchtime = 0;
 }
 
-bool Obstacle::hitObstacle(double carx, double mod, int ind)
+bool Obstacle::hitObstacle(double carx, double height, double mod, int ind)
 {
-	return carx > objectList[ind].position.x - OBSTACLE_WIDTH && carx < objectList[ind].position.x + OBSTACLE_WIDTH;
+	return (carx > objectList[ind].position.x - OBSTACLE_WIDTH && carx < objectList[ind].position.x + OBSTACLE_WIDTH)
+		&& (height < objectList[ind].position.y + ROCK_SIZE);
 }
 
 void Obstacle::close() {

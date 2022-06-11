@@ -16,9 +16,10 @@ Trap::Trap(SDL_Renderer* renderer):
 	car1trap.staintime = car2trap.staintime = SDL_GetTicks64() - STAIN_INTERVAL;
 }
 
-bool Trap::hitTrap(double carx, double mod, int ind) 
+bool Trap::hitTrap(double carx, double height, double mod, int ind)
 {
-	return carx > objectList[ind].position.x - TRAP_WIDTH * mod && carx < objectList[ind].position.x + TRAP_WIDTH * mod;
+	return (carx > objectList[ind].position.x - TRAP_WIDTH * mod && carx < objectList[ind].position.x + TRAP_WIDTH * mod)
+		&& (height < objectList[ind].position.y + 500);
 }
 
 int Trap::getNearestTrap(int startpos) 

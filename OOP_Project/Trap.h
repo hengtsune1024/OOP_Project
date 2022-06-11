@@ -27,7 +27,7 @@ public:
 	int getNearestTrap(int startpos);
 
 	void drawStain(SDL_Renderer* renderer,  bool car);
-	bool hitTrap(double carY, double mod, int ind);
+	bool hitTrap(double carY, double height, double mod, int ind);
 
 	//virtaul override
 	void draw3D(Point3D campos, double camDeg, double camDepth, Engine* engine, bool& clean, int ind, double maxy = HEIGHT) override;

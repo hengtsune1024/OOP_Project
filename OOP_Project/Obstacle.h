@@ -17,7 +17,7 @@ public:
 
 	//state
 	int istouching();
-	bool hitObstacle(double carx, double mod, int ind);
+	bool hitObstacle(double carx, double height, double mod, int ind);
 	int getNearestObstacle(int startpos);
 	
 	void close();

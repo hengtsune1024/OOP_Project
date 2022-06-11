@@ -19,9 +19,9 @@ Tool::Tool(SDL_Renderer* renderer) : car1tool{ 0,0 }, car2tool{ 0,0 },
 	gettime = SDL_GetTicks64() - STAIN_INTERVAL;
 }
 
-bool Tool::hitTool(double carx, double mod, int ind) 
+bool Tool::hitTool(double carx, double height, double mod, int ind) 
 {
-	return carx > objectList[ind].position.x - TOOL_WIDTH * mod && carx < objectList[ind].position.x + TOOL_WIDTH * mod;
+	return carx > objectList[ind].position.x - TOOL_WIDTH * mod && carx < objectList[ind].position.x + TOOL_WIDTH * mod && height < objectList[ind].position.y + 1300;
 }
 
 int Tool::getNearestTool(int startpos)
