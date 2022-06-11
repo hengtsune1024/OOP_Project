@@ -20,11 +20,6 @@ Map::Map(SDL_Renderer* renderer, bool dual) : lines(NUM_LINE), number_of_lines(N
 {
 	generateMap();
 
-	//map object
-	cube.setItem(&lines[150], 150, 0);
-	cube.setItem(&lines[450], 450, 1);
-	
-
 	if (dualMode) {
 		car1->setPosY(lines[INITIAL_POS].getx() - ROAD_WIDTH / 2);
 		car2->setPosY(lines[INITIAL_POS].getx() + ROAD_WIDTH / 2);
@@ -60,9 +55,11 @@ void Map::generateMap()
 	vector<int> trapindex(NUM_TRAP, 0);
 	vector<int> toolindex(NUM_TOOL, 0);
 	vector<int> obstacleindex(NUM_OBSTACLE, 0);
+	vector<int> physicalindex(NUM_PHYSICALITEM, 0);
 	bool table[9000] = { false };
 
 	int upper, lower, minDist, range;
+	// trap
 	range = 9000 / NUM_TRAP;
 	minDist = range / 2;
 	for (int i = 0; i < NUM_TRAP; ++i) {
@@ -72,10 +69,11 @@ void Map::generateMap()
 		upper = 100 + range * (i + 1);
 		do {
 			trapindex[i] = (upper - lower) * (rand() / (RAND_MAX + 1.0)) + lower;
-		} while (table[trapindex[i]]);
-		for (int j = trapindex[i] >= 10 ? trapindex[i] - 10 : 0; j <= trapindex[i] + 10 && j < 9000; ++j)
+		} while (table[trapindex[i] - 100]);
+		for (int j = trapindex[i] - 100 >= 10 ? trapindex[i] - 100 - 10 : 0; j <= trapindex[i] - 100 + 10 && j < 9000; ++j)
 			table[j] = true;
 	}
+	// tool
 	range = 9000 / NUM_TOOL;
 	minDist = range / 2;
 	for (int i = 0; i < NUM_TOOL; ++i) {
@@ -85,10 +83,11 @@ void Map::generateMap()
 		upper = 100 + range * (i + 1);
 		do {
 			toolindex[i] = (upper - lower) * (rand() / (RAND_MAX + 1.0)) + lower;
-		} while (table[toolindex[i]]);
-		for (int j = toolindex[i] >= 10 ? toolindex[i] - 10 : 0; j <= toolindex[i] + 10 && j < 9000; ++j)
+		} while (table[toolindex[i] - 100]);
+		for (int j = toolindex[i] - 100 >= 10 ? toolindex[i] - 100 - 10 : 0; j <= toolindex[i] - 100 + 10 && j < 9000; ++j)
 			table[j] = true;
 	}
+	// obstacle
 	range = 9000 / NUM_OBSTACLE;
 	minDist = range / 2;
 	for (int i = 0; i < NUM_OBSTACLE; ++i) {
@@ -98,11 +97,24 @@ void Map::generateMap()
 		upper = 100 + range * (i + 1);
 		do {
 			obstacleindex[i] = (upper - lower) * (rand() / (RAND_MAX + 1.0)) + lower;
-		} while (table[obstacleindex[i]]);
-		for (int j = obstacleindex[i] >= 10 ? obstacleindex[i] - 10 : 0; j <= obstacleindex[i] + 10 && j < 9000; ++j)
+		} while (table[obstacleindex[i] - 100]);
+		for (int j = obstacleindex[i] - 100 >= 10 ? obstacleindex[i] - 100 - 10 : 0; j <= obstacleindex[i] - 100 + 10 && j < 9000; ++j)
 			table[j] = true;
 	}
-
+	// physical item
+	// divide 9000 to 10 parts with length 900, the ychange range is within 200 to 800
+	range = 900;
+	for (int i = 0; i < 10; ++i) {
+		lower = i * range + 10;
+		upper = lower + range;
+		for (int j = 0; j < 10; ++j) {
+			do {
+				physicalindex[i * 10 + j] = (upper - lower) * (rand() / (RAND_MAX + 1.0)) + lower;
+			} while (table[physicalindex[i * 10 + j] - 100]);
+			for (int k = physicalindex[i * 10 + j] - 100 >= 1 ? physicalindex[i * 10 + j] - 100 - 1 : 0; k <= physicalindex[i * 10 + j] - 100 + 1 && k < 9000; ++k)
+				table[k] = true;
+		}
+	}
 	//road design
 	struct Pair {
 		int start;
@@ -120,7 +132,7 @@ void Map::generateMap()
 	// xchange
 	// divide 9000 to 10 parts with length 900, the ychange range is within 200 to 800
 	double divert = 0;
-	int sign = 1;
+	short sign = 1;
 	for (int i = 0; i < 10; ++i) 
 	{
 		if (divert < 1e-6 && divert > -1e-6)
@@ -247,7 +259,6 @@ void Map::generateMap()
 		else
 			lines[i].addType(NORMAL);
 
-		//[left undone] acceleration road and different firction
 	}
 
 	//add type to lines and set objects' positions
@@ -268,6 +279,10 @@ void Map::generateMap()
 		rock.setObstacle(&lines[obstacleindex[i]], obstacleindex[i], i);
 		for (int j = obstacleindex[i] - OBSTACLE_HALFLENGTH; j <= obstacleindex[i] + OBSTACLE_HALFLENGTH; ++j)
 			lines[j].addType(OBSTACLEAREA);
+	}
+	for (int i = 0; i < NUM_PHYSICALITEM; ++i)
+	{
+		cube.setItem(&lines[physicalindex[i]], physicalindex[i], i);
 	}
 }
 

@@ -21,7 +21,8 @@ void PhysicalItem::draw3D(Point3D pos, double camDeg, double camDepth, Engine* e
 
 void PhysicalItem::setItem(Line* line, int lineindex, int ind) 
 {
-	objectList[ind].position = { line->getx() , line->gety() + CUBE_SIZE ,line->getz(),0,0,0 };
+	double shift = ROAD_WIDTH * 1.5 * 2 * (rand() / (RAND_MAX + 1.0)) - ROAD_WIDTH * 1.5;
+	objectList[ind].position = { line->getx() + shift , line->gety() + CUBE_SIZE ,line->getz(),0,0,0 };
 	objectList[ind].index = lineindex;
 }
 

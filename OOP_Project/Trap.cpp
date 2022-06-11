@@ -40,9 +40,6 @@ int Trap::getNearestTrap(int startpos)
 
 void Trap::logic()
 {
-	static double t = 0;
-	static double base = objectList[0].position.y;
-	double y = sin(t * 20) * 500 + base;
 	for (int i = 0; i < NUM_TRAP; ++i) 
 	{
 		//rotation
@@ -55,10 +52,7 @@ void Trap::logic()
 			objectList[i].rotation.y -= PI * 2;
 		if (objectList[i].rotation.z > PI * 2)
 			objectList[i].rotation.z -= PI * 2;
-
-		objectList[i].position.y = y;
 	}
-	t += 0.01;
 }
 
 void Trap::setTrap(Line *line, int lineindex, int ind) 
