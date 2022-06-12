@@ -32,7 +32,7 @@ void PhysicalItem::logic(void* para1, void* para2)
 {
 	vector<Line>* lines = (vector<Line>*)para1;
 	Obstacle* obst = (Obstacle*)para2;
-	double cos_, sin_;
+	double cos_, sin_, dx, dz, v1, v2, v, e = 0.6;
 	for (int i = 0; i < NUM_PHYSICALITEM; ++i) 
 	{
 		if (!move[i].isMoving)
@@ -59,6 +59,56 @@ void PhysicalItem::logic(void* para1, void* para2)
 		}
 		else 
 		{
+			bool collided = false;
+			for (int j = 0; j < NUM_PHYSICALITEM; ++j)
+			{
+				if (i == j)
+					continue;
+				collided = false;
+				if (objectList[j].index > objectList[i].index - 15 && objectList[j].index < objectList[i].index + 15) 
+				{
+					cout << "  1111111\n" ;
+					dx = objectList[j].position.x - objectList[i].position.x;
+					dz = objectList[j].position.z - objectList[i].position.z;
+					if (dx * dx + dz * dz < 8 * CUBE_SIZE * CUBE_SIZE) 
+					{
+						cout << "  2222222\n";
+						if (dx * dx + dz * dz < 4 * CUBE_SIZE * CUBE_SIZE) {
+							cout << "  444444\n";
+							collided = true;
+						}
+						else {
+							cout << "  333333\n";
+							cos_ = cos(move[j].moveDegree - move[i].moveDegree);
+							sin_ = sin(move[j].moveDegree - move[i].moveDegree);
+							double rz[4] = { CUBE_SIZE * cos_ - CUBE_SIZE * sin_ - dz,CUBE_SIZE * cos_ + CUBE_SIZE * sin_ - dz ,
+													-CUBE_SIZE * cos_ - CUBE_SIZE * sin_ - dz ,-CUBE_SIZE * cos_ + CUBE_SIZE * sin_ - dz };
+							double rx[4] = { CUBE_SIZE * sin_ + CUBE_SIZE * cos_ - dx,CUBE_SIZE * sin_ - CUBE_SIZE * cos_ - dx,
+											-CUBE_SIZE * sin_ + CUBE_SIZE * cos_ - dx,-CUBE_SIZE * sin_ - CUBE_SIZE * cos_ - dx };
+							for (int k = 0; k < 4; ++k) 
+								if (rz[k] < CUBE_SIZE && rz[k] > -CUBE_SIZE && rx[k] < CUBE_SIZE && rx[k] > -CUBE_SIZE) 
+								{
+									cout << "  555555\n";
+									collided = true;
+									break;
+								}
+						}
+
+						if (collided) 
+						{
+							cos_ = cos(move[j].moveDegree - move[i].moveDegree);
+							v1 = move[i].moveVel, v2 = move[j].moveVel * cos_;
+							v = ((1 - e) * v1 + (1 + e) * v2) / 2.0;
+
+							v1 = move[i].moveVel * cos_, v2 = move[j].moveVel;
+							move[i].moveVel = v;
+							move[j].moveVel = ((1 - e) * v2 + (1 + e) * v1) / 2.0;
+							move[j].isMoving = true;
+							move[j].moveDegree = move[i].moveDegree;
+						}
+					}
+				}
+			}
 			//velocity
 			move[i].moveVel -= ITEM_FRICTION;
 			if (move[i].moveVel < 0) {

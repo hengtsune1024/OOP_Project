@@ -761,9 +761,9 @@ Uint32 Map::move(Uint32 interval, void* para)
 				double cos_ = cos(map->car1->getAxleDegree() - map->car2->getAxleDegree());
 				double v1 = map->car1->getVelLinear(), v2 = map->car2->getVelLinear() * cos_;
 				double v = ((1 - e) * v1 + (1 + e) * v2) / 2.0;
-				map->car1->setVelLinear(v);
 
 				v1 = map->car1->getVelLinear() * cos_, v2 = map->car2->getVelLinear();
+				map->car1->setVelLinear(v);
 				v = ((1 - e) * v2 + (1 + e) * v1) / 2.0;
 				map->car2->setVelLinear(v);
 
