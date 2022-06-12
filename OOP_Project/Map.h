@@ -82,7 +82,6 @@ class Map
 
 public:
 
-	Map();					// default constructor (initialize nothing)
 	Map(SDL_Renderer*, bool = false);		// initialize all members except timers
 	~Map();
 

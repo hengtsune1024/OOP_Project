@@ -1,5 +1,5 @@
 #include "Obstacle.h"
-Obstacle::Obstacle() : BlenderObject("../images/rock/rock.txt", "../images/rock/rock.bmp", ROCK_SIZE, NUM_OBSTACLE)
+Obstacle::Obstacle() : BlenderObject("../images/rock/rock.txt", "../images/rock/rock.bmp", ROCK_SIZE, NUM_OBSTACLE,1)
 {
 	touchtime = 0;
 }
@@ -7,7 +7,7 @@ Obstacle::~Obstacle()
 {
 }
 
-Obstacle::Obstacle(const char* objpath, const char* imgpath) : BlenderObject(objpath, imgpath, ROCK_SIZE, NUM_OBSTACLE)
+Obstacle::Obstacle(const char* objpath, const char* imgpath) : BlenderObject(objpath, imgpath, ROCK_SIZE, NUM_OBSTACLE,1)
 {
 	touchtime = 0;
 }

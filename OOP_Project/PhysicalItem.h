@@ -11,6 +11,7 @@
 struct Move {
 	double moveDegree = 0;
 	double moveVel = 0;
+	double angularVel = 0;
 	bool isMoving = false;
 };
 
@@ -20,7 +21,6 @@ class PhysicalItem: public BlenderObject
 	vector<Line>* lines;
 	
 public:
-	PhysicalItem() {}
 	PhysicalItem(const char* objfile, const char* texfile, vector<Line>* l, double scale);
 	~PhysicalItem();
 
@@ -29,7 +29,7 @@ public:
 	double getZ(int ind) { return objectList[ind].position.z; }
 
 	//isCollided
-	void collide(RacingCar*);
+	bool collide(RacingCar*);
 
 	//virtual override
 	void draw3D(Point3D pos, double camDeg, double camDepth, Engine* engine, bool& clean, int ind, double maxy = HEIGHT) override;

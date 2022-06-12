@@ -9,11 +9,9 @@ SDL_Rect Map::viewPort1 = { 0,0,WIDTH,HEIGHT };
 SDL_Rect Map::viewPort2 = { WIDTH,0,WIDTH,HEIGHT };
 unsigned long long Map::type = 0;
 
-Map::Map() {}
-
 Map::Map(SDL_Renderer* renderer, bool dual) : lines(NUM_LINE), number_of_lines(NUM_LINE), dualMode(dual), endtype(PLAYING), record(0),
-	car1(new RacingCar("../images/car/car.txt", "../images/car/car.bmp", renderer, &lines[INITIAL_POS])),
-	car2(dual ? new RacingCar("../images/car/car.txt", "../images/car/car.bmp", renderer, &lines[INITIAL_POS]) : NULL),
+	car1(new RacingCar("../images/car/car.txt", "../images/car/car", renderer, &lines[INITIAL_POS])),
+	car2(dual ? new RacingCar("../images/car/car.txt", "../images/car/car", renderer, &lines[INITIAL_POS]) : NULL),
 	streetlight("../images/streetlight.png", renderer), moon("../images/moon.png", renderer),
 	cube("../images/cube/cube.txt", "../images/cube/cube.bmp", &lines, CUBE_SIZE / 2.457335),
 	virus(renderer), tools(renderer), rock("../images/rock/rock.txt", "../images/rock/rock.bmp")
@@ -131,7 +129,7 @@ void Map::generateMap()
 
 	// xchange
 	// divide 9000 to 10 parts with length 900, the ychange range is within 200 to 800
-	double divert = 0;
+	double divert = 0, total;
 	short sign = 1;
 	for (int i = 0; i < 10; ++i) 
 	{
@@ -141,11 +139,14 @@ void Map::generateMap()
 			sign = -1;
 		else
 			sign = 1;
-		generator.curve = sign * ((1.0 - 0.1) * (rand() / (RAND_MAX + 1.0)) + 0.1);
-		range = (800 - 200) * (rand() / (RAND_MAX + 1.0)) + 200;
-		generator.start = (900 - range) * (rand() / (RAND_MAX + 1.0)) + 900 * i + 100;
-		generator.end = generator.start + range;
-		divert += range * (range - 1) * generator.curve / 2.0;
+		do{
+			generator.curve = sign * ((1.0 - 0.1) * (rand() / (RAND_MAX + 1.0)) + 0.1);
+			range = (800 - 200) * (rand() / (RAND_MAX + 1.0)) + 200;
+			generator.start = (900 - range) * (rand() / (RAND_MAX + 1.0)) + 900 * i + 100;
+			generator.end = generator.start + range;
+			total = range * (range - 1) * generator.curve / 2.0;
+		} while (total <= -100000 || total >= 100000);
+		divert += total;
 		for (int j = generator.start; j <= generator.end; ++j) {
 			lines[j].setCurve(generator.curve);
 		}
@@ -163,7 +164,8 @@ void Map::generateMap()
 		range = n * (2 * PI * generator.period);
 		generator.start = (1500 - range) * (rand() / (RAND_MAX + 1.0)) + 1500 * i + 100;
 		generator.end = generator.start + range;
-		for (int j = generator.start; j <= generator.end; ++j) {
+		for (int j = generator.start; j <= generator.end; ++j) 
+		{
 			cos_ = cos((j - generator.start) / generator.period);
 			sin_ = sin((j - generator.start) / generator.period);
 			critV = GRAVITY * (generator.period * generator.period + cos_ * cos_ * generator.height * generator.height) / (sin_ * generator.height) / lines[j].getRoadVelM() / lines[j].getRoadVelM() * 50;
@@ -749,7 +751,13 @@ Uint32 Map::move(Uint32 interval, void* para)
 					car->rush(ACCROAD);
 				}
 			}
-			map->cube.collide(car);
+
+			if (map->cube.collide(car)) 
+			{
+				car->setPosY(motion.posY - velY / 2);
+				car->setPosX(motion.posX - velX / 2);
+			}
+			
 		}
 
 		startpos = (motion.posX + CAMERA_CARMIDPOINT_DIST) / SEGMENT_LENGTH;

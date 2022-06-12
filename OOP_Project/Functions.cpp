@@ -168,6 +168,11 @@ void Functions::Victory(EndType type)
 	{
 		endtext.setString("FAILED");
 		endtext.setPos({ 130, 175 });
+		endtext.generateTexture();
+		endtext.draw();
+		endtext.close();
+		endtext.setString("HP = 0");
+		endtext.setPos({ 130, 285 });
 	}
 	endtext.generateTexture();
 	endtext.draw();

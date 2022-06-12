@@ -1,5 +1,5 @@
 #include "Trap.h"
-Trap::Trap(): BlenderObject("../images/trap/trap.txt", "../images/trap/trap.bmp", 100, NUM_TRAP) {
+Trap::Trap(): BlenderObject("../images/trap/trap.txt", "../images/trap/trap.bmp", 100, NUM_TRAP,1) {
 
 }
 
@@ -11,7 +11,7 @@ void Trap::close() {
 	stain.close();
 }
 Trap::Trap(SDL_Renderer* renderer):
-	stain("../images/stain.png", renderer), BlenderObject("../images/trap/trap.txt", "../images/trap/trap.bmp", 500, NUM_TRAP)
+	stain("../images/stain.png", renderer), BlenderObject("../images/trap/trap.txt", "../images/trap/trap.bmp", 500, NUM_TRAP,1)
 {
 	car1trap.staintime = car2trap.staintime = SDL_GetTicks64() - STAIN_INTERVAL;
 }

@@ -18,7 +18,7 @@ public:
 	Triangle(Point3D, Point3D, Point3D);
 
 	double getNormalZ() { return normalZ; }
-	void draw(Uint32*, Image3D&, double zbuffer[], double maxy = HEIGHT);
+	void draw(Uint32*, Image3D&, double zbuffer[], double maxy);
 
 	void calculateWorldPoints(const Point3D& rotation, const Point3D& position, Engine* engine);
 	void calculateDrawPoints(const Point3D& rotation, const Point3D& position, double camDepth, Engine* engine);

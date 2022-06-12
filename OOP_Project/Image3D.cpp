@@ -3,7 +3,8 @@
 Image3D::Image3D() : pixels(NULL), texture(NULL), surface(NULL)
 {}
 
-Uint32 Image3D::getColor(int x, int y) {
+Uint32 Image3D::getColor(int x, int y) 
+{
 	if (x >= width)
 		x = width - 1;
 	if (x < 0)

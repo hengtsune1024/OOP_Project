@@ -1,8 +1,8 @@
 #include "PhysicalItem.h"
 
 
-PhysicalItem::PhysicalItem(const char* objfile, const char* texfile, vector<Line>* l, double scale) : BlenderObject(objfile, texfile, scale, NUM_PHYSICALITEM),
-	move(NUM_PHYSICALITEM, {0,0,false}), lines(l)
+PhysicalItem::PhysicalItem(const char* objfile, const char* texfile, vector<Line>* l, double scale) : BlenderObject(objfile, texfile, scale, NUM_PHYSICALITEM, 1) ,
+	move(NUM_PHYSICALITEM, {0,0,0,false}), lines(l)
 {}
 
 PhysicalItem::~PhysicalItem() 
@@ -23,11 +23,14 @@ void PhysicalItem::setItem(Line* line, int lineindex, int ind)
 {
 	double shift = ROAD_WIDTH * 1.5 * 2 * (rand() / (RAND_MAX + 1.0)) - ROAD_WIDTH * 1.5;
 	objectList[ind].position = { line->getx() + shift , line->gety() + CUBE_SIZE ,line->getz(),0,0,0 };
+	objectList[ind].rotation = { 0,2 * PI * rand() / (RAND_MAX + 1.0),0 };
 	objectList[ind].index = lineindex;
 }
 
 void PhysicalItem::logic()
 {
+	double cos_, sin_;
+	int front, back;
 	for (int i = 0; i < NUM_PHYSICALITEM; ++i) 
 	{
 		if (!move[i].isMoving)
@@ -38,10 +41,22 @@ void PhysicalItem::logic()
 		objectList[i].position.z += move[i].moveVel * cos(move[i].moveDegree);
 		objectList[i].position.y = lines->at((int)(objectList[i].position.z / SEGMENT_LENGTH)).gety() + CUBE_SIZE;
 
-		//rotate
-		objectList[i].rotation.y += 0.04;
+		//y-rotate
+		objectList[i].rotation.y += move[i].angularVel;
+		if (move[i].angularVel > 1e-6) {
+			move[i].angularVel -= 0.02;
+			if (move[i].angularVel < 0)
+				move[i].angularVel = 0;
+		}
+		else if(move[i].angularVel < -1e-6) {
+			move[i].angularVel += 0.02;
+			if (move[i].angularVel > 0)
+				move[i].angularVel = 0;
+		}
 		if (objectList[i].rotation.y > 2 * PI)
 			objectList[i].rotation.y -= 2 * PI;
+		else if(objectList[i].rotation.y < -2 * PI)
+			objectList[i].rotation.y += 2 * PI;
 
 		//velocity
 		move[i].moveVel -= ITEM_FRICTION;
@@ -56,9 +71,10 @@ void PhysicalItem::logic()
 	}
 }
 
-void PhysicalItem::collide(RacingCar* car) 
+bool PhysicalItem::collide(RacingCar* car) 
 {
 	double dx, dz, rd, cos_, sin_;
+	bool collision = false;
 
 	for (int j = 0; j < NUM_PHYSICALITEM; ++j) 
 	{
@@ -75,12 +91,15 @@ void PhysicalItem::collide(RacingCar* car)
 			for (int i = 0; i < 4; ++i) {
 				if (rz[i] < CUBE_SIZE && rz[i] > -CUBE_SIZE && rx[i] < CUBE_SIZE && rx[i] > -CUBE_SIZE) {
 					//collided
+					collision = true;
 					move[j].isMoving = true;
 					move[j].moveDegree = car->getAxleDegree();
 					move[j].moveVel = car->getVelLinear() * 1.2 * car->getVelM();
+					move[j].angularVel = ((0.5 * move[j].moveVel / ENERGY_RUSHBEGIN_SPEED) * rand() / (RAND_MAX + 1.0)) * ((rand() & 1) ? 1 : -1);
 					break;
 				}
 			}
 		}
 	}
+	return collision;
 }

@@ -1,7 +1,7 @@
 #include "RacingCar.h"
 RacingCar::RacingCar() :
 	isRushing(NONE), fullEnergy(true), energy(100.0), healthPoint(100.0),
-	motion(MOTION_INIT), roadtype(NORMAL), outOfRoad(false), inAir(false), BlenderObject("../images/car1.txt", "../images/car1.bmp", 500, 1)
+	motion(MOTION_INIT), roadtype(NORMAL), outOfRoad(false), inAir(false), BlenderObject("../images/car/car.txt", "../images/car/car", 500, 1,2)
 {}
 
 RacingCar::~RacingCar()
@@ -9,8 +9,9 @@ RacingCar::~RacingCar()
 
 RacingCar::RacingCar(const char* obfpath, const char* imgpath, SDL_Renderer* renderer, Line* initpos) :
 	
-	isRushing(NONE), fullEnergy(true), energy(100.0), healthPoint(100.0), motion(MOTION_INIT), accState(0), roadtype(NORMAL),
-	currentPos(initpos), BlenderObject(obfpath, imgpath, 1000, 1), theOtherCar(NULL), starttime(SDL_GetTicks64() + 3000), timing("00:00:000"), arrive(false), totaltime(0), invincible(0),
+	isRushing(NONE), fullEnergy(true), energy(100.0), healthPoint(100.0), motion(MOTION_INIT), accState(0), roadtype(NORMAL), currentPos(initpos),
+	theOtherCar(NULL), starttime(SDL_GetTicks64() + 3000), timing("00:00:000"), arrive(false), totaltime(0), invincible(0),
+	BlenderObject(obfpath, imgpath, 1000, 1, 2),
 	timetext(timing, "../fonts/akabara-cinderella.ttf", 20, 0x02, { 255, 255, 255 }, SHADED, { 0, 0, 0 }, renderer, { 250, 10 }, { 10, 10 }, NULL, SDL_FLIP_NONE, 255)
 {}
 
@@ -71,7 +72,7 @@ void RacingCar::draw3D(Point3D campos, double camDeg, double camDepth, Engine* e
 void RacingCar::draw(SDL_Renderer* renderer, Engine* engine, bool& clean)
 {
 	//car image
-	draw3D({0,0,0}, motion.camDegree, motion.camDepth, engine, clean, HEIGHT);
+	draw3D({0,0,0}, motion.camDegree, motion.camDepth, engine, clean, 0, HEIGHT);
 
 	//energy bottle
 	roundedBoxColor(renderer, 10, 10, 10 + WIDTH / 4, 30, 2, 0xff828282);
@@ -132,8 +133,10 @@ Uint32 RacingCar::changeData(Uint32 interval, void* param)
 	}
 
 	//invincible tool
-	if (SDL_GetTicks64() - car->invincible >= 5000)
+	if (SDL_GetTicks64() - car->invincible >= 5000){
 		car->invincible = 0;
+		car->texindex = 0;
+	}
 
 	//car rotation
 	double dif = car->motion.axleDegree - car->motion.camDegree;
@@ -307,6 +310,7 @@ void RacingCar::usetool(ToolType type, Tool* tools, bool car)
 		case INVINCIBLE:
 			printf("INVINCIBLE NOW\n");
 			invincible = SDL_GetTicks64();
+			texindex = 1;
 			break;
 	}
 }
