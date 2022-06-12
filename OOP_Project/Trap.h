@@ -31,7 +31,7 @@ public:
 
 	//virtaul override
 	void draw3D(Point3D campos, double camDeg, double camDepth, Engine* engine, bool& clean, int ind, double maxy = HEIGHT) override;
-	void logic() override;
+	void logic(void* = NULL, void* = NULL) override;
 
 	void close();
 };

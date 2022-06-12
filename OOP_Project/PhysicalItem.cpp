@@ -28,41 +28,61 @@ void PhysicalItem::setItem(Line* line, int lineindex, int ind)
 	objectList[ind].texindex = rand() & 1;
 }
 
-void PhysicalItem::logic()
+void PhysicalItem::logic(void* para1, void* para2)
 {
+	vector<Line>* lines = (vector<Line>*)para1;
+	Obstacle* obst = (Obstacle*)para2;
+	double cos_, sin_;
 	for (int i = 0; i < NUM_PHYSICALITEM; ++i) 
 	{
 		if (!move[i].isMoving)
 			continue;
 
 		//position
-		objectList[i].position.x += move[i].moveVel * sin(move[i].moveDegree);
-		objectList[i].position.z += move[i].moveVel * cos(move[i].moveDegree);
+		cos_ = cos(move[i].moveDegree);
+		sin_ = sin(move[i].moveDegree);
+		objectList[i].position.x += move[i].moveVel * sin_;
+		objectList[i].position.z += move[i].moveVel * cos_;
 		objectList[i].position.y = lines->at((int)(objectList[i].position.z / SEGMENT_LENGTH)).gety() + CUBE_SIZE;
 
-		//y-rotate
-		objectList[i].rotation.y += move[i].angularVel;
-		if (move[i].angularVel > 1e-6) {
-			move[i].angularVel -= 0.02;
-			if (move[i].angularVel < 0)
-				move[i].angularVel = 0;
-		}
-		else if(move[i].angularVel < -1e-6) {
-			move[i].angularVel += 0.02;
-			if (move[i].angularVel > 0)
-				move[i].angularVel = 0;
-		}
-		if (objectList[i].rotation.y > 2 * PI)
-			objectList[i].rotation.y -= 2 * PI;
-		else if(objectList[i].rotation.y < -2 * PI)
-			objectList[i].rotation.y += 2 * PI;
-
-		//velocity
-		move[i].moveVel -= ITEM_FRICTION;
-		if (move[i].moveVel < 0) {
+		//collision with obstacle
+		objectList[i].index = objectList[i].position.z / SEGMENT_LENGTH;
+		if ((lines->at(objectList[i].index).getType() & OBSTACLEAREA)
+			&& obst->hitObstacle(objectList[i].position.x, objectList[i].position.y + CUBE_SIZE, obst->getNearestObstacle(objectList[i].index)))
+		{
+			objectList[i].position.x -= move[i].moveVel * sin_;
+			objectList[i].position.z -= move[i].moveVel * cos_;
 			move[i].moveVel = 0;
 			move[i].moveDegree = 0;
+			move[i].angularVel = 0;
 			move[i].isMoving = false;
+		}
+		else 
+		{
+			//velocity
+			move[i].moveVel -= ITEM_FRICTION;
+			if (move[i].moveVel < 0) {
+				move[i].moveVel = 0;
+				move[i].moveDegree = 0;
+				move[i].isMoving = false;
+			}
+
+			//y-rotate
+			objectList[i].rotation.y += move[i].angularVel;
+			if (move[i].angularVel > 1e-6) {
+				move[i].angularVel -= 0.02;
+				if (move[i].angularVel < 0)
+					move[i].angularVel = 0;
+			}
+			else if (move[i].angularVel < -1e-6) {
+				move[i].angularVel += 0.02;
+				if (move[i].angularVel > 0)
+					move[i].angularVel = 0;
+			}
+			if (objectList[i].rotation.y > 2 * PI)
+				objectList[i].rotation.y -= 2 * PI;
+			else if (objectList[i].rotation.y < -2 * PI)
+				objectList[i].rotation.y += 2 * PI;
 		}
 
 		//index

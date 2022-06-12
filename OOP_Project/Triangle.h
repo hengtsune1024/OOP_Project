@@ -3,7 +3,6 @@
 #include <SDL2_gfxPrimitives.h>
 #include "Engine.h"
 #include "Image3D.h"
-#include "Point3D.h"
 #include <vector>
 
 class Triangle

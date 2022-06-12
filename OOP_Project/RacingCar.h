@@ -134,6 +134,6 @@ public:
 
 	void rush(RushType rushtype);
 	void brake(int type = -1);		//car accelerating
-	void touchobstacle(Obstacle& rock);
+	void touchobstacle(Obstacle& rock, int ind, vector<Line>& lines);
 	void isarrive();
 };

@@ -30,7 +30,7 @@ void BlenderObject::close() {
 	delete[]img;
 }
 
-void BlenderObject::logic() 
+void BlenderObject::logic(void*, void*)
 {}
 
 void BlenderObject::Load(const char* objectFile, double scale)

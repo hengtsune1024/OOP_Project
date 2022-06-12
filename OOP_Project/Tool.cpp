@@ -122,7 +122,7 @@ void Tool::getTools(bool car, int ind)
 	}
 }
 
-void Tool::logic()
+void Tool::logic(void*, void*)
 {
 	for (int i = 0; i < NUM_TOOL; ++i) {
 		objectList[i].rotation.y += 0.1;

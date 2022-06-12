@@ -2,7 +2,6 @@
 #include <SDL.h>
 #include <stdio.h>
 #include <vector>
-#include "Point3D.h"
 #include "Triangle.h"
 #pragma warning(disable:4996)
 
@@ -48,7 +47,7 @@ public:
 	void setClip(double c) { clip = c; }
 
 	//virtual function
-	virtual void logic();
+	virtual void logic(void* = NULL, void* = NULL);
 	virtual void draw3D(Point3D campos, double camDeg, double camDepth, Engine* engine, bool& clean, int ind, double maxy = HEIGHT) = 0;
 };
 

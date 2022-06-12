@@ -38,7 +38,7 @@ int Trap::getNearestTrap(int startpos)
 	return 0;
 }
 
-void Trap::logic()
+void Trap::logic(void*, void*)
 {
 	for (int i = 0; i < NUM_TRAP; ++i) 
 	{

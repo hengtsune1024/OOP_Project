@@ -322,7 +322,7 @@ void RacingCar::usetool(ToolType type, Tool* tools, bool car)
 	}
 }
 
-void RacingCar::touchobstacle(Obstacle& rock)
+void RacingCar::touchobstacle(Obstacle& rock, int ind, vector<Line>& lines)
 {
 	if (!rock.istouching())
 	{
@@ -334,11 +334,11 @@ void RacingCar::touchobstacle(Obstacle& rock)
 			rock.broken(rock.getNearestObstacle(motion.posX / SEGMENT_LENGTH));
 			return;
 		}
-			//healthPoint -= motion.velLinear > 0 ? motion.velLinear / 100 : motion.velLinear / -100;
-		//cout << healthPoint << endl;
-		motion.posX -= motion.velLinear * cos(motion.axleDegree);
-		motion.posY -= motion.velLinear * sin(motion.axleDegree);
+
+		motion.posX -= ROCK_SIZE * cos(motion.axleDegree);
+		motion.posY -= ROCK_SIZE * sin(motion.axleDegree);
 		motion.velLinear = -motion.velLinear * 0.5;
+
 		if (isRushing) {
 			isRushing = NONE;
 			motion.velLinear = -MAX_BACKWARD_SPEED * 0.5;

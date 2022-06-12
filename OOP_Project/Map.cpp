@@ -199,8 +199,8 @@ void Map::generateMap()
 			for (int j = generator.end - 15; j <= generator.end + 15; ++j){
 				lines[j].addType(CLIFF);
 			}
-			for (int j = generator.end - 15; j <= generator.end + 30; ++j) {
-				table[j - 100] = true;
+			for (int j = generator.end - 100 >= 15 ? generator.end - 100 - 15 : 0; j <= generator.end - 100 + 30 && j < 9000; ++j) {
+				table[j] = true;
 			}
 			
 			//one more sin function
@@ -374,7 +374,7 @@ Uint32 Map::Objectlogic(Uint32 interval, void* para)
 	map->virus.logic();
 
 	//physical object
-	map->cube.logic();
+	map->cube.logic(&(map->lines), &(map->rock));
 
 	return interval;
 }
@@ -897,9 +897,9 @@ Uint32 Map::move(Uint32 interval, void* para)
 		if (type & OBSTACLEAREA)
 		{
 			int index = map->rock.getNearestObstacle(startpos);
-			if (!map->rock.getBroken(index) && map->rock.hitObstacle(midY,camH - CAMERA_HEIGHT, motion.velM, index))
+			if (!map->rock.getBroken(index) && map->rock.hitObstacle(midY,camH - CAMERA_HEIGHT, index))
 			{
-				car->touchobstacle(map->rock);
+				car->touchobstacle(map->rock, index, map->lines);
 
 				if (car->getHP() <= 0)
 				{

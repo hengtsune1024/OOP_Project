@@ -95,6 +95,8 @@ public:
 	int getrecord() { return record; }
 	Tool* getTool() { return &tools; }
 	Engine* getEng() { return &engine; }
+	vector<Line>* getLines() { return &lines; }
+	Obstacle* getObstacle() { return &rock; }
 
 	// timer
 	void startTimer();

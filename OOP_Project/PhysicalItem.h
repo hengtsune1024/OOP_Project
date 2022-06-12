@@ -33,7 +33,7 @@ public:
 
 	//virtual override
 	void draw3D(Point3D pos, double camDeg, double camDepth, Engine* engine, bool& clean, int ind, double maxy = HEIGHT) override;
-	void logic() override;
+	void logic(void* para1, void* para2) override;
 	
 	void close();
 };
