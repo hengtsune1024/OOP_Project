@@ -501,8 +501,8 @@ Uint32 Map::move(Uint32 interval, void* para)
 	Map* map = (Map*)para;
 	RacingCar* car = map->car1;
 	int times = map->dualMode ? 2 : 1;
-	int startpos;
-	double punish, midY;
+	int startpos, front, back;
+	double punish, midY, camH, dist, velX, velY;
 	
 	do {
 		const Motion& motion = car->getMotion();
@@ -533,10 +533,9 @@ Uint32 Map::move(Uint32 interval, void* para)
 			}
 		}
 
-		double dist = CAR_HALF_LENGTH * cos(motion.axleDegree);
-		int front = (motion.posX + CAMERA_CARMIDPOINT_DIST + dist) / SEGMENT_LENGTH;
-		int back = (motion.posX + CAMERA_CARMIDPOINT_DIST - dist) / SEGMENT_LENGTH;
-
+		dist = CAR_HALF_LENGTH * cos(motion.axleDegree);
+		front = (motion.posX + CAMERA_CARMIDPOINT_DIST + dist) / SEGMENT_LENGTH;
+		back = (motion.posX + CAMERA_CARMIDPOINT_DIST - dist) / SEGMENT_LENGTH;
 		
 
 		car->setRoadDegree(car->getCurrentPos()->getRoadDegree());
@@ -588,7 +587,6 @@ Uint32 Map::move(Uint32 interval, void* para)
 		//set car road type
 		car->setFrictionType(type);
 
-		double velX, velY;
 		velX = motion.velLinear * cos(motion.axleDegree) * punish * motion.velM;
 		velY = motion.velLinear * sin(motion.axleDegree) * punish * motion.velM;
 
@@ -742,6 +740,8 @@ Uint32 Map::move(Uint32 interval, void* para)
 			startpos = (motion.posX + CAMERA_CARMIDPOINT_DIST) / SEGMENT_LENGTH;
 			midY = motion.posY + CAMERA_CARMIDPOINT_DIST * sin(motion.axleDegree);
 			type = map->lines[startpos].getType();
+			car->setCurrentPos(&(map->lines[startpos]));
+
 			//rush
 			if (car->getRushing() != ACCROAD && ((type & ACCELERATE_LEFT) || (type & ACCELERATE_RIGHT))) {
 				if ((type & ACCELERATE_LEFT) && (midY < map->lines[startpos].getx() && midY > map->lines[startpos].getx() - ROAD_WIDTH * motion.velM)) {
@@ -763,11 +763,13 @@ Uint32 Map::move(Uint32 interval, void* para)
 		startpos = (motion.posX + CAMERA_CARMIDPOINT_DIST) / SEGMENT_LENGTH;
 		midY = motion.posY + CAMERA_CARMIDPOINT_DIST * sin(motion.axleDegree);
 		type = map->lines[startpos].getType();
+		camH = car->isInAir() ? motion.camHeight + motion.baseHeight : motion.camHeight + map->lines[startpos].gety();
+
 		//trap
 		if (type & TRAPAREA)
 		{
 			int index = map->virus.getNearestTrap(startpos);
-			if (map->virus.hitTrap(midY, motion.camHeight - 1500 + map->lines[startpos].gety(), motion.velM, index))
+			if (map->virus.hitTrap(midY, camH - CAMERA_HEIGHT, motion.velM, index))
 				map->virus.gettrap(STAIN, (map->dualMode ? times - 1 : true), index);
 		}
 
@@ -775,7 +777,7 @@ Uint32 Map::move(Uint32 interval, void* para)
 		if (type & TOOLAREA)
 		{
 			int index = map->tools.getNearestTool(startpos);
-			if (map->tools.hitTool(midY, motion.camHeight - 1500 + map->lines[startpos].gety(), motion.velM, index))
+			if (map->tools.hitTool(midY, camH - CAMERA_HEIGHT, motion.velM, index))
 				map->tools.getTools((map->dualMode ? times - 1 : true), index);
 		}
 
@@ -783,7 +785,7 @@ Uint32 Map::move(Uint32 interval, void* para)
 		if (type & OBSTACLEAREA)
 		{
 			int index = map->rock.getNearestObstacle(startpos);
-			if (map->rock.hitObstacle(midY, motion.camHeight - 1500 + map->lines[startpos].gety(), motion.velM, index))
+			if (map->rock.hitObstacle(midY,camH - CAMERA_HEIGHT, motion.velM, index))
 			{
 				car->touchobstacle(map->rock);
 

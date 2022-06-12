@@ -73,16 +73,20 @@ void PhysicalItem::logic()
 
 bool PhysicalItem::collide(RacingCar* car) 
 {
-	double dx, dz, rd, cos_, sin_;
+	double dx, dz, rd, cos_, sin_, height;
 	bool collision = false;
-
+	const Motion& motion = car->getMotion();
 	for (int j = 0; j < NUM_PHYSICALITEM; ++j) 
 	{
-		dx = car->getPosY() + CAMERA_CARMIDPOINT_DIST * sin(car->getAxleDegree()) - objectList[j].position.x;
-		dz = car->getPosX() + CAMERA_CARMIDPOINT_DIST * cos(car->getAxleDegree()) - objectList[j].position.z;
+		height = car->isInAir() ? motion.camHeight + motion.baseHeight : motion.camHeight + car->getCurrentPos()->gety();
+		if (height - CAMERA_HEIGHT > objectList[j].position.y + CUBE_SIZE)
+			continue;
+
+		dx = motion.posY + CAMERA_CARMIDPOINT_DIST * sin(motion.axleDegree) - objectList[j].position.x;
+		dz = motion.posX + CAMERA_CARMIDPOINT_DIST * cos(motion.axleDegree) - objectList[j].position.z;
 
 		if (dx * dx + dz * dz < ((CUBE_SIZE + CAR_HALF_LENGTH) * (CUBE_SIZE + CAR_HALF_LENGTH) + (CUBE_SIZE + CAR_HALF_WIDTH) * (CUBE_SIZE + CAR_HALF_WIDTH)) * 0.9) {
-			rd = car->getAxleDegree() - objectList[j].rotation.y;
+			rd = motion.axleDegree - objectList[j].rotation.y;
 			cos_ = cos(rd), sin_ = sin(rd);
 			double rz[5] = { CAR_HALF_LENGTH * cos_ - CAR_HALF_WIDTH * sin_ - dz,CAR_HALF_LENGTH * cos_ + CAR_HALF_WIDTH * sin_ - dz ,
 							-CAR_HALF_LENGTH * cos_ - CAR_HALF_WIDTH * sin_ - dz ,-CAR_HALF_LENGTH * cos_ + CAR_HALF_WIDTH * sin_ - dz, CAR_HALF_LENGTH * cos_ - dz };
@@ -93,8 +97,8 @@ bool PhysicalItem::collide(RacingCar* car)
 					//collided
 					collision = true;
 					move[j].isMoving = true;
-					move[j].moveDegree = car->getAxleDegree();
-					move[j].moveVel = car->getVelLinear() * 1.2 * car->getVelM();
+					move[j].moveDegree = motion.axleDegree;
+					move[j].moveVel = motion.velLinear * 1.2 * motion.velM;
 					move[j].angularVel = ((0.5 * move[j].moveVel / ENERGY_RUSHBEGIN_SPEED) * rand() / (RAND_MAX + 1.0)) * ((rand() & 1) ? 1 : -1);
 					break;
 				}

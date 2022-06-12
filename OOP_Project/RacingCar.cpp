@@ -27,6 +27,10 @@ bool RacingCar::collided() {
 	if (theOtherCar == NULL)
 		return false;
 	//collision
+	double height = (inAir ? motion.camHeight + motion.baseHeight : motion.camHeight + currentPos->gety()) 
+			- (theOtherCar->inAir ? theOtherCar->motion.camHeight + theOtherCar->motion.baseHeight : theOtherCar->motion.camHeight + theOtherCar->currentPos->gety());
+	if (height > 1277 || height < -1277)
+		return false;
 	double dx = (motion.posY + CAMERA_CARMIDPOINT_DIST * sin(motion.axleDegree)) - (theOtherCar->motion.posY + CAMERA_CARMIDPOINT_DIST * sin(theOtherCar->motion.axleDegree));
 	double dz = (motion.posX + CAMERA_CARMIDPOINT_DIST * cos(motion.axleDegree)) - (theOtherCar->motion.posX + CAMERA_CARMIDPOINT_DIST * cos(theOtherCar->motion.axleDegree));
 
