@@ -137,9 +137,9 @@ Uint32 RacingCar::changeData(Uint32 interval, void* param)
 	}
 
 	//invincible tool
-	if (SDL_GetTicks64() - car->invincible >= 5000){
+	if (SDL_GetTicks64() - car->invincible >= INVINCIBLE_INTERVAL){
 		car->invincible = 0;
-		car->texindex = 0;
+		car->objectList[0].texindex = 0;
 	}
 
 	//car rotation
@@ -314,7 +314,7 @@ void RacingCar::usetool(ToolType type, Tool* tools, bool car)
 		case INVINCIBLE:
 			printf("INVINCIBLE NOW\n");
 			invincible = SDL_GetTicks64();
-			texindex = 1;
+			objectList[0].texindex = 1;
 			break;
 	}
 }

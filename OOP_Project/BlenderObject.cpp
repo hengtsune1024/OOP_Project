@@ -1,7 +1,7 @@
 #include "BlenderObject.h"
 
 BlenderObject::BlenderObject(const char* objectFile, const char* textureFile, double scale, int num, int texnum) :
-	objectList(num), clip(HEIGHT), textureNum(texnum), texindex(0)
+	objectList(num), clip(HEIGHT), textureNum(texnum)
 {
 	char path[50] = "\0";
 	img = new Image3D[texnum];
@@ -132,7 +132,7 @@ void BlenderObject::BlenderObject_draw(Point3D pos, Point3D worldRot, double cam
 		if (allTriangles[i]->getNormalZ() < 0) {
 			std::vector<Triangle*> clippedTriangles = allTriangles[i]->GetClippedTriangles();
 			for (int j = 0; j < clippedTriangles.size(); ++j) {
-				clippedTriangles[j]->draw(bmp, img[texindex], engine->getZBuffer(), maxy);
+				clippedTriangles[j]->draw(bmp, img[objectList[ind].texindex], engine->getZBuffer(), maxy);
 				
 				delete clippedTriangles[j];
 			}

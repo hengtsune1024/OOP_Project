@@ -1,7 +1,7 @@
 #include "PhysicalItem.h"
 
 
-PhysicalItem::PhysicalItem(const char* objfile, const char* texfile, vector<Line>* l, double scale) : BlenderObject(objfile, texfile, scale, NUM_PHYSICALITEM, 1) ,
+PhysicalItem::PhysicalItem(const char* objfile, const char* texfile, vector<Line>* l, double scale) : BlenderObject(objfile, texfile, scale, NUM_PHYSICALITEM, 3) ,
 	move(NUM_PHYSICALITEM, {0,0,0,false}), lines(l)
 {}
 
@@ -25,6 +25,13 @@ void PhysicalItem::setItem(Line* line, int lineindex, int ind)
 	objectList[ind].position = { line->getx() + shift , line->gety() + CUBE_SIZE ,line->getz(),0,0,0 };
 	objectList[ind].rotation = { 0,2 * PI * rand() / (RAND_MAX + 1.0),0 };
 	objectList[ind].index = lineindex;
+	int random = rand() & 15;
+	if (random == 0)
+		objectList[ind].texindex = 1;
+	else if(random == 15)
+		objectList[ind].texindex = 2;
+	else
+		objectList[ind].texindex = 0;
 }
 
 void PhysicalItem::logic()

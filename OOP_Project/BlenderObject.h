@@ -12,6 +12,7 @@ struct Location
 	Point3D rotation = {0,0,0};
 	bool shownflag = true;
 	int index;
+	int texindex = 0;
 };
 
 class BlenderObject
@@ -25,7 +26,6 @@ protected:
 	void BlenderObject_draw(Point3D camPos, Point3D worldRot, double camDeg, double camDepth, Engine* engine, bool clean, double maxy, int ind);
 	void close();
 	double clip;
-	int texindex;
 	std::vector<Location> objectList;
 
 public:

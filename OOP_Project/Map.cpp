@@ -13,7 +13,7 @@ Map::Map(SDL_Renderer* renderer, bool dual) : lines(NUM_LINE), number_of_lines(N
 	car1(new RacingCar("../images/car/car.txt", "../images/car/car", renderer, &lines[INITIAL_POS])),
 	car2(dual ? new RacingCar("../images/car/car.txt", "../images/car/car", renderer, &lines[INITIAL_POS]) : NULL),
 	streetlight("../images/streetlight.png", renderer), moon("../images/moon.png", renderer),
-	cube("../images/cube/cube.txt", "../images/cube/cube.bmp", &lines, CUBE_SIZE / 2.457335),
+	cube("../images/cube/cube.txt", "../images/cube/cube", &lines, CUBE_SIZE / 2.457335),
 	virus(renderer), tools(renderer), rock("../images/rock/rock.txt", "../images/rock/rock.bmp")
 {
 	generateMap();
@@ -763,6 +763,7 @@ Uint32 Map::move(Uint32 interval, void* para)
 		startpos = (motion.posX + CAMERA_CARMIDPOINT_DIST) / SEGMENT_LENGTH;
 		midY = motion.posY + CAMERA_CARMIDPOINT_DIST * sin(motion.axleDegree);
 		type = map->lines[startpos].getType();
+		car->setCurrentPos(&(map->lines[startpos]));
 		camH = car->isInAir() ? motion.camHeight + motion.baseHeight : motion.camHeight + map->lines[startpos].gety();
 
 		//trap

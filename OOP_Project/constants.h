@@ -32,6 +32,9 @@
 #define TOOL_HALFLENGTH 5
 #define TRAP_HALFLENGTH 5
 
+//tool
+#define INVINCIBLE_INTERVAL 100000
+
 //camera
 #define FIELD_OF_VIEW 45
 #define DEFAULT_CAMERA_DEPTH 0.96
