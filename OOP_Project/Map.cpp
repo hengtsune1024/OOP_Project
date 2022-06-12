@@ -57,6 +57,178 @@ void Map::generateMap()
 	bool table[9000] = { false };
 
 	int upper, lower, minDist, range;
+	
+	//road design
+	struct Pair {
+		int start;
+		int end;
+		union {
+			double curve;
+			struct {
+				double height;
+				double period;
+			};
+			unsigned int type;
+		};
+	} generator;
+
+	// special roads
+	// divide 9000 to 9 parts with length 1000
+	minDist = 300;
+	int previous = -500;
+	for (int i = 0; i < 9; ++i)
+	{
+		// acceleration road
+		do {
+			generator.start = 1000 * (rand() / (RAND_MAX + 1.0)) + 1000 * i + 100;
+		} while (generator.start - previous < minDist && generator.start - previous > -minDist);
+
+		if (rand() & 1) {
+			for (int j = generator.start; j <= generator.start + ACCROAD_LENGHT; ++j)
+				lines[j].addType(ACCELERATE_RIGHT);
+		}
+		else {
+			for (int j = generator.start; j <= generator.start + ACCROAD_LENGHT; ++j)
+				lines[j].addType(ACCELERATE_LEFT);
+		}
+		previous = generator.start;
+
+		// different friction
+		// high_friction range between 50 and 300, low_friction range between 100 and 400
+		for (int k = 0; k < 2; ++k)
+		{
+			switch (rand() & 3) {
+			case 0:
+			case 1:
+				range = (300 - 50) * (rand() / (RAND_MAX + 1.0)) + 50;
+				generator.start = (500 - range) * (rand() / (RAND_MAX + 1.0)) + 1000 * i + k * 500 + 100;
+				generator.end = generator.start + range;
+				for (int j = generator.start; j <= generator.end; ++j)
+					lines[j].addType(HIGH_FRICTION);
+				break;
+			case 2:
+			case 3:
+				range = (400 - 100) * (rand() / (RAND_MAX + 1.0)) + 100;
+				generator.start = (500 - range) * (rand() / (RAND_MAX + 1.0)) + 1000 * i + k * 500 + 100;
+				generator.end = generator.start + range;
+				for (int j = generator.start; j <= generator.end; ++j)
+					lines[j].addType(LOW_FRICTION);
+				break;
+			}
+		}
+	}
+	// xchange
+	// divide 9000 to 10 parts with length 900, the ychange range is within 200 to 800
+	double divert = 0, total;
+	short sign = 1;
+	for (int i = 0; i < 10; ++i) 
+	{
+		if (divert < 1e-6 && divert > -1e-6)
+			sign = (rand() & 1) ? 1 : -1;
+		else if (divert > 0)
+			sign = -1;
+		else
+			sign = 1;
+		do{
+			generator.curve = sign * ((1.0 - 0.1) * (rand() / (RAND_MAX + 1.0)) + 0.1);
+			range = (800 - 200) * (rand() / (RAND_MAX + 1.0)) + 200;
+			generator.start = (900 - range) * (rand() / (RAND_MAX + 1.0)) + 900 * i + 100;
+			generator.end = generator.start + range;
+			total = range * (range - 1) * generator.curve / 2.0;
+		} while (total <= -100000 || total >= 100000);
+		divert += total;
+		for (int j = generator.start; j <= generator.end; ++j) {
+			lines[j].setCurve(generator.curve);
+		}
+	}
+	// ychange
+	// divide 9000 to 6 parts with length 1500
+	// range between 900 adn 1400, height between 0.5 and 1.2 (CAMERA_HEIGHT), period between 20 and 40
+	int n;
+	bool side;
+	double cos_, sin_, critV;
+	for (int i = 0; i < 6; ++i) 
+	{
+		//if (rand() & 7) 
+		if(false)
+		{
+			//sin function
+			generator.height = ((1.2 - 0.5) * (rand() / (RAND_MAX + 1.0)) + 0.5) * CAMERA_HEIGHT;
+			generator.period = (40 - 20) * (rand() / (RAND_MAX + 1.0)) + 20;
+			n = ((1400 - 900) * (rand() / (RAND_MAX + 1.0)) + 900) / (2 * PI * generator.period);
+			range = n * (2 * PI * generator.period);
+			generator.start = (1500 - range) * (rand() / (RAND_MAX + 1.0)) + 1500 * i + 100;
+			generator.end = generator.start + range;
+			for (int j = generator.start; j <= generator.end; ++j)
+			{
+				cos_ = cos((j - generator.start) / generator.period);
+				sin_ = sin((j - generator.start) / generator.period);
+				critV = GRAVITY * (generator.period * generator.period + cos_ * cos_ * generator.height * generator.height) / (sin_ * generator.height) / lines[j].getRoadVelM() / lines[j].getRoadVelM() * 50;
+				if (critV < 0)
+					critV = -critV;
+				lines[j].sety(sin_ * generator.height);
+				lines[j].setCritVel(critV);
+				lines[j].setSlope(lines[j].gety() - lines[j - 1].gety());
+
+				if (lines[j].getSlope() > 1e-6)
+					lines[j].addType(INCLINE_BACKWARD);
+				else if (lines[j].getSlope() < -1e-6)
+					lines[j].addType(INCLINE_FORWARD);
+			}
+		}
+		else 
+		{
+			//line function
+			side = rand() & 1;
+			generator.height = ((3.0 - 1.0) * (rand() / (RAND_MAX + 1.0)) + 1.0) * CAMERA_HEIGHT;
+			range = (300 - 100) * (rand() / (RAND_MAX + 1.0)) + 100;
+			generator.start = (500 - range) * (rand() / (RAND_MAX + 1.0)) + 1500 * i + (side ? 1000 : 0) + 100;
+			generator.end = generator.start + range;
+			for (int j = generator.start; j <= generator.end; ++j)
+			{
+				lines[j].sety((j - generator.start) * generator.height / range);
+				lines[j].setSlope(lines[j].gety() - lines[j - 1].gety());
+				lines[j].addType(INCLINE_BACKWARD);
+				lines[j].addType(INCLINE_PLANE);
+				lines[j].setCritVel(-1);
+				if (lines[j].getType() & HIGH_FRICTION)
+					lines[j].deleteType(HIGH_FRICTION);
+				else if(lines[j].getType() & LOW_FRICTION)
+					lines[j].deleteType(LOW_FRICTION);
+			}
+			for (int j = generator.end - 15; j <= generator.end + 15; ++j){
+				lines[j].addType(CLIFF);
+			}
+			for (int j = generator.end - 15; j <= generator.end + 30; ++j) {
+				table[j - 100] = true;
+			}
+			
+			//one more sin function
+			generator.height = ((1.2 - 0.5) * (rand() / (RAND_MAX + 1.0)) + 0.5) * CAMERA_HEIGHT;
+			generator.period = (40 - 20) * (rand() / (RAND_MAX + 1.0)) + 20;
+			n = ((900 - 400) * (rand() / (RAND_MAX + 1.0)) + 400) / (2 * PI * generator.period);
+			range = n * (2 * PI * generator.period);
+			generator.start = (1000 - range) * (rand() / (RAND_MAX + 1.0)) + 1500 * i + (side ? 0 : 500) + 100;
+			generator.end = generator.start + range;
+			for (int j = generator.start; j <= generator.end; ++j)
+			{
+				cos_ = cos((j - generator.start) / generator.period);
+				sin_ = sin((j - generator.start) / generator.period);
+				critV = GRAVITY * (generator.period * generator.period + cos_ * cos_ * generator.height * generator.height) / (sin_ * generator.height) / lines[j].getRoadVelM() / lines[j].getRoadVelM() * 50;
+				if (critV < 0)
+					critV = -critV;
+				lines[j].sety(sin_ * generator.height);
+				lines[j].setCritVel(critV);
+				lines[j].setSlope(lines[j].gety() - lines[j - 1].gety());
+
+				if (lines[j].getSlope() > 1e-6)
+					lines[j].addType(INCLINE_BACKWARD);
+				else if (lines[j].getSlope() < -1e-6)
+					lines[j].addType(INCLINE_FORWARD);
+			}
+			
+		}
+	}
 	// trap
 	range = 9000 / NUM_TRAP;
 	minDist = range / 2;
@@ -111,121 +283,6 @@ void Map::generateMap()
 			} while (table[physicalindex[i * 10 + j] - 100]);
 			for (int k = physicalindex[i * 10 + j] - 100 >= 1 ? physicalindex[i * 10 + j] - 100 - 1 : 0; k <= physicalindex[i * 10 + j] - 100 + 1 && k < 9000; ++k)
 				table[k] = true;
-		}
-	}
-	//road design
-	struct Pair {
-		int start;
-		int end;
-		union {
-			double curve;
-			struct {
-				double height;
-				double period;
-			};
-			unsigned int type;
-		};
-	} generator;
-
-	// xchange
-	// divide 9000 to 10 parts with length 900, the ychange range is within 200 to 800
-	double divert = 0, total;
-	short sign = 1;
-	for (int i = 0; i < 10; ++i) 
-	{
-		if (divert < 1e-6 && divert > -1e-6)
-			sign = (rand() & 1) ? 1 : -1;
-		else if (divert > 0)
-			sign = -1;
-		else
-			sign = 1;
-		do{
-			generator.curve = sign * ((1.0 - 0.1) * (rand() / (RAND_MAX + 1.0)) + 0.1);
-			range = (800 - 200) * (rand() / (RAND_MAX + 1.0)) + 200;
-			generator.start = (900 - range) * (rand() / (RAND_MAX + 1.0)) + 900 * i + 100;
-			generator.end = generator.start + range;
-			total = range * (range - 1) * generator.curve / 2.0;
-		} while (total <= -100000 || total >= 100000);
-		divert += total;
-		for (int j = generator.start; j <= generator.end; ++j) {
-			lines[j].setCurve(generator.curve);
-		}
-	}
-	// ychange
-	// divide 9000 to 6 parts with length 1500
-	// range between 900 adn 1400, height between 0.5 and 1.2 (CAMERA_HEIGHT), period between 20 and 40
-	int n;
-	double cos_, sin_, critV;
-	for (int i = 0; i < 6; ++i) 
-	{
-		generator.height = ((1.2 - 0.5) * (rand() / (RAND_MAX + 1.0)) + 0.5) * CAMERA_HEIGHT;
-		generator.period = (40 - 20) * (rand() / (RAND_MAX + 1.0)) + 20;
-		n = ((1400 - 900) * (rand() / (RAND_MAX + 1.0)) + 900) / (2 * PI * generator.period);
-		range = n * (2 * PI * generator.period);
-		generator.start = (1500 - range) * (rand() / (RAND_MAX + 1.0)) + 1500 * i + 100;
-		generator.end = generator.start + range;
-		for (int j = generator.start; j <= generator.end; ++j) 
-		{
-			cos_ = cos((j - generator.start) / generator.period);
-			sin_ = sin((j - generator.start) / generator.period);
-			critV = GRAVITY * (generator.period * generator.period + cos_ * cos_ * generator.height * generator.height) / (sin_ * generator.height) / lines[j].getRoadVelM() / lines[j].getRoadVelM() * 50;
-			if (critV < 0)
-				critV = -critV;
-			lines[j].sety(sin_ * generator.height);
-			lines[j].setCritVel(critV);
-			lines[j].setSlope(lines[j].gety() - lines[j - 1].gety());
-
-			if (lines[j].getSlope() > 1e-6)
-				lines[j].addType(INCLINE_BACKWARD);
-			else if(lines[j].getSlope() < -1e-6)
-				lines[j].addType(INCLINE_FORWARD);
-
-			//[left undone] incline_plan
-		}
-	}
-	// special roads
-	// divide 9000 to 9 parts with length 1000
-	minDist = 300;
-	int previous = -500;
-	for (int i = 0; i < 9; ++i) 
-	{
-		// acceleration road
-		do {
-			generator.start = 1000 * (rand() / (RAND_MAX + 1.0)) + 1000 * i + 100;
-		} while (generator.start - previous < minDist && generator.start - previous > -minDist);
-
-		if (rand() & 1) {
-			for (int j = generator.start; j <= generator.start + ACCROAD_LENGHT; ++j)
-				lines[j].addType(ACCELERATE_RIGHT);
-		}
-		else {
-			for (int j = generator.start; j <= generator.start + ACCROAD_LENGHT; ++j)
-				lines[j].addType(ACCELERATE_LEFT);
-		}
-		previous = generator.start;
-
-		// different friction
-		// high_friction range between 50 and 300, low_friction range between 100 and 400
-		for (int k = 0; k < 2; ++k) 
-		{
-			switch (rand() & 3) {
-				case 0:
-				case 1:
-					range = (300 - 50) * (rand() / (RAND_MAX + 1.0)) + 50;
-					generator.start = (500 - range) * (rand() / (RAND_MAX + 1.0)) + 1000 * i + k * 500 + 100;
-					generator.end = generator.start + range;
-					for (int j = generator.start; j <= generator.end; ++j)
-						lines[j].addType(HIGH_FRICTION);
-					break;
-				case 2:
-				case 3:
-					range = (400 - 100) * (rand() / (RAND_MAX + 1.0)) + 100;
-					generator.start = (500 - range) * (rand() / (RAND_MAX + 1.0)) + 1000 * i + k * 500 + 100;
-					generator.end = generator.start + range;
-					for (int j = generator.start; j <= generator.end; ++j)
-						lines[j].addType(LOW_FRICTION);
-					break;
-			}
 		}
 	}
 
@@ -355,19 +412,16 @@ void Map::draw(SDL_Renderer* renderer)
 		if (dst.x > -moonW && dst.x < WIDTH)
 			moon.draw(renderer, NULL, &dst);
 
-		for (int i = startpos - 50; i < startpos + 300; ++i) {
-
-			if (i < 1) {
-				i = 0;
-				continue;
-			}
-			else if (i >= number_of_lines)
-				break;
-
+		for (int i = startpos > 50 ? startpos - 50 : 1; i < startpos + 300; ++i)
+		{
 			Line& l = lines[i];
 			const Line& p = lines[i - 1];
+
+			if (i < startpos && (l.getType() & CLIFF))
+				continue;
+
 			l.project(m.posY, camH, m.posX, m.camDegree, m.camDepth);
-			//l.project(lines[startpos+5].getx(), camH, lines[startpos+5].getz(), camDegree, camDepth, roadDegree);
+
 			if (l.getW() < 1e-6 && l.getW() > -1e-6)
 				continue;
 
@@ -377,27 +431,33 @@ void Map::draw(SDL_Renderer* renderer)
 
 			maxy = l.getY();
 
-			//grass
-			grass = (i >> 2) & 1 ? 0xff10c810 : 0xff009A00;
-			drawQuad(renderer, { grass,  WIDTH / 2, p.getY(), WIDTH / 2, WIDTH / 2, l.getY(), WIDTH / 2 });
-
 			//road type
 			type = lines[i].getType();
-			if ((type & LOW_FRICTION)) {
+			if ((type & LOW_FRICTION)) 
+			{
+				grass = (i >> 2) & 1 ? 0xff10c810 : 0xff009A00;
+				drawQuad(renderer, { grass,  WIDTH / 2, p.getY(), WIDTH / 2, WIDTH / 2, l.getY(), WIDTH / 2 });
 				rumble = (i >> 2) & 1 ? 0xffffffff : 0xff000000;
 				road = (i >> 2) & 1 ? 0xffffff80 : 0xffffffff;
 				drawQuad(renderer, { rumble, p.getX(), p.getY(), p.getW() * 1.2, l.getX(), l.getY(), l.getW() * 1.2 });
 				drawQuad(renderer, { road, p.getX(), p.getY(), p.getW(), l.getX(), l.getY(), l.getW() });
 			}
-			else if ((type & HIGH_FRICTION)) {
+			else if ((type & HIGH_FRICTION)) 
+			{
+				grass = (i >> 2) & 1 ? 0xff10c810 : 0xff009A00;
+				drawQuad(renderer, { grass,  WIDTH / 2, p.getY(), WIDTH / 2, WIDTH / 2, l.getY(), WIDTH / 2 });
 				rumble = (i >> 2) & 1 ? 0xffffffff : 0xff000000;
 				road = (i >> 2) & 1 ? 0xff00499A : 0xff00346E;
 				drawQuad(renderer, { rumble, p.getX(), p.getY(), p.getW() * 1.2, l.getX(), l.getY(), l.getW() * 1.2 });
 				drawQuad(renderer, { road, p.getX(), p.getY(), p.getW(), l.getX(), l.getY(), l.getW() });
 			}
-			else if ((type & ENDPOINT) || (type & STARTPOINT)) {
+			else if ((type & ENDPOINT) || (type & STARTPOINT)) 
+			{
+				grass = (i >> 2) & 1 ? 0xff10c810 : 0xff009A00;
+				drawQuad(renderer, { grass,  WIDTH / 2, p.getY(), WIDTH / 2, WIDTH / 2, l.getY(), WIDTH / 2 });
 				double width_scale = 1.2;
-				for (int j = 0; j <= 7; ++j) {
+				for (int j = 0; j <= 7; ++j) 
+				{
 
 					width_scale = 1.2 * (15 - (j << 1)) / 15;
 					rumble = ((i >> 2) + j) & 1 ? 0xffffffff : 0xff000000;
@@ -405,7 +465,23 @@ void Map::draw(SDL_Renderer* renderer)
 					drawQuad(renderer, { rumble,p.getX(), p.getY(), p.getW() * width_scale, l.getX(), l.getY(), l.getW() * width_scale });
 				}
 			}
-			else if ((type & NORMAL) || (type & TRAPAREA) || (type & TOOLAREA) || (type & OBSTACLEAREA) || (type & CLIFF)) {
+			else if (type & INCLINE_PLANE) 
+			{
+				grass = (i >> 2) & 1 ? 0xff10c810 : 0xff009A00;
+				drawQuad(renderer, { grass,  WIDTH / 2, p.getY(), WIDTH / 2, WIDTH / 2, l.getY(), WIDTH / 2 });
+				drawQuad(renderer, { 0xff411e02,p.getX(), p.getY(), p.getW() * 1.2, l.getX(), l.getY(), l.getW() * 1.2 });
+				double width_scale = 1;
+				for (int j = 0; j <= 7; ++j) 
+				{
+					width_scale = (15 - (j << 1)) / 15;
+					road = j & 1 ? 0xff265ba0 : 0xff0d3c78;
+					drawQuad(renderer, { road,p.getX(), p.getY(), p.getW() * width_scale, l.getX(), l.getY(), l.getW() * width_scale });
+				}
+			}
+			else if ((type & NORMAL) || (type & TRAPAREA) || (type & TOOLAREA) || (type & OBSTACLEAREA)) 
+			{
+				grass = (i >> 2) & 1 ? 0xff10c810 : 0xff009A00;
+				drawQuad(renderer, { grass,  WIDTH / 2, p.getY(), WIDTH / 2, WIDTH / 2, l.getY(), WIDTH / 2 });
 				rumble = (i >> 2) & 1 ? 0xffffffff : 0xff000000;
 				road = (i >> 2) & 1 ? 0xff6b6b6b : 0xff696969;
 				drawQuad(renderer, { rumble, p.getX(), p.getY(), p.getW() * 1.2, l.getX(), l.getY(), l.getW() * 1.2 });
@@ -759,7 +835,7 @@ Uint32 Map::move(Uint32 interval, void* para)
 			if (((type & INCLINE_BACKWARD) && motion.velLinear > 1e-6) || ((type & INCLINE_FORWARD) && motion.velLinear < -1e-6)) {
 				double critVel = car->getCurrentPos()->getCritVel();
 
-				if ((critVel > -1e-6 && velX * velX > critVel) || (map->lines[startpos].getType() & INCLINE_PLANE)) {
+				if ((critVel > -1e-6 && velX * velX > critVel) || (type & CLIFF)) {
 					car->setVelPerpen(velX * (map->lines[startpos].getSlope() / sqrt(SEGMENT_LENGTH * SEGMENT_LENGTH + map->lines[startpos].getSlope() * map->lines[startpos].getSlope())));
 				
 					if (motion.velPerpen < GRAVITY * 5 && !(type & CLIFF)) {
