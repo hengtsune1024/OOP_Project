@@ -7,7 +7,7 @@ Obstacle::~Obstacle()
 {
 }
 
-Obstacle::Obstacle(const char* objpath, const char* imgpath) : BlenderObject(objpath, imgpath, ROCK_SIZE, NUM_OBSTACLE,1)
+Obstacle::Obstacle(const char* objpath, const char* imgpath) : BlenderObject(objpath, imgpath, ROCK_SIZE, NUM_OBSTACLE, 1), isBroken(NUM_OBSTACLE, false)
 {
 	touchtime = 0;
 }
@@ -57,7 +57,11 @@ int Obstacle::istouching()
 	}
 }
 
-void Obstacle::draw3D(Point3D pos, double camDeg, double camDepth, Engine* engine, bool& clean, int ind, double maxy) {
-	BlenderObject_draw(pos, { 0,0,0 }, camDeg, camDepth, engine, clean, maxy, ind);
-	clean = false;
+void Obstacle::draw3D(Point3D pos, double camDeg, double camDepth, Engine* engine, bool& clean, int ind, double maxy) 
+{
+	if (!isBroken[ind]) 
+	{
+		BlenderObject_draw(pos, { 0,0,0 }, camDeg, camDepth, engine, clean, maxy, ind);
+		clean = false;
+	}
 }

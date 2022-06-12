@@ -33,7 +33,7 @@
 #define TRAP_HALFLENGTH 5
 
 //tool
-#define INVINCIBLE_INTERVAL 100000
+#define INVINCIBLE_INTERVAL 10000
 
 //camera
 #define FIELD_OF_VIEW 45

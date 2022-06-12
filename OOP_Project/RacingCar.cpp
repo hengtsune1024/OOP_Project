@@ -1,14 +1,13 @@
 #include "RacingCar.h"
 RacingCar::RacingCar() :
 	isRushing(NONE), fullEnergy(true), energy(100.0), healthPoint(100.0),
-	motion(MOTION_INIT), roadtype(NORMAL), outOfRoad(false), inAir(false), BlenderObject("../images/car/car.txt", "../images/car/car", 500, 1,2)
+	motion(MOTION_INIT), roadtype(NORMAL), outOfRoad(false), inAir(false), BlenderObject("../images/car/car.txt", "../images/car/car", 500, 1, 2)
 {}
 
 RacingCar::~RacingCar()
 {}
 
 RacingCar::RacingCar(const char* obfpath, const char* imgpath, SDL_Renderer* renderer, Line* initpos) :
-	
 	isRushing(NONE), fullEnergy(true), energy(100.0), healthPoint(100.0), motion(MOTION_INIT), accState(0), roadtype(NORMAL), currentPos(initpos),
 	theOtherCar(NULL), starttime(SDL_GetTicks64() + 3000), timing("00:00:000"), arrive(false), totaltime(0), invincible(0),
 	BlenderObject(obfpath, imgpath, 1000, 1, 2),
@@ -331,6 +330,10 @@ void RacingCar::touchobstacle(Obstacle& rock)
 
 		if (!invincible)
 			healthPoint -= motion.velLinear * motion.velLinear / 2 / 100000;
+		else if (isRushing) {
+			rock.broken(rock.getNearestObstacle(motion.posX / SEGMENT_LENGTH));
+			return;
+		}
 			//healthPoint -= motion.velLinear > 0 ? motion.velLinear / 100 : motion.velLinear / -100;
 		//cout << healthPoint << endl;
 		motion.posX -= motion.velLinear * cos(motion.axleDegree);

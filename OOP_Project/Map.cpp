@@ -643,8 +643,8 @@ Uint32 Map::move(Uint32 interval, void* para)
 			{
 				car->setPosY(motion.posY - velY);
 				car->setPosX(motion.posX - velX);
-				
-				if (motion.posX < SEGMENT_LENGTH || motion.posX > (map->number_of_lines - 20) * SEGMENT_LENGTH || (velX < 0 && (map->lines[(int)(motion.posX / SEGMENT_LENGTH)].getType() & CLIFF)))
+				int pos = motion.posX / SEGMENT_LENGTH;
+				if (motion.posX < SEGMENT_LENGTH || motion.posX > (map->number_of_lines - 20) * SEGMENT_LENGTH || (velX < 0 && (map->lines[pos].getType() & CLIFF)) || (map->lines[pos].getType() & OBSTACLEAREA))
 				{
 					car->setPosY(motion.posY + velY);
 					car->setPosX(motion.posX + velX);
@@ -821,7 +821,7 @@ Uint32 Map::move(Uint32 interval, void* para)
 		if (type & OBSTACLEAREA)
 		{
 			int index = map->rock.getNearestObstacle(startpos);
-			if (map->rock.hitObstacle(midY,camH - CAMERA_HEIGHT, motion.velM, index))
+			if (!map->rock.getBroken(index) && map->rock.hitObstacle(midY,camH - CAMERA_HEIGHT, motion.velM, index))
 			{
 				car->touchobstacle(map->rock);
 
