@@ -552,7 +552,6 @@ Uint32 Map::move(Uint32 interval, void* para)
 			car->setOutofRoad(false);
 		}
 
-		
 		//friction
 		type = map->lines[startpos].getType();
 
@@ -592,8 +591,9 @@ Uint32 Map::move(Uint32 interval, void* para)
 
 		//move in x-direction
 		car->setPosX(motion.posX + velX);
-		if (motion.posX < 0 || motion.posX >(map->number_of_lines - 20) * SEGMENT_LENGTH || (velX < 0 && (map->lines[(int)(motion.posX / SEGMENT_LENGTH)].getType() & CLIFF)))
+		if (motion.posX < SEGMENT_LENGTH || motion.posX >(map->number_of_lines - 20) * SEGMENT_LENGTH || (velX < 0 && (map->lines[(int)(motion.posX / SEGMENT_LENGTH)].getType() & CLIFF)))
 			car->setPosX(motion.posX - velX);
+		
 
 		/********* Do not move these codes ********/
 
@@ -643,7 +643,42 @@ Uint32 Map::move(Uint32 interval, void* para)
 			{
 				car->setPosY(motion.posY - velY);
 				car->setPosX(motion.posX - velX);
+				
+				if (motion.posX < SEGMENT_LENGTH || motion.posX > (map->number_of_lines - 20) * SEGMENT_LENGTH || (velX < 0 && (map->lines[(int)(motion.posX / SEGMENT_LENGTH)].getType() & CLIFF)))
+				{
+					car->setPosY(motion.posY + velY);
+					car->setPosX(motion.posX + velX);
+				}
+				
 
+				RacingCar* otherCar = car->getOtherCar();
+
+				if (!car->getInvincible())
+				{
+					if (car->getRushing() || otherCar->getRushing())
+						(*car) -= motion.velLinear * motion.velLinear / 2 / 100000;
+					else
+						(*car) -= motion.velLinear * motion.velLinear / 2 / 1000000;
+					if (car->getHP() <= 0)
+					{
+						map->endtype = PLAYER2;
+						map->endtime = SDL_GetTicks64() + 3000;
+					}
+				}
+				if (!otherCar->getInvincible())
+				{
+					if (car->getRushing() || otherCar->getRushing())
+						(*otherCar) -= motion.velLinear * motion.velLinear / 2 / 100000;
+					else
+						(*otherCar) -= motion.velLinear * motion.velLinear / 2 / 1000000;
+					if (otherCar->getHP() <= 0)
+					{
+						map->endtype = map->endtype == PLAYING ? PLAYER1 : ALLDEAD;
+						map->endtime = SDL_GetTicks64() + 3000;
+					}
+				}
+
+				
 				double dz = map->car1->getPosX() - map->car2->getPosX();
 				double e = 0.6;
 

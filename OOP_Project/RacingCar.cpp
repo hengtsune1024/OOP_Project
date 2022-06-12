@@ -23,6 +23,10 @@ void RacingCar::quit()
 	timetext.close();
 }
 
+void RacingCar::operator-=(double d) {
+	healthPoint -= d;
+}
+
 bool RacingCar::collided() {
 	if (theOtherCar == NULL)
 		return false;
