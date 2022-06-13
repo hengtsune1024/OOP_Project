@@ -115,10 +115,13 @@ void RacingCar::drawOtherCar(SDL_Renderer* renderer, Engine* engine, bool& clean
 		{ motion.posY - theOtherCar->getPosY() ,camH - theOtherCar->getCamHeight() - theOtherCar->getCurrentPos()->gety(),motion.posX - theOtherCar->getPosX()},
 		{ 0,(theOtherCar->motion.axleDegree - motion.axleDegree),0},
 		motion.camDegree, motion.camDepth, engine, clean, maxy);*/
-	theOtherCar->BlenderObject_draw(
-		{ motion.posY - theOtherCar->getPosY() ,currentPos->gety() - theOtherCar->getCurrentPos()->gety() + 0,motion.posX - theOtherCar->getPosX()},
-		{ -theOtherCar->motion.Xangle,theOtherCar->motion.axleDegree,0 },
-		motion.camDegree, motion.camDepth, engine, clean, maxy, 0);
+
+	double height = (inAir ? motion.camHeight + motion.baseHeight - CAMERA_HEIGHT : currentPos->gety()) 
+		- (theOtherCar->inAir ? theOtherCar->motion.camHeight + theOtherCar->motion.baseHeight - CAMERA_HEIGHT : theOtherCar->currentPos->gety());
+
+	theOtherCar->BlenderObject_draw( { motion.posY - theOtherCar->getPosY() , height, motion.posX - theOtherCar->getPosX() }, 
+		{ -theOtherCar->motion.Xangle,theOtherCar->motion.axleDegree,0 }, motion.camDegree, motion.camDepth, engine, clean, maxy, 0);
+
 	clean = false;
 }
 

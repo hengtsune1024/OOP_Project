@@ -543,6 +543,8 @@ void Map::draw(SDL_Renderer* renderer)
 			}
 
 		if (otherCar != NULL && otherCar->getPosX() > m.posX - 50 * SEGMENT_LENGTH && otherCar->getPosX() - m.posX < 300 * SEGMENT_LENGTH) {
+			car->setCurrentPos(&lines[(int)(m.posX / SEGMENT_LENGTH)]);
+			otherCar->setCurrentPos(&lines[(int)(otherCar->getPosX() / SEGMENT_LENGTH)]);
 			car->drawOtherCar(renderer, &engine, clean, lines[otherCar->getIndex()].getClip(), camH);
 		}
 
@@ -796,7 +798,6 @@ Uint32 Map::move(Uint32 interval, void* para)
 					}
 					else {
 						car->setInAir(true, map->lines[startpos].gety());
-						
 					}
 				}
 			}
