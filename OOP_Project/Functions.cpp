@@ -369,25 +369,26 @@ void Functions::Record(SDL_Renderer* renderer)
 
 void Functions::setrecord(int r)
 {
-	int k = 9;
-	while (k >= 0 && rec[k] == 0)
-		--k;
-	++k;
-	if (k >= 0 && k <= 9) {
+	int k = 0;
+	while (k < 10 && rec[k])
+		++k;
+	if (k == 10) {
+		if (r < rec[9])
+			rec[9] = r;
+	}
+	else {
 		rec[k] = r;
+		++k;
 	}
-	else if (k == 10) {
-		if (r < rec[9]) {
-			int j = 8;
-			while (j >= 0 && r < rec[j])
-				--j;
-			++j;
-			for (int i = 9; i > j; --i)
-				rec[i] = rec[i - 1];
-			rec[j] = r;
-		}
-	}
-	FILE* f = fopen("../bin/record.dat", "ab");
+	Uint64 tmp;
+	for (int i = 0; i < k - 1; ++i)
+		for (int j = i + 1; j < k; ++j)
+			if (rec[i] > rec[j]) {
+				tmp = rec[i];
+				rec[i] = rec[j];
+				rec[j] = tmp;
+			}
+	FILE* f = fopen("../bin/record.dat", "wb");
 	fseek(f, 0, SEEK_SET);
 	fwrite(rec, sizeof(rec), 1, f);
 	fclose(f);

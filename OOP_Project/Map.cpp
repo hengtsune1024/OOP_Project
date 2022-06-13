@@ -412,7 +412,7 @@ void Map::draw(SDL_Renderer* renderer)
 		if (dst.x > -moonW && dst.x < WIDTH)
 			moon.draw(renderer, NULL, &dst);
 
-		for (int i = startpos > 50 ? startpos - 50 : 1; i < startpos + 300; ++i)
+		for (int i = startpos > 50 ? startpos - 50 : 1; i < startpos + 300 && i < NUM_LINE - 5; ++i)
 		{
 			Line& l = lines[i];
 			const Line& p = lines[i - 1];
