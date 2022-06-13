@@ -12,10 +12,11 @@ void Tool::close() {
 	tool2img.close();
 }
 //{ 1,1,1,1,1,1}  { 0,0,0,0,0,0 }
-Tool::Tool(SDL_Renderer* renderer, bool d) : car1tool{ 1,1,1,1,1,1 }, car2tool{ 1,1,1,1,1,1 }, dual(d),
+Tool::Tool(SDL_Renderer* renderer, bool d) : car1tool{ 0,1,0,1,0,1 }, car2tool{ 0,1,0,1,0,1 }, dual(d),
 	tool1img("../images/tool/mushroom.png", renderer), tool2img("../images/tool/star.png", renderer), tool3img("../images/tool/heal.png", renderer), 
 	tool4img("../images/tool/ghost.png", renderer), tool5img("../images/tool/lightning.png", renderer), tool6img("../images/tool/8.png", renderer),
-	BlenderObject("../images/tool/tool.txt", "../images/tool/tool.bmp", 750, NUM_TOOL, 1)
+	BlenderObject("../images/tool/tool.txt", "../images/tool/tool.bmp", 750, NUM_TOOL, 1),
+	chosen1(0), chosen2(0)
 {
 	gettime = SDL_GetTicks64() - STAIN_INTERVAL;
 }
@@ -69,14 +70,30 @@ void Tool::drawmytool(SDL_Renderer* renderer, bool car) {
 		roundedRectangleRGBA(renderer, 430, 10, 465, 45, 1, 255, 0, 255, 255);
 		roundedRectangleRGBA(renderer, 470, 10, 505, 45, 1, 255, 0, 255, 255);
 
-		if (car1tool.Tool1)
+		if (car1tool.Tool[0])
 			tool1img.draw(renderer, NULL, &loc1);
-		if (car1tool.Tool2)
+		if (car1tool.Tool[1])
 			tool2img.draw(renderer, NULL, &loc2);
-		if (car1tool.Tool3)
+		if (car1tool.Tool[2])
 			tool3img.draw(renderer, NULL, &loc3);
-		if (car1tool.Tool4)
+		if (car1tool.Tool[3])
 			tool4img.draw(renderer, NULL, &loc4);
+
+		switch (chosen1)
+		{
+		case 0:
+			boxRGBA(renderer, 350, 10, 385, 45, 0, 255, 255, 100);
+			break;
+		case 1:
+			boxRGBA(renderer, 390, 10, 425, 45, 0, 255, 255, 100);
+			break;
+		case 2:
+			boxRGBA(renderer, 430, 10, 465, 45, 0, 255, 255, 100);
+			break;
+		case 3:
+			boxRGBA(renderer, 470, 10, 505, 45, 0, 255, 255, 100);
+			break;
+		}
 	}
 	else
 	{
@@ -89,35 +106,80 @@ void Tool::drawmytool(SDL_Renderer* renderer, bool car) {
 		if (car) {
 			//car1
 
-			if (car1tool.Tool1)
+			if (car1tool.Tool[0])
 				tool1img.draw(renderer, NULL, &loc1);
-			if (car1tool.Tool2)
+			if (car1tool.Tool[1])
 				tool2img.draw(renderer, NULL, &loc2);
-			if (car1tool.Tool3)
+			if (car1tool.Tool[2])
 				tool3img.draw(renderer, NULL, &loc3);
-			if (car1tool.Tool4)
+			if (car1tool.Tool[3])
 				tool4img.draw(renderer, NULL, &loc4);
-			if (car1tool.Tool5)
+			if (car1tool.Tool[4])
 				tool5img.draw(renderer, NULL, &loc5);
-			if (car1tool.Tool6)
+			if (car1tool.Tool[5])
 				tool6img.draw(renderer, NULL, &loc6);
+
+			switch (chosen1)
+			{
+			case 0:
+				boxRGBA(renderer, 350, 10, 385, 45, 0, 255, 255, 100);
+				break;
+			case 1:
+				boxRGBA(renderer, 390, 10, 425, 45, 0, 255, 255, 100);
+				break;
+			case 2:
+				boxRGBA(renderer, 430, 10, 465, 45, 0, 255, 255, 100);
+				break;
+			case 3:
+				boxRGBA(renderer, 470, 10, 505, 45, 0, 255, 255, 100);
+				break;
+			case 4:
+				boxRGBA(renderer, 510, 10, 545, 45, 0, 255, 255, 100);
+				break;
+			case 5:
+				boxRGBA(renderer, 550, 10, 585, 45, 0, 255, 255, 100);
+				break;
+			}
 		}
 		else {
 			//car2
-			if (car2tool.Tool1)
+			if (car2tool.Tool[0])
 				tool1img.draw(renderer, NULL, &loc1);
-			if (car2tool.Tool2)
+			if (car2tool.Tool[1])
 				tool2img.draw(renderer, NULL, &loc2);
-			if (car2tool.Tool3)
+			if (car2tool.Tool[2])
 				tool3img.draw(renderer, NULL, &loc3);
-			if (car2tool.Tool4)
+			if (car2tool.Tool[3])
 				tool4img.draw(renderer, NULL, &loc4);
-			if (car2tool.Tool5)
+			if (car2tool.Tool[4])
 				tool5img.draw(renderer, NULL, &loc5);
-			if (car2tool.Tool6)
+			if (car2tool.Tool[5])
 				tool6img.draw(renderer, NULL, &loc6);
+
+			switch (chosen2)
+			{
+			case 0:
+				boxRGBA(renderer, 350, 10, 385, 45, 0, 255, 255, 100);
+				break;
+			case 1:
+				boxRGBA(renderer, 390, 10, 425, 45, 0, 255, 255, 100);
+				break;
+			case 2:
+				boxRGBA(renderer, 430, 10, 465, 45, 0, 255, 255, 100);
+				break;
+			case 3:
+				boxRGBA(renderer, 470, 10, 505, 45, 0, 255, 255, 100);
+				break;
+			case 4:
+				boxRGBA(renderer, 510, 10, 545, 45, 0, 255, 255, 100);
+				break;
+			case 5:
+				boxRGBA(renderer, 550, 10, 585, 45, 0, 255, 255, 100);
+				break;
+			}
 		}
 	}
+
 	/*
 	if (SDL_GetTicks64() - gettime < 3000)
 		shownflag = false;
@@ -143,7 +205,8 @@ void Tool::getTools(bool car, int ind)
 			if (car) {
 				if (!checktoolset(car1tool) || num == 5)
 				{
-					car1tool.Tool6 = 1;
+					car1tool.Tool[5] = 1;
+					chosen1 = 5;
 					num = -1;
 				}
 				else 
@@ -151,45 +214,50 @@ void Tool::getTools(bool car, int ind)
 					switch (num)
 					{
 					case SPEEDUP:
-						if (!car1tool.Tool1)
+						if (!car1tool.Tool[0])
 						{
-							car1tool.Tool1 = 1;
+							car1tool.Tool[0] = 1;
+							chosen1 = 0;
 							num = -1;
 						}
 						else
 							num++;
 						break;
 					case INVINCIBLE:
-						if (!car1tool.Tool2)
+						if (!car1tool.Tool[1])
 						{
-							car1tool.Tool2 = 1;
+							car1tool.Tool[1] = 1;
+							chosen1 = 1;
 							num = -1;
 						}
 						else
 							num++;
 						break;
 					case HEALING:
-						if (!car1tool.Tool3)
+						if (!car1tool.Tool[2])
 						{
-							car1tool.Tool3 = 1;
+							car1tool.Tool[2] = 1;
+							chosen1 = 2;
 							num = -1;
 						}
 						else
 							num++;
 						break;
 					case GHOST:
-						if (!car1tool.Tool4)
+						if (!car1tool.Tool[3])
 						{
-							car1tool.Tool4 = 1;
+							car1tool.Tool[3] = 1;
+							chosen1 = 3;
 							num = -1;
 						}
 						else
 							num = 0;
 						break;
 					case LIGHTNING:
-						if (!car1tool.Tool5)
+						if (!car1tool.Tool[4])
 						{
-							car1tool.Tool5 = 1;
+							car1tool.Tool[4] = 1;
+							chosen1 = 4;
 							num = -1;
 						}
 						else
@@ -203,7 +271,8 @@ void Tool::getTools(bool car, int ind)
 			else {
 				if (!checktoolset(car2tool) || num == 5)
 				{
-					car2tool.Tool6 = 1;
+					car2tool.Tool[5] = 1;
+					chosen2 = 5;
 					num = -1;
 				}
 				else
@@ -211,45 +280,50 @@ void Tool::getTools(bool car, int ind)
 					switch (num)
 					{
 					case SPEEDUP:
-						if (!car2tool.Tool1)
+						if (!car2tool.Tool[0])
 						{
-							car2tool.Tool1 = 1;
+							car2tool.Tool[0] = 1;
+							chosen2 = 0;
 							num = -1;
 						}
 						else
 							num++;
 						break;
 					case INVINCIBLE:
-						if (!car2tool.Tool2)
+						if (!car2tool.Tool[1])
 						{
-							car2tool.Tool2 = 1;
+							car2tool.Tool[1] = 1;
+							chosen2 = 1;
 							num = -1;
 						}
 						else
 							num++;
 						break;
 					case HEALING:
-						if (!car2tool.Tool3)
+						if (!car2tool.Tool[2])
 						{
-							car2tool.Tool3 = 1;
+							car2tool.Tool[2] = 1;
+							chosen2 = 2;
 							num = -1;
 						}
 						else
 							num++;
 						break;
 					case GHOST:
-						if (!car2tool.Tool4)
+						if (!car2tool.Tool[3])
 						{
-							car2tool.Tool4 = 1;
+							car2tool.Tool[3] = 1;
+							chosen2 = 3;
 							num = -1;
 						}
 						else
 							num = 0;
 						break;
 					case LIGHTNING:
-						if (!car2tool.Tool5)
+						if (!car2tool.Tool[4])
 						{
-							car2tool.Tool5 = 1;
+							car2tool.Tool[4] = 1;
+							chosen2 = 4;
 							num = -1;
 						}
 						else
@@ -276,96 +350,98 @@ void Tool::logic(void*, void*)
 
 int Tool::usetool(ToolType type, bool car) {
 	if (car) {
+		setchosentool(car);
 		switch (type)
 		{
 			case SPEEDUP:
-				if (car1tool.Tool1)
+				if (car1tool.Tool[0])
 				{
-					car1tool.Tool1 = 0;
+					car1tool.Tool[0] = 0;
 					return SPEEDUP;
 				}
 				break;
 			case INVINCIBLE:
-				if (car1tool.Tool2)
+				if (car1tool.Tool[1])
 				{
-					car1tool.Tool2 = 0;
+					car1tool.Tool[1] = 0;
 					return INVINCIBLE;
 				}
 				break;
 			case HEALING:
-				if (car1tool.Tool3)
+				if (car1tool.Tool[2])
 				{
-					car1tool.Tool3 = 0;
+					car1tool.Tool[2] = 0;
 					return HEALING;
 				}
 				break;
 			case GHOST:
-				if (car1tool.Tool4)
+				if (car1tool.Tool[3])
 				{
-					car1tool.Tool4 = 0;
+					car1tool.Tool[3] = 0;
 					return GHOST;
 				}
 				break;
 			case LIGHTNING:
-				if (car1tool.Tool5)
+				if (car1tool.Tool[4])
 				{
-					car1tool.Tool5 = 0;
+					car1tool.Tool[4] = 0;
 					return LIGHTNING;
 				}
 				break;
 
 			case SWITCH:
-				if (car1tool.Tool6)
+				if (car1tool.Tool[5])
 				{
-					car1tool.Tool6 = 0;
+					car1tool.Tool[5] = 0;
 					return SWITCH;
 				}
 				break;
 		}
 	}
 	else{
+		setchosentool(car);
 		switch (type)
 		{
 		case SPEEDUP:
-			if (car2tool.Tool1)
+			if (car2tool.Tool[0])
 			{
-				car2tool.Tool1 = 0;
+				car2tool.Tool[0] = 0;
 				return SPEEDUP;
 			}
 			break;
 		case INVINCIBLE:
-			if (car2tool.Tool2)
+			if (car2tool.Tool[1])
 			{
-				car2tool.Tool2 = 0;
+				car2tool.Tool[1] = 0;
 				return INVINCIBLE;
 			}
 			break;
 		case HEALING:
-			if (car2tool.Tool3)
+			if (car2tool.Tool[2])
 			{
-				car2tool.Tool3 = 0;
+				car2tool.Tool[2] = 0;
 				return HEALING;
 			}
 			break;
 		case GHOST:
-			if (car2tool.Tool4)
+			if (car2tool.Tool[3])
 			{
-				car2tool.Tool4 = 0;
+				car2tool.Tool[3] = 0;
 				return GHOST;
 			}
 			break;
 		case LIGHTNING:
-			if (car2tool.Tool5)
+			if (car2tool.Tool[4])
 			{
-				car2tool.Tool5 = 0;
+				car2tool.Tool[4] = 0;
 				return LIGHTNING;
 			}
 			break;
 
 		case SWITCH:
-			if (car2tool.Tool6)
+			if (car2tool.Tool[5])
 			{
-				car2tool.Tool6 = 0;
+				car2tool.Tool[5] = 0;
 				return SWITCH;
 			}
 			break;
@@ -376,7 +452,7 @@ int Tool::usetool(ToolType type, bool car) {
 
 int Tool::checktoolset(ToolSet set)
 {
-	if (!set.Tool1 || !set.Tool2 || !set.Tool3 || !set.Tool4 || !set.Tool5)
+	if (!set.Tool[0] || !set.Tool[1] || !set.Tool[2] || !set.Tool[3] || !set.Tool[4])
 		return 1;
 	else
 		return 0;
@@ -386,18 +462,54 @@ void Tool::getalltools(bool car)
 {
 	if (car)
 	{
-		car1tool.Tool1 = 1;
-		car1tool.Tool2 = 1;
-		car1tool.Tool3 = 1;
-		car1tool.Tool4 = 1;
-		car1tool.Tool5 = 1;
+		car1tool.Tool[0] = 1;
+		car1tool.Tool[1] = 1;
+		car1tool.Tool[2] = 1;
+		car1tool.Tool[3] = 1;
+		car1tool.Tool[4] = 1;
 	}
 	else
 	{
-		car2tool.Tool1 = 1;
-		car2tool.Tool2 = 1;
-		car2tool.Tool3 = 1;
-		car2tool.Tool4 = 1;
-		car2tool.Tool5 = 1;
+		car2tool.Tool[0] = 1;
+		car2tool.Tool[1] = 1;
+		car2tool.Tool[2] = 1;
+		car2tool.Tool[3] = 1;
+		car2tool.Tool[4] = 1;
+	}
+}
+
+void Tool::setchosentool(bool car)
+{
+	if (!dual)
+	{
+		for (int i = 0; i < 4; i++)
+		{
+			chosen1 < 3 ? chosen1++ : chosen1 = 0;
+			if (car1tool.Tool[chosen1])
+				break;
+
+		}
+	}
+	else
+	{
+		if (car)
+		{
+			for (int i = 0; i < 6; i++)
+			{
+				chosen1 < 5 ? chosen1++ : chosen1 = 0;
+				if (car1tool.Tool[chosen1])
+					break;
+			}
+		}
+		else
+		{
+			for (int i = 0; i < 6; i++)
+			{
+				chosen2 < 5 ? chosen2++ : chosen2 = 0;
+				if (car2tool.Tool[chosen2])
+					break;
+
+			}
+		}
 	}
 }

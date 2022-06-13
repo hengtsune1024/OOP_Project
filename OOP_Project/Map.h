@@ -107,7 +107,7 @@ public:
 	void startTimer();
 
 	//tools
-	void usetool(ToolType);
+	Tool& gettools() { return tools; }
 
 	//draw
 	void draw(SDL_Renderer*);	// draw the map, car, and tools, etc.

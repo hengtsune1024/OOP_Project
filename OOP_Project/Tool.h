@@ -8,12 +8,7 @@
 using namespace std;
 
 struct ToolSet {
-	int Tool1;	//speedup
-	int Tool2;	//invincible
-	int Tool3;	//healing
-	int Tool4;	//ghost 
-	int Tool5;	//lightning
-	int Tool6;	//SWITCH
+	int Tool[6];
 };
 
 class Tool: public BlenderObject
@@ -22,6 +17,8 @@ class Tool: public BlenderObject
 	ToolSet car2tool;
 	int gettime;
 	bool dual;
+	int chosen1;
+	int chosen2;
 
 	Image tool1img;
 	Image tool2img;
@@ -38,6 +35,8 @@ public:
 	//setter and getter
 	void setTool(Line* line, int lineindex, int ind);
 	void getTools(bool car, int ind);
+	int getchosentool(bool car) { return car ? chosen1 : chosen2; }
+	void setchosentool(bool car);
 
 	int getNearestTool(int startpos);
 	//tool function

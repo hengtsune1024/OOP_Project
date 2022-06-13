@@ -176,21 +176,21 @@ Uint32 RacingCar::changeData(Uint32 interval, void* param)
 	}
 
 	//ghost tool
-	if (car->ghost && t - car->ghost >= 5000)
+	if (car->ghost && t - car->ghost >= GHOST_INTERVAL)
 		car->ghost = 0;
 
 	//dizzy
-	if (car->dizzy && t - car->dizzy >= 3000)
+	if (car->dizzy && t - car->dizzy >= DIZZY_INTERVAL)
 		car->dizzy = 0;
 
 	//lost
-	if (car->lost && t - car->lost >= 5000){
+	if (car->lost && t - car->lost >= LOST_INTERVAL){
 		car->lost = 0;
 		car->motion.velAngular = 0;
 	}
 
 	//speeddown
-	if (car->slow && t - car->slow >= 5000)
+	if (car->slow && t - car->slow >= SLOW_INTERVAL)
 		car->slow = 0;
 
 	if (car->slow)
@@ -325,6 +325,7 @@ void RacingCar::rush(RushType r)
 			break;
 		case ENERGY:
 			if (fullEnergy) {
+				slow = 0;
 				motion.velLinear = ENERGY_RUSHBEGIN_SPEED;
 				motion.camDepth = BEGINRUSH_CAMDEPTH;
 				fullEnergy = false;
@@ -338,6 +339,7 @@ void RacingCar::rush(RushType r)
 			break;
 
 		case ACCROAD:
+			slow = 0;
 			isRushing = r;
 			motion.velLinear = ACCROAD_RUSHBEGIN_SPEED;
 			motion.camDepth = BEGINRUSH_CAMDEPTH;
@@ -345,6 +347,7 @@ void RacingCar::rush(RushType r)
 			std::cout << "[Map] rush start" << endl;
 			break;
 		case TOOL:
+			slow = 0;
 			isRushing = r;
 			motion.velLinear = ACCROAD_RUSHBEGIN_SPEED;
 			motion.camDepth = BEGINRUSH_CAMDEPTH;

@@ -32,8 +32,12 @@
 #define TOOL_HALFLENGTH 5
 #define TRAP_HALFLENGTH 5
 
-//tool
+//tool & trap
 #define INVINCIBLE_INTERVAL 10000
+#define GHOST_INTERVAL 10000
+#define DIZZY_INTERVAL 3000
+#define LOST_INTERVAL 5000
+#define SLOW_INTERVAL 5000
 
 //camera
 #define FIELD_OF_VIEW 45

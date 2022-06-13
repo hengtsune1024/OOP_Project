@@ -97,8 +97,8 @@ void Trap::drawStain(SDL_Renderer* renderer, bool car)
 int Trap::gettrap(bool car, int ind) 
 {
 	srand(std::time(NULL));
-	int num = rand() % 4;
-	//int num = 1;
+	//int num = rand() % 4;
+	int num = 2;
 	if (objectList[ind].shownflag == true)
 	{
 		objectList[ind].shownflag = false;
