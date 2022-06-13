@@ -202,7 +202,6 @@ Uint32 RacingCar::changeData(Uint32 interval, void* param)
 			car->fullEnergy = true;
 		}
 	}
-
 	return interval;
 }
 
@@ -333,13 +332,6 @@ void RacingCar::rush(RushType r)
 		default:
 			break;
 	}
-	/*
-	isRushing = r;
-	if (r == ENERGY) {
-		fullEnergy = false;
-		energy = 0;
-	}
-	*/
 }
 
 int RacingCar::usetool(ToolType type, Tool* tools, bool car)
@@ -377,15 +369,13 @@ int RacingCar::usetool(ToolType type, Tool* tools, bool car)
 
 void RacingCar::gettrap(int type)
 {
-	setVelLinear(0);
-	lost = SDL_GetTicks64();
-	/*
+	
 	switch (type)
 	{
 		case STAIN:
 			break;
 		case BANANA:
-			setVelLinear(0);
+			motion.velLinear = 0;
 			lost = SDL_GetTicks64();
 			break;
 		case SPEEDDOWN:
@@ -393,11 +383,12 @@ void RacingCar::gettrap(int type)
 			break;
 		case BOMB:
 			healthPoint -= 50;
-			setVelLinear(0);
+			motion.velLinear = 0;
+			brake(0);
 			dizzy = SDL_GetTicks64();
 			break;
 		default:;
-	}*/
+	}
 }
 void RacingCar::touchobstacle(Obstacle& rock, int ind, vector<Line>& lines)
 {

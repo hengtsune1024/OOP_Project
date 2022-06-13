@@ -108,10 +108,7 @@ void eventHandler(SDL_Event& e, RenderWindow& w, Map& map, RacingCar* car1, Raci
 				if (car1->islost())
 					car1->setVelAngular(car1->getVelAngular() + ROTATE);
 				else {
-
-					cout << "1. " << car1->getVelAngular() << " 2. ";
 					car1->setVelAngular(car1->getVelAngular() - ROTATE);
-					cout << car1->getVelAngular() << endl;
 				}
 			}
 			break;
@@ -255,11 +252,6 @@ void eventHandler(SDL_Event& e, RenderWindow& w, Map& map, RacingCar* car1, Raci
 					car1->setVelAngular(0);
 				}
 				break;
-				/*
-			case SDLK_q:
-				car1->setVelPerpen(car1->getVelPerpen() + 300);
-				break;
-				*/
 
 			//car 2
 			case SDLK_UP:
