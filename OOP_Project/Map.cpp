@@ -845,7 +845,6 @@ Uint32 Map::move(Uint32 interval, void* para)
 				car->gettrap(map->virus.gettrap((map->dualMode ? times - 1 : true), index));
 				//map->virus.gettrap(STAIN, (map->dualMode ? times - 1 : true), index);
 		}
-
 		//tool
 		if (type & TOOLAREA)
 		{

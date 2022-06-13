@@ -148,31 +148,35 @@ Uint32 RacingCar::changeData(Uint32 interval, void* param)
 		sprintf_s(car->timing, "%02d:%02d:%03d", min, sec, ms);
 	}
 
+	Uint64 t = SDL_GetTicks64();
 	//invincible tool
-	if (SDL_GetTicks64() - car->invincible >= INVINCIBLE_INTERVAL){
+	if (t - car->invincible >= INVINCIBLE_INTERVAL){
 		car->invincible = 0;
 		car->objectList[0].texindex = 0;
 	}
 
 	//navigate tool
-	if (SDL_GetTicks64() - car->navigate >= 5000)
+	if (car->navigate  && t - car->navigate >= 5000)
 		car->navigate = 0;
 
 	//ghost tool
-	if (SDL_GetTicks64() - car->ghost >= 5000)
+	if (car->ghost && t - car->ghost >= 5000)
 		car->ghost = 0;
 
 	//dizzy
-	if (SDL_GetTicks64() - car->dizzy >= 5000)
+	if (car->dizzy && t - car->dizzy >= 5000)
 		car->dizzy = 0;
 
 	//lost
-	if (SDL_GetTicks64() - car->lost >= 5000)
+	if (car->lost && t - car->lost >= 5000){
 		car->lost = 0;
+		car->motion.velAngular = 0;
+	}
 
 	//speeddown
-	if (SDL_GetTicks64() - car->slow >= 5000)
+	if (car->slow && t - car->slow >= 5000)
 		car->slow = 0;
+
 	if (car->slow)
 		car->setVelLinear(car->getVelLinear() * 0.7);
 
@@ -373,24 +377,27 @@ int RacingCar::usetool(ToolType type, Tool* tools, bool car)
 
 void RacingCar::gettrap(int type)
 {
+	setVelLinear(0);
+	lost = SDL_GetTicks64();
+	/*
 	switch (type)
 	{
-	case STAIN:
-		break;
-	case BANANA:
-		setVelLinear(0);
-		lost = SDL_GetTicks64();
-		break;
-	case SPEEDDOWN:
-		slow = SDL_GetTicks64();
-		break;
-	case BOMB:
-		healthPoint -= 50;
-		setVelLinear(0);
-		dizzy = SDL_GetTicks64();
-		break;
-	default:;
-	}
+		case STAIN:
+			break;
+		case BANANA:
+			setVelLinear(0);
+			lost = SDL_GetTicks64();
+			break;
+		case SPEEDDOWN:
+			slow = SDL_GetTicks64();
+			break;
+		case BOMB:
+			healthPoint -= 50;
+			setVelLinear(0);
+			dizzy = SDL_GetTicks64();
+			break;
+		default:;
+	}*/
 }
 void RacingCar::touchobstacle(Obstacle& rock, int ind, vector<Line>& lines)
 {

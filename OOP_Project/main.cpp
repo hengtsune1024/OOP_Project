@@ -107,8 +107,12 @@ void eventHandler(SDL_Event& e, RenderWindow& w, Map& map, RacingCar* car1, Raci
 			{
 				if (car1->islost())
 					car1->setVelAngular(car1->getVelAngular() + ROTATE);
-				else
+				else {
+
+					cout << "1. " << car1->getVelAngular() << " 2. ";
 					car1->setVelAngular(car1->getVelAngular() - ROTATE);
+					cout << car1->getVelAngular() << endl;
+				}
 			}
 			break;
 		case SDLK_d:
@@ -124,17 +128,9 @@ void eventHandler(SDL_Event& e, RenderWindow& w, Map& map, RacingCar* car1, Raci
 			if (!car1->Dizzy())
 				car1->rush(ENERGY);
 				break;
-				/*
-			case SDLK_x:
-				if (car2)
-					car2->setInvincible();
-				break;
-			case SDLK_z:
-				car1->setInvincible();
-				break;*/
 
-			case SDLK_1:
-				car1->usetool(SPEEDUP, map.getTool(), true);
+		case SDLK_1:
+			car1->usetool(SPEEDUP, map.getTool(), true);
 			break;
 		case SDLK_2:
 			if (!car1->Dizzy())
@@ -182,8 +178,9 @@ void eventHandler(SDL_Event& e, RenderWindow& w, Map& map, RacingCar* car1, Raci
 			{
 				if (car2->islost())
 					car2->setVelAngular(car2->getVelAngular() + ROTATE);
-				else
+				else {
 					car2->setVelAngular(car2->getVelAngular() - ROTATE);
+				}
 			}
 			break;
 		case SDLK_RIGHT:
@@ -252,14 +249,11 @@ void eventHandler(SDL_Event& e, RenderWindow& w, Map& map, RacingCar* car1, Raci
 					car1->brake(0);
 				break;
 			case SDLK_a:
-				if (!car1->Dizzy())
-					car1->setVelAngular(car1->getVelAngular() + ROTATE);
-				//car1->turn(0);
-				break;
 			case SDLK_d:
-				if (!car1->Dizzy())
-					car1->setVelAngular(car1->getVelAngular() - ROTATE);
-				//car1->turn(0);
+				if (!car1->Dizzy()) 
+				{
+					car1->setVelAngular(0);
+				}
 				break;
 				/*
 			case SDLK_q:
@@ -275,15 +269,10 @@ void eventHandler(SDL_Event& e, RenderWindow& w, Map& map, RacingCar* car1, Raci
 				}
 				break;
 			case SDLK_LEFT:
-				if (car2 && !car2->Dizzy()) {
-					car2->setVelAngular(car2->getVelAngular() + ROTATE);
-					//car2->turn(0);
-				}
-				break;
 			case SDLK_RIGHT:
-				if (car2 && !car2->Dizzy()) {
-					car2->setVelAngular(car2->getVelAngular() - ROTATE);
-					//car2->turn(0);
+				if (car2 && !car2->Dizzy())
+				{
+					car2->setVelAngular(0);
 				}
 				break;
 				
