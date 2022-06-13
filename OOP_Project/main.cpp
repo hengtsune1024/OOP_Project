@@ -111,12 +111,15 @@ void eventHandler(SDL_Event& e, RenderWindow& w, Map& map, RacingCar* car1, Raci
 			case SDLK_SPACE:
 				car1->rush(ENERGY);
 				break;
-
-			/*
-			case SDLK_q:
-				car1->setVelPerpen(car1->getVelPerpen() - 300);
+				/*
+			case SDLK_x:
+				if (car2)
+					car2->setInvincible();
 				break;
-			*/
+			case SDLK_z:
+				car1->setInvincible();
+				break;*/
+
 			case SDLK_1:
 				car1->usetool(SPEEDUP, map.getTool(), true);
 				break;

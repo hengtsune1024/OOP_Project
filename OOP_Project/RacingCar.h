@@ -129,6 +129,8 @@ public:
 	void setVelM(double vm) { motion.velM = vm; }
 	void setRoadMod(double rm) { motion.roadMod = rm; }
 
+	
+	
 	//operator
 	void operator-=(double);
 
@@ -137,3 +139,8 @@ public:
 	void touchobstacle(Obstacle& rock, int ind, vector<Line>& lines);
 	void isarrive();
 };
+
+/*void setInvincible() {
+		invincible = SDL_GetTicks64();
+		objectList[0].texindex = 1;
+	}*/

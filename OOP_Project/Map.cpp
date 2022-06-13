@@ -719,64 +719,17 @@ Uint32 Map::move(Uint32 interval, void* para)
 			{
 				car->setPosY(motion.posY - velY);
 				car->setPosX(motion.posX - velX);
+
 				int pos = motion.posX / SEGMENT_LENGTH;
-				if (motion.posX < SEGMENT_LENGTH || motion.posX > (map->number_of_lines - 20) * SEGMENT_LENGTH || (velX < 0 && (map->lines[pos].getType() & CLIFF)) || (map->lines[pos].getType() & OBSTACLEAREA))
+
+				if (motion.posX < SEGMENT_LENGTH || motion.posX >(map->number_of_lines - 20) * SEGMENT_LENGTH || (velX < 0 && (map->lines[pos].getType() & CLIFF)) || (map->lines[pos].getType() & OBSTACLEAREA))
 				{
 					car->setPosY(motion.posY + velY);
 					car->setPosX(motion.posX + velX);
 				}
-				
-
-				RacingCar* otherCar = car->getOtherCar();
-
-				if (!car->getInvincible())
-				{
-					if (car->getRushing() || otherCar->getRushing())
-						(*car) -= motion.velLinear * motion.velLinear / 2 / 100000;
-					else
-						(*car) -= motion.velLinear * motion.velLinear / 2 / 1000000;
-					if (car->getHP() <= 0)
-					{
-						map->endtype = PLAYER2;
-						map->endtime = SDL_GetTicks64() + 3000;
-					}
-				}
-				if (!otherCar->getInvincible())
-				{
-					if (car->getRushing() || otherCar->getRushing())
-						(*otherCar) -= motion.velLinear * motion.velLinear / 2 / 100000;
-					else
-						(*otherCar) -= motion.velLinear * motion.velLinear / 2 / 1000000;
-					if (otherCar->getHP() <= 0)
-					{
-						map->endtype = map->endtype == PLAYING ? PLAYER1 : ALLDEAD;
-						map->endtime = SDL_GetTicks64() + 3000;
-					}
-				}
-
-				
-				double dz = map->car1->getPosX() - map->car2->getPosX();
-				double e = 0.6;
-
-				double cos_ = cos(map->car1->getAxleDegree() - map->car2->getAxleDegree());
-				double v1 = map->car1->getVelLinear(), v2 = map->car2->getVelLinear() * cos_;
-				double v = ((1 - e) * v1 + (1 + e) * v2) / 2.0;
-
-				v1 = map->car1->getVelLinear() * cos_, v2 = map->car2->getVelLinear();
-				map->car1->setVelLinear(v);
-				v = ((1 - e) * v2 + (1 + e) * v1) / 2.0;
-				map->car2->setVelLinear(v);
-
-				if (dz < 0 && map->car1->getRushing()) {
-					map->car1->rush(NONE);
-				}
-				else if (dz > 0 && map->car2->getRushing()) {
-					map->car2->rush(NONE);
-				}
+				map->carCollision(car);
 			}
 		}
-
-
 		//rotate car
 		car->setAxleDegree(motion.axleDegree + motion.velAngular);
 
@@ -996,6 +949,110 @@ Uint32 Map::accelerate(Uint32 interval, void* para)
 	} while (--times);
 
 	return interval;
+}
+
+void Map::carCollision(RacingCar* car) 
+{
+	if (!dualMode)
+		return;
+
+	RacingCar* otherCar = car->getOtherCar();
+	double dz = car->getPosX() - otherCar->getPosX();
+	double e = 0.6;
+	double cos_ = cos(car1->getAxleDegree() - car2->getAxleDegree());
+	double v1 = car->getVelLinear();
+	double v2 = otherCar->getVelLinear();
+	bool car1rush = car->getRushing(), car2rush = otherCar->getRushing();
+	bool car1invincible = car->getInvincible(), car2invincible = otherCar->getInvincible();
+
+	//damage
+	if (!car1invincible) {
+		if (car1rush || car2rush)
+			(*car) -= v1 * v1 / 2 / 100000;
+		else
+			(*car) -= v1 * v1 / 2 / 1000000;
+		if (car->getHP() <= 0)
+		{
+			endtype = (car == car1) ? PLAYER2 : PLAYER1;
+			endtime = SDL_GetTicks64() + 3000;
+		}
+	}
+	if (!car2invincible) {
+		if (car1rush || car2rush)
+			(*otherCar) -= v1 * v1 / 2 / 100000;
+		else
+			(*otherCar) -= v1 * v1 / 2 / 1000000;
+		if (car->getHP() <= 0)
+		{
+			endtype = (endtype == PLAYING) ? PLAYER1 : ALLDEAD;
+			endtime = SDL_GetTicks64() + 3000;
+		}
+	}
+	//velocity
+	if (car1invincible ^ car2invincible) {
+		if (car1invincible && car1rush) {
+			if (dz < 0) {
+				otherCar->setVelLinear(((1 - e) * v2 + (1 + e) * v1 * cos_) / 2.0);
+				if (car->getPosY() > otherCar->getPosY()) {
+					otherCar->setAxleDegree(-MAX_ROTATE_DEGREE);
+				}
+				else {
+					otherCar->setAxleDegree(MAX_ROTATE_DEGREE);
+				}
+			}
+		}
+		else if (car2invincible && car2rush) {
+			if (dz > 0) {
+				car->setVelLinear(((1 - e) * v1 + (1 + e) * v2 * cos_) / 2.0);
+				if (otherCar->getPosY() > car->getPosY()) {
+					car->setAxleDegree(-MAX_ROTATE_DEGREE);
+				}
+				else {
+					car->setAxleDegree(-MAX_ROTATE_DEGREE);
+				}
+			}
+		}
+		else {
+			car->setVelLinear(((1 - e) * v1 + (1 + e) * v2 * cos_) / 2.0);
+			otherCar->setVelLinear(((1 - e) * v2 + (1 + e) * v1 * cos_) / 2.0);
+		}
+	}
+	else if (car1invincible && car2invincible)
+	{
+		if (car1rush == car2rush) {
+			car->setVelLinear(((1 - e) * v1 + (1 + e) * v2 * cos_) / 2.0);
+			otherCar->setVelLinear(((1 - e) * v2 + (1 + e) * v1 * cos_) / 2.0);
+		}
+		else if (car1rush && dz < 0) {
+			otherCar->setVelLinear(((1 - e) * v2 + (1 + e) * v1 * cos_) / 2.0);
+			if (car->getPosY() > otherCar->getPosY()) {
+				otherCar->setAxleDegree(-MAX_ROTATE_DEGREE);
+			}
+			else {
+				otherCar->setAxleDegree(MAX_ROTATE_DEGREE);
+			}
+		}
+		else if (car2rush && dz > 0) {
+			car->setVelLinear(((1 - e) * v1 + (1 + e) * v2 * cos_) / 2.0);
+			if (otherCar->getPosY() > car->getPosY()) {
+				car->setAxleDegree(-MAX_ROTATE_DEGREE);
+			}
+			else {
+				car->setAxleDegree(-MAX_ROTATE_DEGREE);
+			}
+		}
+	}
+	else {
+		car->setVelLinear(((1 - e) * v1 + (1 + e) * v2 * cos_) / 2.0);
+		otherCar->setVelLinear(((1 - e) * v2 + (1 + e) * v1 * cos_) / 2.0);
+	}
+	//rush
+	if (!car1invincible) {
+		car->rush(NONE);
+	}
+	if (!car2invincible) {
+		otherCar->rush(NONE);
+	}
 }
 
 void Map::startTimer() {
@@ -1626,3 +1683,43 @@ if (car->getRushing() != ACCROAD && ((type & ACCELERATE_LEFT) || (type & ACCELER
 
 		}
 		*/
+		/*
+						if (!car->getInvincible())
+						{
+							if (car->getRushing() || otherCar->getRushing())
+								(*car) -= motion.velLinear * motion.velLinear / 2 / 100000;
+							else
+								(*car) -= motion.velLinear * motion.velLinear / 2 / 1000000;
+
+							if (car->getHP() <= 0)
+							{
+								map->endtype = PLAYER2;
+								map->endtime = SDL_GetTicks64() + 3000;
+							}
+
+							if (dz < 0 && car->getRushing())
+								car->rush(NONE);
+
+							car->setVelLinear(((1 - e) * v1 + (1 + e) * v2 * cos_) / 2.0);
+						}
+						else if (!car->getRushing()) {
+							car->setVelLinear(((1 - e) * v1 + (1 + e) * v2 * cos_) / 2.0);
+						}
+
+						if (!otherCar->getInvincible())
+						{
+							if (car->getRushing() || otherCar->getRushing())
+								(*otherCar) -= motion.velLinear * motion.velLinear / 2 / 100000;
+							else
+								(*otherCar) -= motion.velLinear * motion.velLinear / 2 / 1000000;
+							if (otherCar->getHP() <= 0)
+							{
+								map->endtype = map->endtype == PLAYING ? PLAYER1 : ALLDEAD;
+								map->endtime = SDL_GetTicks64() + 3000;
+							}
+
+							if (dz > 0 && otherCar->getRushing())
+								car->rush(NONE);
+
+							otherCar->setVelLinear(((1 - e) * v2 + (1 + e) * v1 * cos_) / 2.0);
+						}*/

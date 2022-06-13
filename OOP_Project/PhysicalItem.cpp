@@ -67,28 +67,23 @@ void PhysicalItem::logic(void* para1, void* para2)
 				collided = false;
 				if (objectList[j].index > objectList[i].index - 15 && objectList[j].index < objectList[i].index + 15) 
 				{
-					cout << "  1111111\n" ;
 					dx = objectList[j].position.x - objectList[i].position.x;
 					dz = objectList[j].position.z - objectList[i].position.z;
 					if (dx * dx + dz * dz < 8 * CUBE_SIZE * CUBE_SIZE) 
 					{
-						cout << "  2222222\n";
 						if (dx * dx + dz * dz < 4 * CUBE_SIZE * CUBE_SIZE) {
-							cout << "  444444\n";
 							collided = true;
 						}
 						else {
-							cout << "  333333\n";
 							cos_ = cos(move[j].moveDegree - move[i].moveDegree);
 							sin_ = sin(move[j].moveDegree - move[i].moveDegree);
-							double rz[4] = { CUBE_SIZE * cos_ - CUBE_SIZE * sin_ - dz,CUBE_SIZE * cos_ + CUBE_SIZE * sin_ - dz ,
-													-CUBE_SIZE * cos_ - CUBE_SIZE * sin_ - dz ,-CUBE_SIZE * cos_ + CUBE_SIZE * sin_ - dz };
-							double rx[4] = { CUBE_SIZE * sin_ + CUBE_SIZE * cos_ - dx,CUBE_SIZE * sin_ - CUBE_SIZE * cos_ - dx,
-											-CUBE_SIZE * sin_ + CUBE_SIZE * cos_ - dx,-CUBE_SIZE * sin_ - CUBE_SIZE * cos_ - dx };
+							double rz[4] = { cos_ - sin_ - dz / CUBE_SIZE, cos_ + sin_ - dz / CUBE_SIZE,
+													-cos_ - sin_ - dz/ CUBE_SIZE ,-cos_ + sin_ - dz/ CUBE_SIZE };
+							double rx[4] = { sin_ + cos_ - dx / CUBE_SIZE,sin_ - cos_ - dx / CUBE_SIZE,
+											-sin_ + cos_ - dx / CUBE_SIZE,-sin_ - cos_ - dx / CUBE_SIZE };
 							for (int k = 0; k < 4; ++k) 
-								if (rz[k] < CUBE_SIZE && rz[k] > -CUBE_SIZE && rx[k] < CUBE_SIZE && rx[k] > -CUBE_SIZE) 
+								if (rz[k] < 1 && rz[k] > -1 && rx[k] < 1 && rx[k] > -1) 
 								{
-									cout << "  555555\n";
 									collided = true;
 									break;
 								}

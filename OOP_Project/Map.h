@@ -86,6 +86,7 @@ public:
 	~Map();
 
 	void generateMap();
+	void carCollision(RacingCar* car);
 
 	// getters
 	RacingCar* getCar1() { return car1; }
