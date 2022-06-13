@@ -196,7 +196,7 @@ void Map::generateMap()
 				else if(lines[j].getType() & LOW_FRICTION)
 					lines[j].deleteType(LOW_FRICTION);
 			}
-			for (int j = generator.end - 15; j <= generator.end + 15; ++j){
+			for (int j = generator.end - 5; j <= generator.end + 15; ++j){
 				lines[j].addType(CLIFF);
 			}
 			for (int j = generator.end - 100 >= 15 ? generator.end - 100 - 15 : 0; j <= generator.end - 100 + 30 && j < 9000; ++j) {
@@ -590,7 +590,7 @@ Uint32 Map::move(Uint32 interval, void* para)
 
 		//perpendicular (z-direction)
 		car->setCamHeight(motion.camHeight + motion.velPerpen);
-		if (car->isInAir() && ((motion.camHeight + motion.baseHeight) - (CAMERA_HEIGHT + map->lines[startpos].gety()) < -1e-6 && !(type & CLIFF))) {
+		if (car->isInAir() && ((motion.camHeight + motion.baseHeight) - (CAMERA_HEIGHT + map->lines[startpos].gety()) < -1e-6)) {
 			car->setCamHeight(CAMERA_HEIGHT);
 			car->setInAir(false);
 			if (car->getCurrentPos()->getSlope()) {
@@ -798,6 +798,9 @@ Uint32 Map::move(Uint32 interval, void* para)
 					}
 					else {
 						car->setInAir(true, map->lines[startpos].gety());
+						if ((type & CLIFF) && (velX < 20)){
+							car->setPosX(motion.posX + 5 * SEGMENT_LENGTH);
+						}
 					}
 				}
 			}
