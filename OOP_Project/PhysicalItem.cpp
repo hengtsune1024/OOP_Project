@@ -35,7 +35,7 @@ void PhysicalItem::logic(void* para1, void* para2)
 	double cos_, sin_, dx, dz, v1, v2, v, e = 0.6;
 	for (int i = 0; i < NUM_PHYSICALITEM; ++i) 
 	{
-		if (!move[i].isMoving)
+		if (!move[i].isMoving || !objectList[i].shownflag)
 			continue;
 
 		//position
@@ -64,6 +64,9 @@ void PhysicalItem::logic(void* para1, void* para2)
 			{
 				if (i == j)
 					continue;
+				if (!objectList[j].shownflag)
+					continue;
+
 				collided = false;
 				if (objectList[j].index > objectList[i].index - 15 && objectList[j].index < objectList[i].index + 15) 
 				{
@@ -140,8 +143,12 @@ bool PhysicalItem::collide(RacingCar* car)
 	double dx, dz, rd, cos_, sin_, height;
 	bool collision = false;
 	const Motion& motion = car->getMotion();
+	bool broke = (car->getRushing() && car->getInvincible());
 	for (int j = 0; j < NUM_PHYSICALITEM; ++j) 
 	{
+		if (!objectList[j].shownflag)
+			continue;
+
 		height = car->isInAir() ? motion.camHeight + motion.baseHeight : motion.camHeight + car->getCurrentPos()->gety();
 		if (height - CAMERA_HEIGHT > objectList[j].position.y + CUBE_SIZE)
 			continue;
@@ -159,15 +166,24 @@ bool PhysicalItem::collide(RacingCar* car)
 			for (int i = 0; i < 5; ++i) {
 				if (rz[i] < CUBE_SIZE && rz[i] > -CUBE_SIZE && rx[i] < CUBE_SIZE && rx[i] > -CUBE_SIZE) {
 					//collided
-					collision = true;
-					move[j].isMoving = true;
-					move[j].moveDegree = motion.axleDegree;
-					move[j].moveVel = motion.velLinear * 1.2 * motion.velM;
-					move[j].angularVel = ((0.5 * move[j].moveVel / ENERGY_RUSHBEGIN_SPEED) * rand() / (RAND_MAX + 1.0)) * ((rand() & 1) ? 1 : -1);
+					if (broke) 
+					{
+						objectList[j].shownflag = false;
+						move[j].isMoving = false;
+						move[j].moveDegree = move[j].moveVel= move[j].angularVel = 0;
+					}
+					else 
+					{
+						collision = true;
+						move[j].isMoving = true;
+						move[j].moveDegree = motion.axleDegree;
+						move[j].moveVel = motion.velLinear * 1.2 * motion.velM;
+						move[j].angularVel = ((0.5 * move[j].moveVel / ENERGY_RUSHBEGIN_SPEED) * rand() / (RAND_MAX + 1.0)) * ((rand() & 1) ? 1 : -1);
+					}
 					break;
 				}
 			}
 		}
 	}
-	return collision;
+	return collision && !broke;
 }

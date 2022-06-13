@@ -14,7 +14,7 @@ Obstacle::Obstacle(const char* objpath, const char* imgpath) : BlenderObject(obj
 
 bool Obstacle::hitObstacle(double carx, double height, int ind)
 {
-	return (carx > objectList[ind].position.x - OBSTACLE_WIDTH && carx < objectList[ind].position.x + OBSTACLE_WIDTH)
+	return objectList[ind].shownflag && (carx > objectList[ind].position.x - OBSTACLE_WIDTH && carx < objectList[ind].position.x + OBSTACLE_WIDTH)
 		&& (height < objectList[ind].position.y + ROCK_SIZE);
 }
 

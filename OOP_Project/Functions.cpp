@@ -387,7 +387,7 @@ void Functions::setrecord(int r)
 			rec[j] = r;
 		}
 	}
-	FILE* f = fopen("../bin/record.dat", "wb");
+	FILE* f = fopen("../bin/record.dat", "ab");
 	fseek(f, 0, SEEK_SET);
 	fwrite(rec, sizeof(rec), 1, f);
 	fclose(f);

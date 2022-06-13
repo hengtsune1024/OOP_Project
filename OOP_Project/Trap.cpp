@@ -18,7 +18,7 @@ Trap::Trap(SDL_Renderer* renderer):
 
 bool Trap::hitTrap(double carx, double height, double mod, int ind)
 {
-	return (carx > objectList[ind].position.x - TRAP_WIDTH * mod && carx < objectList[ind].position.x + TRAP_WIDTH * mod)
+	return objectList[ind].shownflag && (carx > objectList[ind].position.x - TRAP_WIDTH * mod && carx < objectList[ind].position.x + TRAP_WIDTH * mod)
 		&& (height < objectList[ind].position.y + 500);
 }
 
