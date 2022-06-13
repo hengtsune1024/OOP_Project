@@ -171,7 +171,7 @@ Uint32 RacingCar::changeData(Uint32 interval, void* param)
 		car->lost = 0;
 
 	//speeddown
-	if (SDL_GetTicks64() - car->slow >= 10000)
+	if (SDL_GetTicks64() - car->slow >= 5000)
 		car->slow = 0;
 	if (car->slow)
 		car->setVelLinear(car->getVelLinear() * 0.7);
