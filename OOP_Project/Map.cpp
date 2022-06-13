@@ -97,17 +97,17 @@ void Map::generateMap()
 		// high_friction range between 50 and 300, low_friction range between 100 and 400
 		for (int k = 0; k < 2; ++k)
 		{
-			switch (rand() & 3) {
+			switch (rand() % 5)
+			{
 			case 0:
-			case 1:
-				range = (300 - 50) * (rand() / (RAND_MAX + 1.0)) + 50;
+				range = (200 - 50) * (rand() / (RAND_MAX + 1.0)) + 50;
 				generator.start = (500 - range) * (rand() / (RAND_MAX + 1.0)) + 1000 * i + k * 500 + 100;
 				generator.end = generator.start + range;
 				for (int j = generator.start; j <= generator.end; ++j)
 					lines[j].addType(HIGH_FRICTION);
 				break;
+			case 1:
 			case 2:
-			case 3:
 				range = (400 - 100) * (rand() / (RAND_MAX + 1.0)) + 100;
 				generator.start = (500 - range) * (rand() / (RAND_MAX + 1.0)) + 1000 * i + k * 500 + 100;
 				generator.end = generator.start + range;
@@ -274,17 +274,19 @@ void Map::generateMap()
 	// physical item
 	// divide 9000 to 10 parts with length 900, the ychange range is within 200 to 800
 	range = 900;
+	n = NUM_PHYSICALITEM / 10;
 	for (int i = 0; i < 10; ++i) {
 		lower = i * range + 100;
 		upper = lower + range;
-		for (int j = 0; j < 10; ++j) {
+		for (int j = 0; j < n; ++j) {
 			do {
-				physicalindex[i * 10 + j] = (upper - lower) * (rand() / (RAND_MAX + 1.0)) + lower;
-			} while (table[physicalindex[i * 10 + j] - 100]);
-			for (int k = physicalindex[i * 10 + j] - 100 >= 1 ? physicalindex[i * 10 + j] - 100 - 1 : 0; k <= physicalindex[i * 10 + j] - 100 + 1 && k < 9000; ++k)
+				physicalindex[i * n + j] = (upper - lower) * (rand() / (RAND_MAX + 1.0)) + lower;
+			} while (table[physicalindex[i * n + j] - 100]);
+			for (int k = physicalindex[i * n + j] - 100 >= 1 ? physicalindex[i * n + j] - 100 - 1 : 0; k <= physicalindex[i * n + j] - 100 + 1 && k < 9000; ++k)
 				table[k] = true;
 		}
 	}
+
 
 	double z = 0, x = 0, dx = 0;
 	for (int i = 0; i < NUM_LINE; ++i)
@@ -412,7 +414,7 @@ void Map::draw(SDL_Renderer* renderer)
 		if (dst.x > -moonW && dst.x < WIDTH)
 			moon.draw(renderer, NULL, &dst);
 
-		for (int i = startpos > 50 ? startpos - 50 : 1; i < startpos + 300; ++i)
+		for (int i = startpos > 50 ? startpos - 50 : 1; i < startpos + 300 && i < NUM_LINE - 5; ++i)
 		{
 			Line& l = lines[i];
 			const Line& p = lines[i - 1];
@@ -842,7 +844,6 @@ Uint32 Map::move(Uint32 interval, void* para)
 			if (!car->getghost() && map->virus.hitTrap(midY, camH - CAMERA_HEIGHT, motion.velM, index))
 				car->gettrap(map->virus.gettrap((map->dualMode ? times - 1 : true), index));
 		}
-
 		//tool
 		if (type & TOOLAREA)
 		{
@@ -889,7 +890,8 @@ Uint32 Map::move(Uint32 interval, void* para)
 				map->endtype = VICTORY;
 				map->record = car->gettotaltime();
 			}
-			map->endtime = SDL_GetTicks64() + 3000;
+			if (!map->endtime)
+				map->endtime = SDL_GetTicks64() + 3000;
 		}
 
 		if (map->dualMode) 

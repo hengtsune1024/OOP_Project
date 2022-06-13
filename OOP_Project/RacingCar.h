@@ -58,6 +58,10 @@ class RacingCar: public BlenderObject
 	int dizzy;
 	int lost;
 	int slow;
+	Image dizzyimg;
+	Image lostimg;
+	Image slowimg;
+
 
 	//map object
 

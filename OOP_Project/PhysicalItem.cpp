@@ -2,7 +2,7 @@
 
 
 PhysicalItem::PhysicalItem(const char* objfile, const char* texfile, vector<Line>* l, double scale) : BlenderObject(objfile, texfile, scale, NUM_PHYSICALITEM, 2) ,
-	move(NUM_PHYSICALITEM, {0,0,0,false}), lines(l)
+	move(NUM_PHYSICALITEM, {0,0,0,0,false,false}), lines(l)
 {}
 
 PhysicalItem::~PhysicalItem() 
@@ -33,17 +33,44 @@ void PhysicalItem::logic(void* para1, void* para2)
 	vector<Line>* lines = (vector<Line>*)para1;
 	Obstacle* obst = (Obstacle*)para2;
 	double cos_, sin_, dx, dz, v1, v2, v, e = 0.6;
+	bool fall;
+	int index;
+
 	for (int i = 0; i < NUM_PHYSICALITEM; ++i) 
 	{
 		if (!move[i].isMoving || !objectList[i].shownflag)
 			continue;
 
-		//position
+		index = objectList[i].position.z / SEGMENT_LENGTH;
+		fall = (lines->at(index).getType() & (INCLINE_PLANE | CLIFF));
+		//position.x, position.z
 		cos_ = cos(move[i].moveDegree);
 		sin_ = sin(move[i].moveDegree);
 		objectList[i].position.x += move[i].moveVel * sin_;
 		objectList[i].position.z += move[i].moveVel * cos_;
-		objectList[i].position.y = lines->at((int)(objectList[i].position.z / SEGMENT_LENGTH)).gety() + CUBE_SIZE;
+
+		//position.y
+		index = objectList[i].position.z / SEGMENT_LENGTH;
+		//start falling
+		if (!move[i].isfalling && fall && (lines->at(index).getType() & CLIFF) && !(lines->at(index).getType() & INCLINE_PLANE)) {
+			objectList[i].position.y = lines->at((int)((objectList[i].position.z - move[i].moveVel * cos_) / SEGMENT_LENGTH)).gety() + CUBE_SIZE;
+			move[i].isfalling = true;
+		}
+		if (move[i].isfalling) {
+			move[i].perpenVel += GRAVITY;
+			objectList[i].position.y -= move[i].perpenVel;
+			if (objectList[i].position.y < lines->at(index).gety() + CUBE_SIZE) {
+				move[i].isfalling = false;
+				objectList[i].position.y = lines->at(index).gety() + CUBE_SIZE;
+				move[i].perpenVel = 0;
+			}
+		}
+		else {
+			objectList[i].position.y = lines->at(index).gety() + CUBE_SIZE;
+		}
+
+		if (!move[i].isMoving)
+			continue;
 
 		//collision with obstacle
 		objectList[i].index = objectList[i].position.z / SEGMENT_LENGTH;

@@ -98,7 +98,7 @@ int Trap::gettrap(bool car, int ind)
 {
 	srand(std::time(NULL));
 	int num = rand() % 4;
-	//int num = 2;
+	//int num = 1;
 	if (objectList[ind].shownflag == true)
 	{
 		objectList[ind].shownflag = false;

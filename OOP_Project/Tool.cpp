@@ -13,8 +13,8 @@ void Tool::close() {
 }
 //{ 1,1,1,1,1,1}  { 0,0,0,0,0,0 }
 Tool::Tool(SDL_Renderer* renderer, bool d) : car1tool{ 1,1,1,1,1,1 }, car2tool{ 1,1,1,1,1,1 }, dual(d),
-	tool1img("../images/mushroom.png", renderer), tool2img("../images/star.png", renderer), tool3img("../images/heal.png", renderer), 
-	tool4img("../images/ghost.png", renderer), tool5img("../images/lightning.png", renderer), tool6img("../images/8.png", renderer),
+	tool1img("../images/tool/mushroom.png", renderer), tool2img("../images/tool/star.png", renderer), tool3img("../images/tool/heal.png", renderer), 
+	tool4img("../images/tool/ghost.png", renderer), tool5img("../images/tool/lightning.png", renderer), tool6img("../images/tool/8.png", renderer),
 	BlenderObject("../images/tool/tool.txt", "../images/tool/tool.bmp", 750, NUM_TOOL, 1)
 {
 	gettime = SDL_GetTicks64() - STAIN_INTERVAL;

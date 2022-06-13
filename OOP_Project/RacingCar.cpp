@@ -12,7 +12,8 @@ RacingCar::RacingCar(const char* obfpath, const char* imgpath, SDL_Renderer* ren
 	theOtherCar(NULL), starttime(SDL_GetTicks64() + 3000), timing("00:00:000"), arrive(false), totaltime(0), invincible(0),
 	BlenderObject(obfpath, imgpath, 1000, 1, 2),
 	timetext(timing, "../fonts/akabara-cinderella.ttf", 20, 0x02, { 255, 255, 255 }, SHADED, { 0, 0, 0 }, renderer, { 200, 10 }, { 10, 10 }, NULL, SDL_FLIP_NONE, 255),
-	dizzy(0), lost(0), slow(0)
+	dizzy(0), lost(0), slow(0), slowimg("../images/slow.png", renderer),
+	dizzyimg("../images/dizzy.png", renderer), lostimg("../images/banana.png", renderer)
 {}
 
 void RacingCar::quit()
@@ -107,6 +108,15 @@ void RacingCar::draw(SDL_Renderer* renderer, Engine* engine, bool& clean)
 	roundedRectangleRGBA(renderer, 550, 10, 585, 45, 1, 255, 0, 255, 255);
 	*/
 
+	//state
+	SDL_Rect stateloc{ 20, 100, 75, 60 };
+	if (dizzy)
+		dizzyimg.draw(renderer, NULL, &stateloc);
+	if (lost)
+		lostimg.draw(renderer, NULL, &stateloc);
+	if (slow)
+		slowimg.draw(renderer, NULL, &stateloc);
+
 
 	//timing
 	timetext.close();
@@ -148,29 +158,38 @@ Uint32 RacingCar::changeData(Uint32 interval, void* param)
 		sprintf_s(car->timing, "%02d:%02d:%03d", min, sec, ms);
 	}
 
+	Uint64 t = SDL_GetTicks64();
 	//invincible tool
-	if (SDL_GetTicks64() - car->invincible >= INVINCIBLE_INTERVAL){
+	if (t - car->invincible >= INVINCIBLE_INTERVAL){
 		car->invincible = 0;
 		car->objectList[0].texindex = 0;
 	}
 
 	//ghost tool
-	if (SDL_GetTicks64() - car->ghost >= 5000)
+	if (car->ghost && t - car->ghost >= 5000)
 		car->ghost = 0;
 
 	//dizzy
-	if (SDL_GetTicks64() - car->dizzy >= 5000)
+	if (car->dizzy && t - car->dizzy >= 3000)
 		car->dizzy = 0;
 
 	//lost
-	if (SDL_GetTicks64() - car->lost >= 5000)
+	if (car->lost && t - car->lost >= 5000){
 		car->lost = 0;
+		car->motion.velAngular = 0;
+	}
 
 	//speeddown
-	if (SDL_GetTicks64() - car->slow >= 5000)
+	if (car->slow && t - car->slow >= 5000)
 		car->slow = 0;
+
 	if (car->slow)
 		car->setVelLinear(car->getVelLinear() * 0.7);
+
+	//slow down with losing HP
+	if (!car->getRushing())
+		car->setVelLinear(car->getVelLinear() * (car->healthPoint / 5 + 80) / 100);
+
 
 	//car rotation
 	double dif = car->motion.axleDegree - car->motion.camDegree;
@@ -371,7 +390,6 @@ void RacingCar::gettrap(int type)
 	case STAIN:
 		break;
 	case BANANA:
-		setVelLinear(0);
 		lost = SDL_GetTicks64();
 		break;
 	case SPEEDDOWN:
@@ -381,7 +399,8 @@ void RacingCar::gettrap(int type)
 		if (!invincible)
 		{
 			healthPoint -= 50;
-			setVelLinear(0);
+			setVelLinear(getVelLinear() * 0.3);
+			brake(0);
 			dizzy = SDL_GetTicks64();
 		}
 		break;
@@ -436,7 +455,8 @@ void RacingCar::beattacked()
 {
 	if (!invincible)
 	{
-		setVelLinear(0);
+		setVelLinear(getVelLinear() * 0.3);
+		brake(0);
 		healthPoint -= 20;
 		dizzy = SDL_GetTicks64();
 	}

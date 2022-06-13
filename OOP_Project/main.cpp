@@ -7,11 +7,12 @@
 #include "RacingCar.h"
 #include "Functions.h"
 
-void eventHandler(SDL_Event&, RenderWindow&, Map&, RacingCar*, RacingCar* = NULL);
+void eventHandler(SDL_Event&, RenderWindow&, Map&, int&, int&, RacingCar*, RacingCar* = NULL);
+void drawchosentool(SDL_Renderer*, int&, int&, bool);
 
 int main(int argc, char* argv[]) 
 {
-	bool dual = false;
+	bool dual = 0;
 	bool menu = true;
 	bool quit = false;
 
@@ -25,7 +26,7 @@ int main(int argc, char* argv[])
 	while (!quit)
 	{
 		//Menu
-		menu = true;
+		menu = 1;
 		while (menu && !quit)
 		{
 			window.clear();
@@ -40,7 +41,8 @@ int main(int argc, char* argv[])
 		Map map(window.GetRenderer(), dual);
 		map.startTimer();
 		unsigned int st, end, i = 0;
-
+		int chosen1 = 1;
+		int chosen2 = 1;
 		while (!quit) {
 
 			while (SDL_PollEvent(&e) != 0) {
@@ -48,10 +50,10 @@ int main(int argc, char* argv[])
 					quit = true;
 					break;
 				}
-				eventHandler(e, window, map, map.getCar1(), map.getCar2());
+				eventHandler(e, window, map, chosen1, chosen2, map.getCar1(), map.getCar2());
 			}
 			st = SDL_GetTicks();
-
+			
 			window.clear();
 			map.draw(window.GetRenderer());
 			if (map.getendtype() != PLAYING)
@@ -63,7 +65,8 @@ int main(int argc, char* argv[])
 					break;
 				}
 			}
-
+			drawchosentool(window.GetRenderer(), chosen1, chosen2, dual);
+			
 			//Counting 3 2 1
 			func.Counting(map);
 			window.display();
@@ -87,7 +90,7 @@ int main(int argc, char* argv[])
 	return 0;
 }
 
-void eventHandler(SDL_Event& e, RenderWindow& w, Map& map, RacingCar* car1, RacingCar* car2) 
+void eventHandler(SDL_Event& e, RenderWindow& w, Map& map, int& chosen1, int& chosen2, RacingCar* car1, RacingCar* car2)
 {
 	if (e.type == SDL_KEYDOWN && e.key.repeat == 0)
 	{
@@ -107,8 +110,12 @@ void eventHandler(SDL_Event& e, RenderWindow& w, Map& map, RacingCar* car1, Raci
 			{
 				if (car1->islost())
 					car1->setVelAngular(car1->getVelAngular() + ROTATE);
-				else
+				else {
+
+					cout << "1. " << car1->getVelAngular() << " 2. ";
 					car1->setVelAngular(car1->getVelAngular() - ROTATE);
+					cout << car1->getVelAngular() << endl;
+				}
 			}
 			break;
 		case SDLK_d:
@@ -120,19 +127,51 @@ void eventHandler(SDL_Event& e, RenderWindow& w, Map& map, RacingCar* car1, Raci
 					car1->setVelAngular(car1->getVelAngular() + ROTATE);
 			}
 			break;
+		case SDLK_q:
+			if (car2)
+				chosen1 < 6 ? chosen1++ : chosen1 = 1;
+			else
+				chosen1 < 4 ? chosen1++ : chosen1 = 1;
+			break;
+		case SDLK_e:
+			switch (chosen1)
+			{
+			case 1:
+				if (!car1->Dizzy())
+					car1->usetool(SPEEDUP, map.getTool(), true);
+				break;
+			case 2:
+				if (!car1->Dizzy())
+					car1->usetool(INVINCIBLE, map.getTool(), true);
+				break;
+			case 3:
+				if (!car1->Dizzy())
+					car1->usetool(HEALING, map.getTool(), true);
+				break;
+			case 4:
+				if (!car1->Dizzy())
+					car1->usetool(GHOST, map.getTool(), true);
+				break;
+			case 5:
+				if (car2 && !car1->Dizzy())
+					if (car1->usetool(LIGHTNING, map.getTool(), true))
+						car2->beattacked();
+				break;
+			case 6:
+				if (car2 && !car1->Dizzy())
+				{
+					if (car1->usetool(SWITCH, map.getTool(), true))
+						if (car1->getPosX() < car2->getPosX())
+							map.changecar();
+				}
+				break;
+			}
+			break;
 		case SDLK_SPACE:
 			if (!car1->Dizzy())
 				car1->rush(ENERGY);
 				break;
-				/*
-			case SDLK_x:
-				if (car2)
-					car2->setInvincible();
-				break;
-			case SDLK_z:
-				car1->setInvincible();
-				break;*/
-
+		/*
 		case SDLK_1:
 			if (!car1->Dizzy())
 				car1->usetool(SPEEDUP, map.getTool(), true);
@@ -162,28 +201,29 @@ void eventHandler(SDL_Event& e, RenderWindow& w, Map& map, RacingCar* car1, Raci
 						map.changecar();
 			}
 			break;
-
+		*/
 
 
 			//car 2
-		case SDLK_UP:
+		case SDLK_i:
 			if (car2 && !car2->Dizzy())
 				car2->brake(1);
 			break;
-		case SDLK_DOWN:
+		case SDLK_k:
 			if (car2 && !car2->Dizzy())
 				car2->brake(2);
 			break;
-		case SDLK_LEFT:
+		case SDLK_j:
 			if (car2 && !car2->Dizzy()) 
 			{
 				if (car2->islost())
 					car2->setVelAngular(car2->getVelAngular() + ROTATE);
-				else
+				else {
 					car2->setVelAngular(car2->getVelAngular() - ROTATE);
+				}
 			}
 			break;
-		case SDLK_RIGHT:
+		case SDLK_l:
 			if (car2 && !car2->Dizzy()) 
 			{
 				if (car2->islost())
@@ -197,10 +237,49 @@ void eventHandler(SDL_Event& e, RenderWindow& w, Map& map, RacingCar* car1, Raci
 				car2->rush(ENERGY);
 			break;
 
+		case SDLK_u:
+			chosen2 < 6 ? chosen2++ : chosen2 = 1;
+			break;
+		case SDLK_o:
+			switch (chosen2)
+			{
+			case 1:
+				if (car2 && !car2->Dizzy())
+					car2->usetool(SPEEDUP, map.getTool(), false);
+				break;
+			case 2:
+				if (car2 && !car2->Dizzy())
+					car2->usetool(INVINCIBLE, map.getTool(), false);
+				break;
+			case 3:
+				if (car2 && !car2->Dizzy())
+					car2->usetool(HEALING, map.getTool(), false);
+				break;
+			case 4:
+				if (car2 && !car2->Dizzy())
+					car2->usetool(GHOST, map.getTool(), false);
+				break;
+			case 5:
+				if (car2 && !car2->Dizzy())
+					if (car2->usetool(LIGHTNING, map.getTool(), false))
+						car1->beattacked();
+				break;
+			case 6:
+				if (car2 && !car2->Dizzy())
+				{
+					if (car2->usetool(SWITCH, map.getTool(), false))
+						if (car2->getPosX() < car1->getPosX())
+							map.changecar();
+				}
+				break;
+			}
+			break;
+
 			/*
 		case SDLK_l:
 			car2->setVelPerpen(car2->getVelPerpen() - 300);
 			*/
+		/*
 		case SDLK_KP_1:
 			if (car2 && !car2->Dizzy())
 				car2->usetool(SPEEDUP, map.getTool(), false);
@@ -230,6 +309,7 @@ void eventHandler(SDL_Event& e, RenderWindow& w, Map& map, RacingCar* car1, Raci
 						map.changecar();
 			}
 			break;
+		*/
 		default:;
 		}
 	}
@@ -245,14 +325,11 @@ void eventHandler(SDL_Event& e, RenderWindow& w, Map& map, RacingCar* car1, Raci
 					car1->brake(0);
 				break;
 			case SDLK_a:
-				if (!car1->Dizzy())
-					car1->setVelAngular(car1->getVelAngular() + ROTATE);
-				//car1->turn(0);
-				break;
 			case SDLK_d:
-				if (!car1->Dizzy())
-					car1->setVelAngular(car1->getVelAngular() - ROTATE);
-				//car1->turn(0);
+				if (!car1->Dizzy()) 
+				{
+					car1->setVelAngular(0);
+				}
 				break;
 				/*
 			case SDLK_q:
@@ -261,22 +338,17 @@ void eventHandler(SDL_Event& e, RenderWindow& w, Map& map, RacingCar* car1, Raci
 				*/
 
 			//car 2
-			case SDLK_UP:
-			case SDLK_DOWN:
+			case SDLK_i:
+			case SDLK_k:
 				if (car2 && !car2->Dizzy()) {
 					car2->brake(0);
 				}
 				break;
-			case SDLK_LEFT:
-				if (car2 && !car2->Dizzy()) {
-					car2->setVelAngular(car2->getVelAngular() + ROTATE);
-					//car2->turn(0);
-				}
-				break;
-			case SDLK_RIGHT:
-				if (car2 && !car2->Dizzy()) {
-					car2->setVelAngular(car2->getVelAngular() - ROTATE);
-					//car2->turn(0);
+			case SDLK_j:
+			case SDLK_l:
+				if (car2 && !car2->Dizzy())
+				{
+					car2->setVelAngular(0);
 				}
 				break;
 				
@@ -289,4 +361,60 @@ void eventHandler(SDL_Event& e, RenderWindow& w, Map& map, RacingCar* car1, Raci
 			default:;
 		}
 	}
+}
+
+void drawchosentool(SDL_Renderer* renderer, int& chosen1, int& chosen2, bool dual)
+{
+	
+	switch (chosen1)
+	{
+	case 1:
+		boxRGBA(renderer, 350, 10, 385, 45, 0, 255, 255, 100);
+		break;
+	case 2:
+		boxRGBA(renderer, 390, 10, 425, 45, 0, 255, 255, 100);
+		break;
+	case 3:
+		boxRGBA(renderer, 430, 10, 465, 45, 0, 255, 255, 100);
+		break;
+	case 4:
+		boxRGBA(renderer, 470, 10, 505, 45, 0, 255, 255, 100);
+		break;
+	case 5:
+		boxRGBA(renderer, 510, 10, 545, 45, 0, 255, 255, 100);
+		break;
+	case 6:
+		boxRGBA(renderer, 550, 10, 585, 45, 0, 255, 255, 100);
+		break;
+	}
+	
+	
+	if (dual)
+	{
+		SDL_Rect viewPort2 = { WIDTH,0,WIDTH,HEIGHT };
+		SDL_RenderSetViewport(renderer, &viewPort2);
+		switch (chosen2)
+		{
+		case 1:
+			boxRGBA(renderer, 350, 10, 385, 45, 0, 255, 255, 100);
+			break;
+		case 2:
+			boxRGBA(renderer, 390, 10, 425, 45, 0, 255, 255, 100);
+			break;
+		case 3:
+			boxRGBA(renderer, 430, 10, 465, 45, 0, 255, 255, 100);
+			break;
+		case 4:
+			boxRGBA(renderer, 470, 10, 505, 45, 0, 255, 255, 100);
+			break;
+		case 5:
+			boxRGBA(renderer, 510, 10, 545, 45, 0, 255, 255, 100);
+			break;
+		case 6:
+			boxRGBA(renderer, 550, 10, 585, 45, 0, 255, 255, 100);
+			break;
+		}
+		SDL_RenderSetViewport(renderer, NULL);
+	}
+	
 }

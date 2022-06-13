@@ -12,7 +12,9 @@ struct Move {
 	double moveDegree = 0;
 	double moveVel = 0;
 	double angularVel = 0;
+	double perpenVel = 0;
 	bool isMoving = false;
+	bool isfalling = false;
 };
 
 class PhysicalItem: public BlenderObject
