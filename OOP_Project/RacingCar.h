@@ -63,6 +63,8 @@ class RacingCar: public BlenderObject
 	Image slowimg;
 
 
+	int select;
+	int toolnum;
 	//map object
 
 	//road type
@@ -145,6 +147,8 @@ public:
 	
 	//operator
 	void operator-=(double);
+	void operator++();
+	void operator--();
 
 	void rush(RushType rushtype);
 	void brake(int type = -1);		//car accelerating
@@ -153,6 +157,7 @@ public:
 	int Dizzy() { return dizzy; }
 	int islost() { return lost; }
 	void beattacked();
+	void changeSelect();
 };
 
 /*void setInvincible() {

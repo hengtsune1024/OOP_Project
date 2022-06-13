@@ -9,7 +9,7 @@ RacingCar::~RacingCar()
 
 RacingCar::RacingCar(const char* obfpath, const char* imgpath, SDL_Renderer* renderer, Line* initpos) :
 	isRushing(NONE), fullEnergy(true), energy(100.0), healthPoint(100.0), motion(MOTION_INIT), accState(0), roadtype(NORMAL), currentPos(initpos),
-	theOtherCar(NULL), starttime(SDL_GetTicks64() + 3000), timing("00:00:000"), arrive(false), totaltime(0), invincible(0),
+	theOtherCar(NULL), starttime(SDL_GetTicks64() + 3000), timing("00:00:000"), arrive(false), totaltime(0), invincible(0), select(0), toolnum(0),
 	BlenderObject(obfpath, imgpath, 1000, 1, 2),
 	timetext(timing, "../fonts/akabara-cinderella.ttf", 20, 0x02, { 255, 255, 255 }, SHADED, { 0, 0, 0 }, renderer, { 200, 10 }, { 10, 10 }, NULL, SDL_FLIP_NONE, 255),
 	dizzy(0), lost(0), slow(0), slowimg("../images/slow.png", renderer),
@@ -26,6 +26,17 @@ void RacingCar::quit()
 
 void RacingCar::operator-=(double d) {
 	healthPoint -= d;
+}
+void RacingCar::operator++() {
+	if (toolnum < 6)
+		++toolnum;
+}
+void RacingCar::operator--() {
+	if (toolnum > 0)
+		--toolnum;
+}
+void RacingCar::changeSelect() {
+
 }
 
 bool RacingCar::collided() {
@@ -81,7 +92,6 @@ void RacingCar::draw3D(Point3D campos, double camDeg, double camDepth, Engine* e
 void RacingCar::draw(SDL_Renderer* renderer, Engine* engine, bool& clean)
 {
 	//car image
-	draw3D({0,0,0}, motion.camDegree, motion.camDepth, engine, clean, 0, HEIGHT);
 
 	//energy bottle
 	roundedBoxColor(renderer, 10, 10, 10 + WIDTH / 4, 30, 2, 0xff828282);
@@ -213,7 +223,6 @@ Uint32 RacingCar::changeData(Uint32 interval, void* param)
 			car->fullEnergy = true;
 		}
 	}
-
 	return interval;
 }
 
@@ -344,13 +353,6 @@ void RacingCar::rush(RushType r)
 		default:
 			break;
 	}
-	/*
-	isRushing = r;
-	if (r == ENERGY) {
-		fullEnergy = false;
-		energy = 0;
-	}
-	*/
 }
 
 int RacingCar::usetool(ToolType type, Tool* tools, bool car)
@@ -419,9 +421,22 @@ void RacingCar::touchobstacle(Obstacle& rock, int ind, vector<Line>& lines)
 			rock.broken(rock.getNearestObstacle(motion.posX / SEGMENT_LENGTH));
 			return;
 		}
-
-		motion.posX -= ROCK_SIZE * cos(motion.axleDegree);
-		motion.posY -= ROCK_SIZE * sin(motion.axleDegree);
+		if (motion.velLinear > 0) {
+			motion.posX -= ROCK_SIZE / 2 * cos(motion.axleDegree);
+			motion.posY -= ROCK_SIZE / 2 * sin(motion.axleDegree);
+			if (collided()) {
+				theOtherCar->motion.posX -= ROCK_SIZE / 2 * cos(motion.axleDegree);
+				theOtherCar->motion.posY -= ROCK_SIZE / 2 * sin(motion.axleDegree);
+			}
+		}
+		else if (motion.velLinear < 0) {
+			motion.posX += ROCK_SIZE / 2 * cos(motion.axleDegree);
+			motion.posY += ROCK_SIZE / 2 * sin(motion.axleDegree);
+			if (collided()) {
+				theOtherCar->motion.posX += ROCK_SIZE / 2 * cos(motion.axleDegree);
+				theOtherCar->motion.posY += ROCK_SIZE / 2 * sin(motion.axleDegree);
+			}
+		}
 		motion.velLinear = -motion.velLinear * 0.5;
 
 		if (isRushing) {

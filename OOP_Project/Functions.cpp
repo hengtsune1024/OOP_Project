@@ -18,6 +18,18 @@ maptext(" ", "../fonts/akabara-cinderella.ttf",40,0x00,{0,0,0}, BLENDED, { NULL,
 	FILE* f = fopen("../bin/record.dat", "rb");
 	fseek(f, 0, SEEK_SET);
 	fread(rec, sizeof(rec), 1, f);
+	
+	int k = 0;
+	while (k < 10 && rec[k])
+		++k;
+	Uint64 tmp;
+	for (int i = 0; i < k - 1; ++i)
+		for (int j = i + 1; j < k; ++j)
+			if (rec[i] > rec[j]) {
+				tmp = rec[i];
+				rec[i] = rec[j];
+				rec[j] = tmp;
+			}
 	fclose(f);
 	dual = d;
 	quit = q;

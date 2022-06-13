@@ -111,10 +111,7 @@ void eventHandler(SDL_Event& e, RenderWindow& w, Map& map, int& chosen1, int& ch
 				if (car1->islost())
 					car1->setVelAngular(car1->getVelAngular() + ROTATE);
 				else {
-
-					cout << "1. " << car1->getVelAngular() << " 2. ";
 					car1->setVelAngular(car1->getVelAngular() - ROTATE);
-					cout << car1->getVelAngular() << endl;
 				}
 			}
 			break;
@@ -172,6 +169,8 @@ void eventHandler(SDL_Event& e, RenderWindow& w, Map& map, int& chosen1, int& ch
 				car1->rush(ENERGY);
 				break;
 		/*
+			break;
+		
 		case SDLK_1:
 			if (!car1->Dizzy())
 				car1->usetool(SPEEDUP, map.getTool(), true);
@@ -192,6 +191,11 @@ void eventHandler(SDL_Event& e, RenderWindow& w, Map& map, int& chosen1, int& ch
 			if (car2 && !car1->Dizzy())
 				if (car1->usetool(LIGHTNING, map.getTool(), true))
 					car2->beattacked();
+					if (car2->getHP() <= 0)
+					{
+						map.setEndType(PLAYER1);
+					}
+				}
 			break;
 		case SDLK_6:
 			if (car2 && !car1->Dizzy())
@@ -298,8 +302,13 @@ void eventHandler(SDL_Event& e, RenderWindow& w, Map& map, int& chosen1, int& ch
 			break;
 		case SDLK_KP_5:
 			if (car2 && !car2->Dizzy())
-				if (car2->usetool(LIGHTNING, map.getTool(), false))
+				if (car2->usetool(LIGHTNING, map.getTool(), false)) {
 					car1->beattacked();
+					if (car1->getHP() <= 0)
+					{
+						map.setEndType(PLAYER2);
+					}
+				}
 			break;
 		case SDLK_KP_6:
 			if (car2 && !car2->Dizzy())
@@ -331,11 +340,6 @@ void eventHandler(SDL_Event& e, RenderWindow& w, Map& map, int& chosen1, int& ch
 					car1->setVelAngular(0);
 				}
 				break;
-				/*
-			case SDLK_q:
-				car1->setVelPerpen(car1->getVelPerpen() + 300);
-				break;
-				*/
 
 			//car 2
 			case SDLK_i:

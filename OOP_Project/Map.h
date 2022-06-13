@@ -87,6 +87,10 @@ public:
 
 	void generateMap();
 	void carCollision(RacingCar* car);
+	void setEndType(EndType e) { 
+		endtype = e;
+		endtime = SDL_GetTicks64() + 3000;
+	}
 
 	// getters
 	RacingCar* getCar1() { return car1; }

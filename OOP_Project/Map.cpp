@@ -130,12 +130,12 @@ void Map::generateMap()
 		else
 			sign = 1;
 		do{
-			generator.curve = sign * ((1.0 - 0.1) * (rand() / (RAND_MAX + 1.0)) + 0.1);
+			generator.curve = sign * ((0.8 - 0.1) * (rand() / (RAND_MAX + 1.0)) + 0.1);
 			range = (800 - 200) * (rand() / (RAND_MAX + 1.0)) + 200;
 			generator.start = (900 - range) * (rand() / (RAND_MAX + 1.0)) + 900 * i + 100;
 			generator.end = generator.start + range;
 			total = range * (range - 1) * generator.curve / 2.0;
-		} while (total <= -100000 || total >= 100000);
+		} while (total <= -75000 || total >= 75000);
 		divert += total;
 		for (int j = generator.start; j <= generator.end; ++j) {
 			lines[j].setCurve(generator.curve);
@@ -550,17 +550,16 @@ void Map::draw(SDL_Renderer* renderer)
 			car->drawOtherCar(renderer, &engine, clean, lines[otherCar->getIndex()].getClip(), camH);
 		}
 
-		//car
-		car->draw(renderer, &engine, clean);
+		car->draw3D({ 0,0,0 }, car->getMotion().camDegree, car->getMotion().camDepth, &engine, clean, 0, HEIGHT);
 
 		engine.drawAll(renderer);
 
-		/**************************/
-		virus.drawStain(renderer, (dualMode ? times - 1 : true));	//only draws stain
-		/**************************/
+		//car
+		car->draw(renderer, &engine, clean);
 
 		tools.drawmytool(renderer, (dualMode ? times - 1 : true));
 
+		virus.drawStain(renderer, (dualMode ? times - 1 : true));	//only draws stain
 
 
 		if (dualMode) {
@@ -672,7 +671,7 @@ Uint32 Map::move(Uint32 interval, void* para)
 
 		//move in x-direction
 		car->setPosX(motion.posX + velX);
-		if (motion.posX < SEGMENT_LENGTH || motion.posX >(map->number_of_lines - 20) * SEGMENT_LENGTH || (velX < 0 && (map->lines[(int)(motion.posX / SEGMENT_LENGTH)].getType() & CLIFF)))
+		if (motion.posX < 30 * SEGMENT_LENGTH || motion.posX >(map->number_of_lines - 20) * SEGMENT_LENGTH || (velX < 0 && (map->lines[(int)(motion.posX / SEGMENT_LENGTH)].getType() & CLIFF)))
 			car->setPosX(motion.posX - velX);
 		
 
@@ -722,12 +721,13 @@ Uint32 Map::move(Uint32 interval, void* para)
 		{
 			if (car->collided()) 
 			{
+				cout << "collide with car\n";
 				car->setPosY(motion.posY - velY);
 				car->setPosX(motion.posX - velX);
 
 				int pos = motion.posX / SEGMENT_LENGTH;
 
-				if (motion.posX < SEGMENT_LENGTH || motion.posX >(map->number_of_lines - 20) * SEGMENT_LENGTH || (velX < 0 && (map->lines[pos].getType() & CLIFF)) || (map->lines[pos].getType() & OBSTACLEAREA))
+				if (motion.posX < 30 * SEGMENT_LENGTH || motion.posX >(map->number_of_lines - 20) * SEGMENT_LENGTH || (velX < 0 && (map->lines[pos].getType() & CLIFF)) || (map->lines[pos].getType() & OBSTACLEAREA))
 				{
 					car->setPosY(motion.posY + velY);
 					car->setPosX(motion.posX + velX);
@@ -735,6 +735,7 @@ Uint32 Map::move(Uint32 interval, void* para)
 				map->carCollision(car);
 			}
 		}
+
 		//rotate car
 		car->setAxleDegree(motion.axleDegree + motion.velAngular);
 
@@ -973,6 +974,8 @@ void Map::carCollision(RacingCar* car)
 	bool car1rush = car->getRushing(), car2rush = otherCar->getRushing();
 	bool car1invincible = car->getInvincible(), car2invincible = otherCar->getInvincible();
 
+	const Motion& m1 = car->getMotion();
+	const Motion& m2 = otherCar->getMotion();
 	//damage
 	if (!car1invincible) {
 		if (car1rush || car2rush)
@@ -1053,6 +1056,35 @@ void Map::carCollision(RacingCar* car)
 	else {
 		car->setVelLinear(((1 - e) * v1 + (1 + e) * v2 * cos_) / 2.0);
 		otherCar->setVelLinear(((1 - e) * v2 + (1 + e) * v1 * cos_) / 2.0);
+		
+		int index = (m1.posX + (m1.velLinear + CAMERA_CARMIDPOINT_DIST) * cos(m1.axleDegree)) / SEGMENT_LENGTH;
+		if (lines[index].getType() & OBSTACLEAREA)
+			car->setVelLinear(0);
+		index = (m2.posX + (m2.velLinear + CAMERA_CARMIDPOINT_DIST) * cos(m2.axleDegree)) / SEGMENT_LENGTH;
+		if (lines[index].getType() & OBSTACLEAREA)
+			otherCar->setVelLinear(0);
+		/*
+		car->setPosX(m1.posX + m1.velLinear * cos(m1.axleDegree));
+		car->setPosY(m1.posY + m1.velLinear * sin(m1.axleDegree));
+		otherCar->setPosX(m2.posX + m2.velLinear * cos(m2.axleDegree));
+		otherCar->setPosY(m2.posY + m2.velLinear * sin(m2.axleDegree));
+		if (car->collided()) 
+		{
+			car->setPosX(m1.posX - m1.velLinear * cos(m1.axleDegree));
+			car->setPosY(m1.posY - m1.velLinear * sin(m1.axleDegree));
+			otherCar->setPosX(m2.posX - m2.velLinear * cos(m2.axleDegree));
+			otherCar->setPosY(m2.posY - m2.velLinear * sin(m2.axleDegree));
+			car->setVelLinear(0);
+			otherCar->setVelLinear(0);
+
+		}
+		else {
+			car->setPosX(m1.posX - m1.velLinear * cos(m1.axleDegree));
+			car->setPosY(m1.posY - m1.velLinear * sin(m1.axleDegree));
+			otherCar->setPosX(m2.posX - m2.velLinear * cos(m2.axleDegree));
+			otherCar->setPosY(m2.posY - m2.velLinear * sin(m2.axleDegree));
+		}*/
+		
 	}
 	//rush
 	if (!car1invincible) {
@@ -1060,6 +1092,13 @@ void Map::carCollision(RacingCar* car)
 	}
 	if (!car2invincible) {
 		otherCar->rush(NONE);
+	}
+	//angle
+	if (m1.posX + (CAMERA_CARMIDPOINT_DIST + CAR_HALF_LENGTH) * cos(m1.axleDegree) > m2.posX + CAMERA_CARMIDPOINT_DIST * cos(m2.axleDegree)) {
+		otherCar->setAxleDegree((m1.axleDegree + m2.axleDegree) / 2.0);
+	}
+	else if (m2.posX + (CAMERA_CARMIDPOINT_DIST + CAR_HALF_LENGTH) * cos(m2.axleDegree) > m1.posX + CAMERA_CARMIDPOINT_DIST * cos(m1.axleDegree)) {
+		car->setAxleDegree((m1.axleDegree + m2.axleDegree) / 2.0);
 	}
 }
 
