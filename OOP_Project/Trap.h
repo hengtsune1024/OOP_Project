@@ -1,31 +1,39 @@
 #pragma once
-#include "Entity.h"
+#include "Image.h"
+#include "constants.h"
+#include "BlenderObject.h"
+#include "Line.h"
+#include <SDL.h>
 
-class Trap :
-    public Entity
-{
-	/*
-	in entity
-	Image* entityImg;
-	int numImage;  
-	int state;
-	*/
+struct TrapSet {
 	int staintime;
+};
+
+class Trap : public BlenderObject
+{
+	TrapSet car1trap;
+	TrapSet car2trap;
+
+	vector<bool> side;
 	Image stain;
 
 public:
 	Trap();
 	~Trap();
-	Trap(const char* path, int n, SDL_Renderer* renderer);
+	Trap(SDL_Renderer* renderer);
 
-	void setTrap(Line *line);
+	//setter and getter
+	void setTrap(Line *line, int lineindex, int ind);
+	int gettrap(bool car, int ind);
+	bool getSide(int ind) { return side[ind]; }
+	int getNearestTrap(int startpos);
 
-	//void draw(SDL_Renderer* renderer, Line*);
+	void drawStain(SDL_Renderer* renderer,  bool car);
 
-	void gettrap(TrapType);
-	void drawStain(SDL_Renderer* renderer);
+	//virtaul override
+	void draw3D(Point3D campos, double camDeg, double camDepth, Engine* engine, bool& clean, int ind, double maxy = HEIGHT) override;
+	void logic() override;
 
 	void close();
-
 };
 

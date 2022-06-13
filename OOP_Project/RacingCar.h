@@ -30,53 +30,41 @@ struct Motion {
 	double camDepth;		// camera depth
 	double roadMod;			// road modification (for friction to change gradually between different roadTypes)
 	double camHeight;		// camera height from the road
+	double baseHeight;		//only used when in air
 	
 };
 
-class RacingCar
+class RacingCar: public BlenderObject
 {
 	Motion motion;
-	/*
-	char path[100];
-	int num;  // New in this example
-	Image* image;
-	int frame;
-	int x;
-	int y;
-	*/
-	SDL_TimerID cartimer;
-	Uint32 time;
-	static Uint32 changeData(Uint32 interval, void* param); // Timer callback 
-	int direct;
-
-	//timer
-	SDL_TimerID chargeTimer;
-	static Uint32 charge(Uint32, void*);
-
 	double healthPoint;
 	double energy;
+	RacingCar* theOtherCar;
+
+	//timer
+	SDL_TimerID cartimer;
+	static Uint32 changeData(Uint32 interval, void* param); // Timer callback 
+
 	//state
 	RushType isRushing;
 	bool fullEnergy;
 	bool outOfRoad;
-	int invincible;
 	int accState;
 	bool inAir;
 
-	//trap
-	Trap virus;
+	int invincible;
+	int navigate;
+	int ghost;
 
-	//tool
-	Tool tools;
+	int dizzy;
+	int lost;
+	int slow;
 
-	Obstacle rock;
+	//map object
 
 	//road type
 	unsigned long long roadtype;
 	Line* currentPos;
-
-	BlenderObject car3D;
-	RacingCar* theOtherCar;
 
 	//timing
 	bool arrive;
@@ -87,129 +75,73 @@ class RacingCar
 
 public:
 
-
-	double baseHeight; //only used when in air
 	RacingCar();
 	RacingCar(const char* objpath, const char* imgpath,SDL_Renderer* renderer, Line*);
 	~RacingCar();
+
 	void quit();
-	//void setPosition(int xx, int yy);
-	//int getWidth();
-	//int getHeight();
-	void draw(SDL_Renderer* renderer, Engine* engine, bool clean);
-	void drawOtherCar(SDL_Renderer* renderer, Engine* engine, bool clean, double maxy, double camH);
+
+	//draw
+	void draw3D(Point3D campos, double camDeg, double camDepth, Engine* engine, bool& clean, int ind, double maxy = HEIGHT) override;
+	void draw(SDL_Renderer* renderer, Engine* engine, bool& clean);
+	void drawOtherCar(SDL_Renderer* renderer, Engine* engine, bool& clean, double maxy, double camH);
+
+	//timer
 	void startTimer(Uint32 t);
-	void stopTimer();
-	//void turn(int); // move the object
+	bool collided();
+	int usetool(ToolType type, Tool* tools, bool car);
+	void gettrap(int type);
 
-	void usetool(ToolType type);
-
-	void setOtherCar(RacingCar* c) { theOtherCar = c; }
+	//getter
 	RacingCar* getOtherCar() { return theOtherCar; }
-	void setXangle(double xd) { motion.Xangle = xd; }
-	void rush(RushType);
 	RushType getRushing() { return isRushing; }
 	bool getFullEnergy() { return fullEnergy; }
 	double getEnergy() { return energy; }
 	double getHP() { return healthPoint; }
-
-	BlenderObject* getCar3D() { return &car3D; }
 	double getAxleDegree() { return motion.axleDegree; }
-	void setAxleDegree(double ad) { motion.axleDegree = ad; }
-
 	double getPosX() { return motion.posX; }
 	double getPosY() { return motion.posY; }
 	double getVelLinear() { return motion.velLinear; }
 	double getVelAngular() { return motion.velAngular; }
 	double getAccLinear() { return motion.accLinear; }
 	double getRoadMod() { return motion.roadMod; }
-	Trap* getTrap() { return &virus; }
-	Tool* getTools() { return &tools; }
-	Obstacle* getObstacle() { return &rock; }
 	bool isOutofRoad() { return outOfRoad; }
 	bool isInAir() { return inAir; }
-
 	Line* getCurrentPos() { return currentPos; }
-	void setCurrentPos(Line* l) { currentPos = l; }
-
 	double getCamHeight() { return motion.camHeight; }
-	void setCamHeight(double ch) { motion.camHeight = ch; }
-
 	double getVelPerpen() { return motion.velPerpen; }
-	void setVelPerpen(double vp) { motion.velPerpen = vp; }
-
-	void setInAir(bool ia) { inAir = ia; }
-
 	const Motion& getMotion() { return motion; }
+	Uint64 gettotaltime() { return totaltime; }
+	int getnavigate() { return navigate; }
+	int getghost() { return ghost; }
 
-	void brake(int = -1);		//car accelerating
+	//setter
+	void setOtherCar(RacingCar* c) { theOtherCar = c; }
+	void setXangle(double xd) { motion.Xangle = xd; }
+	void setCurrentPos(Line* l) { currentPos = l; }
+	void setAxleDegree(double ad) { motion.axleDegree = ad; }
+	void setCamHeight(double ch) { motion.camHeight = ch; }
+	void setVelPerpen(double vp) { motion.velPerpen = vp; }
+	void setInAir(bool ia, double baseheight = 0);
 	void setFrictionType(unsigned long long);
-
-	void setTrap(Line* l) { virus.setTrap(l); }
-	void setTool(Line* l) { tools.setTool(l); }
-	void setObstacle(Line* l) { rock.setObstacle(l); }
 	void setOutofRoad(bool o) { outOfRoad = o; }
-
 	void setPosX(double x) { motion.posX = x; }
 	void setPosY(double y) { motion.posY = y; }
 	void setVelLinear(double v) { motion.velLinear = v; }
 	void setVelAngular(double v) { motion.velAngular = v; }
 	void setAccLinear(double a) { motion.accLinear = a; }
-	void setCamDegree(double cd) { motion.camDegree = cd;  }  //camera degree
+	void setCamDegree(double cd) { motion.camDegree = cd; }  //camera degree
 	void setCamDepth(double cdp) { motion.camDepth = cdp; }  //camera depth
 	void setRoadDegree(double rd) { motion.roadDegree = rd; }
 	void setVelM(double vm) { motion.velM = vm; }
 	void setRoadMod(double rm) { motion.roadMod = rm; }
 
-	void touchobstacle();
+
+	void rush(RushType rushtype);
+	void brake(int type = -1);		//car accelerating
+	void touchobstacle(Obstacle& rock);
 	void isarrive();
-	Uint64 gettotaltime() { return totaltime; }
+	int Dizzy();
+	int islost() { return lost; }
+	void beattacked();
 };
-
-
-
-//previous code
-/*class RacingCar :public Entity
-{
-	
-	int state;	//0: front, 1: right_front, 2:left_front
-
-	//int acc;	//acceleration
-	int direct;
-
-	int healthPoint;
-	bool fullyDamaged;
-	int energyPoint;
-	bool fullyCharged;
-
-	Map* map;
-
-	SDL_TimerID rechargeTimer;
-	Uint32 rechargeInterval;
-	static Uint32 recharge(Uint32, void*);
-
-	void stopTimer();
-	void removeTimer();
-	void HitObstacle();
-
-public:
-	RacingCar();
-	RacingCar(Map*, SDL_Renderer*);
-	~RacingCar();
-
-	//int getAcc() { return acc; }
-	bool getFullyDamage() { return fullyDamaged; }
-	Map* getMap() { return map; }
-
-	//void setAcc(int a) { acc = a; }
-	void turn(int);
-
-	//void init(Map&, SDL_Renderer*);
-	void quit();
-	void startTimer(Uint32);
-
-	void accelerate();
-	bool isHit();
-	
-	void draw(SDL_Renderer*);
-};*/

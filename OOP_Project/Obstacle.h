@@ -3,20 +3,24 @@
 #include "Line.h"
 
 
-class Obstacle
+class Obstacle: public BlenderObject
 {
-	
 	int touchtime;
-	BlenderObject obst3D;
 
 public:
 	Obstacle();
-	~Obstacle();
 	Obstacle(const char* objpath, const char* imgpath);
+	~Obstacle();
 
-	void setObstacle(Line* line);
-	int istouching();
-	void setPos(Point3D p) { obst3D.setPos(p); }
-	void drawObject3D(Point3D pos, double camDeg, double camDepth, Engine* engine, bool clean, double maxy = HEIGHT);
+	//setter
+	void setObstacle(Line* line, int lineindex, int ind);
+
+	//state
+	int istouching(); 
+	
+	void close();
+
+	//virtaul override
+	void draw3D(Point3D pos, double camDeg, double camDepth, Engine* engine, bool& clean, int ind, double maxy = HEIGHT) override;
 };
 

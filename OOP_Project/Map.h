@@ -15,7 +15,8 @@
 #include "SDL_ttf.h"
 using namespace std;
 
-struct Quad {
+struct Quad 
+{
 	Uint32 color;
 	double x1;
 	double y1;
@@ -27,7 +28,6 @@ struct Quad {
 
 class Map
 {
-
 	//road
 	vector<Line> lines;						// road segments constituting the whole road
 	int number_of_lines;					// the number of road segments
@@ -45,6 +45,9 @@ class Map
 	SDL_TimerID accelerateTimer;				// car accelerating timer	
 	static Uint32 accelerate(Uint32, void*);	// the function of car accelerating
 
+	SDL_TimerID mapObjectTimer;
+	static Uint32 Objectlogic(Uint32, void*);	// the function of car accelerating
+
 	void removeTimer();							// remove all timers
 
 	//images
@@ -52,9 +55,13 @@ class Map
 	Image moon;
 
 	//3D object
-	//Cube cube;
-	PhysicalItem cube;
 	Engine engine;
+	PhysicalItem cube;
+
+	Trap virus;
+	Tool tools;
+	Obstacle rock;
+
 
 	//static member
 	static Uint32 grass;
@@ -64,7 +71,6 @@ class Map
 	static SDL_Rect viewPort0;
 	static SDL_Rect viewPort1;
 	static SDL_Rect viewPort2;
-
 	static unsigned long long type;
 
 	//to end the game
@@ -80,23 +86,31 @@ public:
 	Map(SDL_Renderer*, bool = false);		// initialize all members except timers
 	~Map();
 
+	void generateMap();
+
 	// getters
 	RacingCar* getCar1() { return car1; }
 	RacingCar* getCar2() { return car2; }
-	//Engine* getEngine() { return &engine; }
+	EndType getendtype() { return endtype; }
+	int getendtime() { return endtime; }
+	int getrecord() { return record; }
+	Tool* getTool() { return &tools; }
+	Engine* getEng() { return &engine; }
 
 	// timer
 	void startTimer();
 
-	void quit();				// quit every member that need to be quit
-	void draw(SDL_Renderer*);	// draw the map, car, and tools, etc.
-	void rush(RushType);
+	//tools
 	void usetool(ToolType);
-	EndType getendtype() { return endtype; }
-	int getendtime() { return endtime; }
-	int getrecord() { return record; }
-	Engine* getEng() { return &engine; }
+
+	//draw
+	void draw(SDL_Renderer*);	// draw the map, car, and tools, etc.
+
+	//close
+	void quit();				// quit every member that need to be quit
+
 	void changecar();
+
 };
 
 // unused code

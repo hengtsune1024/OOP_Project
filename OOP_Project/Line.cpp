@@ -1,10 +1,23 @@
 #include "Line.h"
 
-Line::Line() :curve(0), x(0), y(0), z(0), type(0), clip(0), slope(0), sprite(NULL), actsprite(NULL)
+Line::Line() : x(0), y(0), z(0), curve(0), type(0), clip(0), slope(0), sprite(NULL), actsprite(NULL)
 {}
 
 Line::~Line() {
     //no need to delete the image, since they all point to the image object in Map class
+    sprite = actsprite = NULL;
+}
+
+void Line::setAll(double _x, double _y, double _z, double _s, unsigned long long _t, double rd, double rvm, double max)
+{ 
+    z = _z; 
+    x = _x; 
+    y = _y; 
+    slope = _s; 
+    type = _t; 
+    roadDegree = rd; 
+    roadVelM = rvm;
+    criticalVel = max;
 }
 
 void Line::project(int camX, int camY, int camZ, double camDegree, double camDepth)

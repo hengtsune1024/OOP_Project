@@ -1,41 +1,78 @@
 #include "RacingCar.h"
 RacingCar::RacingCar() :
 	isRushing(NONE), fullEnergy(true), energy(100.0), healthPoint(100.0),
-	motion(MOTION_INIT), roadtype(NORMAL), outOfRoad(false), inAir(false), car3D("../images/car1.txt", "../images/car1.bmp", 500)
+	motion(MOTION_INIT), roadtype(NORMAL), outOfRoad(false), inAir(false), BlenderObject("../images/car1.txt", "../images/car1.bmp", 500, 1)
 {}
 
-RacingCar::~RacingCar() {
-	/*
-	if (image != NULL) {
-		delete[]image;
-		image = NULL;
-	}
-	*/
-}
+RacingCar::~RacingCar()
+{}
 
 RacingCar::RacingCar(const char* obfpath, const char* imgpath, SDL_Renderer* renderer, Line* initpos) :
-	virus("../images/coronavirus/", 15, renderer), tools("../images/star/", 5, renderer), rock("../images/rock/rock.txt", "../images/rock/rock.bmp"),
+
 	isRushing(NONE), fullEnergy(true), energy(100.0), healthPoint(100.0), motion(MOTION_INIT), accState(0), roadtype(NORMAL),
-	currentPos(initpos), car3D(obfpath, imgpath, 1000), theOtherCar(NULL), starttime(SDL_GetTicks64() + 3000), timing("00:00:000"), arrive(false), totaltime(0), invincible(0),
-	timetext(timing, "../fonts/akabara-cinderella.ttf", 20, 0x02, { 255, 255, 255 }, SHADED, { 0, 0, 0 }, renderer, { 200, 10 }, { 10, 10 }, NULL, SDL_FLIP_NONE, 255)
-{
-	
-}
+	currentPos(initpos), BlenderObject(obfpath, imgpath, 1000, 1), theOtherCar(NULL), starttime(SDL_GetTicks64() + 3000), timing("00:00:000"), arrive(false), totaltime(0), invincible(0),
+	timetext(timing, "../fonts/akabara-cinderella.ttf", 20, 0x02, { 255, 255, 255 }, SHADED, { 0, 0, 0 }, renderer, { 200, 10 }, { 10, 10 }, NULL, SDL_FLIP_NONE, 255),
+	dizzy(0), lost(0), slow(0)
+{}
 
 void RacingCar::quit()
 {
 	// Remove timer in case the call back was not called	
 	SDL_RemoveTimer(cartimer);
-	SDL_RemoveTimer(chargeTimer);
-	virus.close();
-	tools.close();
+	BlenderObject::close();
 	timetext.close();
 }
-void RacingCar::draw(SDL_Renderer* renderer,Engine* engine, bool clean)
+
+bool RacingCar::collided() {
+	if (theOtherCar == NULL)
+		return false;
+	//collision
+	double dx = (motion.posY + CAMERA_CARMIDPOINT_DIST * sin(motion.axleDegree)) - (theOtherCar->motion.posY + CAMERA_CARMIDPOINT_DIST * sin(theOtherCar->motion.axleDegree));
+	double dz = (motion.posX + CAMERA_CARMIDPOINT_DIST * cos(motion.axleDegree)) - (theOtherCar->motion.posX + CAMERA_CARMIDPOINT_DIST * cos(theOtherCar->motion.axleDegree));
+
+	if (dx * dx + dz * dz < 4.0 * (CAR_HALF_LENGTH * CAR_HALF_LENGTH + CAR_HALF_WIDTH * CAR_HALF_WIDTH) * 0.9)
+	{
+		double rd = theOtherCar->motion.axleDegree - motion.axleDegree;
+		double cos_ = cos(rd), sin_ = sin(rd);//CAR_HALF_LENGTHcos_  CAR_HALF_WIDTH
+		{
+			double rz[4] = { CAR_HALF_LENGTH * cos_ - CAR_HALF_WIDTH * sin_ - dz,CAR_HALF_LENGTH * cos_ + CAR_HALF_WIDTH * sin_ - dz ,
+							-CAR_HALF_LENGTH * cos_ - CAR_HALF_WIDTH * sin_ - dz ,-CAR_HALF_LENGTH * cos_ + CAR_HALF_WIDTH * sin_ - dz };
+			double rx[4] = { CAR_HALF_LENGTH * sin_ + CAR_HALF_WIDTH * cos_ - dx,CAR_HALF_LENGTH * sin_ - CAR_HALF_WIDTH * cos_ - dx,
+							-CAR_HALF_LENGTH * sin_ + CAR_HALF_WIDTH * cos_ - dx,-CAR_HALF_LENGTH * sin_ - CAR_HALF_WIDTH * cos_ - dx };
+			for (int i = 0; i < 4; ++i) {
+				if (rz[i] < CAR_HALF_LENGTH && rz[i] > -CAR_HALF_LENGTH && rx[i] < CAR_HALF_WIDTH && rx[i] > -CAR_HALF_WIDTH) {
+					//collided
+					return true;
+				}
+			}
+		}
+		rd = -rd;
+		sin_ = -sin_;
+		double rz[4] = { CAR_HALF_LENGTH * cos_ - CAR_HALF_WIDTH * sin_ - dz,CAR_HALF_LENGTH * cos_ + CAR_HALF_WIDTH * sin_ - dz ,
+						-CAR_HALF_LENGTH * cos_ - CAR_HALF_WIDTH * sin_ - dz ,-CAR_HALF_LENGTH * cos_ + CAR_HALF_WIDTH * sin_ - dz };
+		double rx[4] = { CAR_HALF_LENGTH * sin_ + CAR_HALF_WIDTH * cos_ - dx,CAR_HALF_LENGTH * sin_ - CAR_HALF_WIDTH * cos_ - dx,
+						-CAR_HALF_LENGTH * sin_ + CAR_HALF_WIDTH * cos_ - dx,-CAR_HALF_LENGTH * sin_ - CAR_HALF_WIDTH * cos_ - dx };
+
+		for (int i = 0; i < 4; ++i) {
+			if (rz[i] < CAR_HALF_LENGTH && rz[i] > -CAR_HALF_LENGTH && rx[i] < CAR_HALF_WIDTH && rx[i] > -CAR_HALF_WIDTH) {
+				//collided, 
+				return true;
+			}
+		}
+	}
+	return false;
+}
+
+void RacingCar::draw3D(Point3D campos, double camDeg, double camDepth, Engine* engine, bool& clean, int ind, double maxy) 
+{
+	BlenderObject_draw(campos, { -motion.Xangle,objectList[0].rotation.y,0 }, 0, motion.camDepth, engine, clean, maxy, 0);
+	clean = false;
+}
+
+void RacingCar::draw(SDL_Renderer* renderer, Engine* engine, bool& clean)
 {
 	//car image
-
-	car3D.draw({ 0,0,0 }, { -motion.Xangle,car3D.getRotation().y,0 }, 0, motion.camDepth, engine, clean, HEIGHT);
+	draw3D({0,0,0}, motion.camDegree, motion.camDepth, engine, clean, HEIGHT);
 
 	//energy bottle
 	roundedBoxColor(renderer, 10, 10, 10 + WIDTH / 4, 30, 2, 0xff828282);
@@ -70,73 +107,92 @@ void RacingCar::draw(SDL_Renderer* renderer,Engine* engine, bool clean)
 	timetext.draw();
 }
 
-void RacingCar::drawOtherCar(SDL_Renderer* renderer, Engine* engine, bool clean, double maxy, double camH) {
+void RacingCar::drawOtherCar(SDL_Renderer* renderer, Engine* engine, bool& clean, double maxy, double camH) {
 	/*
 	car3D.draw(
 		{ motion.posY - theOtherCar->getPosY() ,camH - theOtherCar->getCamHeight() - theOtherCar->getCurrentPos()->gety(),motion.posX - theOtherCar->getPosX()},
 		{ 0,(theOtherCar->motion.axleDegree - motion.axleDegree),0},
 		motion.camDegree, motion.camDepth, engine, clean, maxy);*/
-	theOtherCar->car3D.draw(
+	theOtherCar->BlenderObject_draw(
 		{ motion.posY - theOtherCar->getPosY() ,currentPos->gety() - theOtherCar->getCurrentPos()->gety() + 0,motion.posX - theOtherCar->getPosX()},
 		{ -theOtherCar->motion.Xangle,theOtherCar->motion.axleDegree,0 },
-		motion.camDegree, motion.camDepth, engine, clean, maxy);
+		motion.camDegree, motion.camDepth, engine, clean, maxy, 0);
+	clean = false;
 }
 
 Uint32 RacingCar::changeData(Uint32 interval, void* param)
 {
-	RacingCar* p = (RacingCar*)param;
-	if (!p->arrive)
+	RacingCar* car = (RacingCar*)param;
+
+	//time counting
+	if (!car->arrive)
 	{
-		int totaltime = SDL_GetTicks64() - p->starttime;
+		int totaltime = SDL_GetTicks64() - car->starttime;
 		totaltime < 0 ? totaltime = 0 : 1;
 		int ms = totaltime % 1000;
 		totaltime /= 1000;
 		int sec = totaltime % 60;
 		totaltime -= sec;
 		int min = totaltime / 60;
-		sprintf_s(p->timing, "%02d:%02d:%03d", min, sec, ms);
+		sprintf_s(car->timing, "%02d:%02d:%03d", min, sec, ms);
 	}
-	if (SDL_GetTicks64() - p->invincible >= 5000)
-		p->invincible = 0;
 
+	//invincible tool
+	if (SDL_GetTicks64() - car->invincible >= 5000)
+		car->invincible = 0;
 
-	Point3D rot = p->car3D.getRotation();
-	double dif = p->motion.axleDegree - p->motion.camDegree;
+	//navigate tool
+	if (SDL_GetTicks64() - car->navigate >= 5000)
+		car->navigate = 0;
+
+	//ghost tool
+	if (SDL_GetTicks64() - car->ghost >= 5000)
+		car->ghost = 0;
+
+	//dizzy
+	if (SDL_GetTicks64() - car->dizzy >= 5000)
+		car->dizzy = 0;
+
+	//lost
+	if (SDL_GetTicks64() - car->lost >= 5000)
+		car->lost = 0;
+
+	//speeddown
+	if (SDL_GetTicks64() - car->slow >= 10000)
+		car->slow = 0;
+	if (car->slow)
+		car->setVelLinear(car->getVelLinear() * 0.7);
+
+	//car rotation
+	double dif = car->motion.axleDegree - car->motion.camDegree;
 
 	if (dif < -1e-6) {
-		rot.y -= 0.06;
-		if (rot.y < dif)
-			rot.y = dif;
+		car->objectList[0].rotation.y -= 0.06;
+		if (car->objectList[0].rotation.y < dif)
+			car->objectList[0].rotation.y = dif;
 	}
 	else if (dif > 1e-6) {
-		rot.y += 0.06;
-		if (rot.y > dif)
-			rot.y = dif;
+		car->objectList[0].rotation.y += 0.06;
+		if (car->objectList[0].rotation.y > dif)
+			car->objectList[0].rotation.y = dif;
 	}
 
-	p->car3D.setRotation(rot);
+	//charge
+	if (!car->fullEnergy) {
+		car->energy += ENERGY_RECOVER;
+		if (car->energy > 100.0) {
+			car->energy = 100.0;
+			car->fullEnergy = true;
+		}
+	}
+
 	return interval;
 }
 
 void RacingCar::startTimer(Uint32 t)
 {
-	time = t;
-	cartimer = SDL_AddTimer(time, changeData, this); // Set Timer callback
-	virus.startTimer(TRAP_INTERVAL);
-	tools.startTimer(50);
-	chargeTimer = SDL_AddTimer(CHARGE_INTERVAL, charge, this);
+	cartimer = SDL_AddTimer(50, changeData, this); // Set Timer callback
 }
-
-
-void RacingCar::RacingCar::stopTimer()
-{
-	time = 0;
-}
-/*
-void RacingCar::turn(int d)
-{
-	direct = d;
-} */
 
 void RacingCar::setFrictionType(unsigned long long rt) {
 	if ((rt & NORMAL) || (rt & HIGH_FRICTION) || (rt & LOW_FRICTION)) {
@@ -222,23 +278,6 @@ void RacingCar::brake(int type)
 	//cout << motion.accLinear << ',' << motion.velLinear << endl;
 }
 
-Uint32 RacingCar::charge(Uint32 interval, void* para) {
-
-	RacingCar* car = (RacingCar*)para;
-
-	if (car->fullEnergy){
-		return interval;
-	}
-
-	car->energy += ENERGY_RECOVER;
-	if (car->energy > 100.0) {
-		car->energy = 100.0;
-		car->fullEnergy = true;
-	}
-
-	return interval;
-}
-
 void RacingCar::rush(RushType r) 
 {
 	switch (r)
@@ -286,21 +325,60 @@ void RacingCar::rush(RushType r)
 	*/
 }
 
-void RacingCar::usetool(ToolType type)
+int RacingCar::usetool(ToolType type, Tool* tools, bool car)
 {
-	switch (tools.usetool(type))
+	switch (tools->usetool(type, car))
 	{
-	case SPEEDUP:
-		rush(TOOL);
-		break;
-	case INVINCIBLE:
-		printf("INVINCIBLE NOW\n");
-		invincible = SDL_GetTicks64();
-		break;
+		case SPEEDUP:
+			rush(TOOL);
+			break;
+		case INVINCIBLE:
+			invincible = SDL_GetTicks64();
+			break;
+		case HEALING:
+			healthPoint += 30;
+			if (healthPoint >= 100)
+				healthPoint = 100;
+			break;
+		case NAVIGATION:
+			navigate = SDL_GetTicks64();
+			break;
+		case LIGHTNING:
+			return 1;
+			break;
+		case GHOST:
+			ghost = SDL_GetTicks64();
+			break;
+		case SWITCH:
+			tools->getalltools(car);
+			return 1;
+			break;
 	}
+	return 0;
 }
 
-void RacingCar::touchobstacle()
+void RacingCar::gettrap(int type)
+{
+	switch (type)
+	{
+	case STAIN:
+		break;
+	case BANANA:
+		setVelLinear(0);
+		lost = SDL_GetTicks64();
+		break;
+	case SPEEDDOWN:
+		slow = SDL_GetTicks64();
+		break;
+	case BOMB:
+		healthPoint -= 50;
+		setVelLinear(0);
+		dizzy = SDL_GetTicks64();
+		break;
+	default:;
+	}
+}
+void RacingCar::touchobstacle(Obstacle& rock)
 {
 	if (!rock.istouching())
 	{
@@ -321,7 +399,6 @@ void RacingCar::touchobstacle()
 	}
 }
 
-
 void RacingCar::isarrive() 
 {
 	if (!arrive)
@@ -332,62 +409,26 @@ void RacingCar::isarrive()
 	}
 
 }
-//previous code
-/*
-void RacingCar::init() {
-	state = 0;
-	//acc = 0;
-	direct = FRONT;
-	healthPoint = MAX_HP;
-	fullyDamaged = false;
-	energyPoint = MAX_ENERGY;
-	fullyCharged = true;
-	rechargeInterval = 0;
-	for (int i = 0; i < NUM_CARIMG; ++i) {
-		setImage(RACINGCAR_PATH, NUM_CARIMG, renderer,0);
-	}
 
-	map = &m;
-	map->setCar(this);
-	cout << "[RacingCar] Car initialized" << endl;
+void RacingCar::setInAir(bool ia, double baseheight) {
+	inAir = ia;
+	if (inAir)
+		motion.baseHeight = baseheight;
 }
 
+int RacingCar::Dizzy()
+{
+	return dizzy;
+}
 
-		switch (roadtype) {
-			case NORMAL:
-				motion.accLinear = sign * FRICTION_ACC;
-				break;
-			case HIGH_FRICTION:
-				motion.accLinear = sign * HIGH_FRICTION_ACC;
-				break;
-			case LOW_FRICTION:
-				motion.accLinear = sign * LOW_FRICTION_ACC;
-				break;
-		}
-		switch (roadtype) {
-			case NORMAL:
-				motion.accLinear = ACCELERATION - FRICTION_ACC;
-				break;
-			case HIGH_FRICTION:
-				motion.accLinear = ACCELERATION - HIGH_FRICTION_ACC;
-				break;
-			case LOW_FRICTION:
-				motion.accLinear = ACCELERATION - LOW_FRICTION_ACC;
-				break;
-		}
-		switch (roadtype) {
-			case NORMAL:
-				motion.accLinear = -ACCELERATION + FRICTION_ACC;
-				break;
-			case HIGH_FRICTION:
-				motion.accLinear = -ACCELERATION + HIGH_FRICTION_ACC;
-				break;
-			case LOW_FRICTION:
-				motion.accLinear = -ACCELERATION + LOW_FRICTION_ACC;
-				break;
-		}
-*/
+void RacingCar::beattacked()
+{
+	setVelLinear(0);
+	healthPoint -= 20;
+	dizzy = SDL_GetTicks64();
+}
 
+//previous code
 
 /*
 void RacingCar::setPosition(int xx, int yy)

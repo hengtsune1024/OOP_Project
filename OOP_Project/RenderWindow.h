@@ -8,8 +8,10 @@ class RenderWindow
 {
 	SDL_Window* window;
 	SDL_Renderer* renderer;
+
 public:
 	RenderWindow() :window(nullptr), renderer(nullptr) {}
+	~RenderWindow() {}
 
 	void init(bool);
 	void quit();
@@ -18,6 +20,5 @@ public:
 	void display();
 
 	SDL_Renderer* GetRenderer() { return renderer; }
-
 };
 

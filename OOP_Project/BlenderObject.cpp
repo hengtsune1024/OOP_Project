@@ -1,30 +1,24 @@
 #include "BlenderObject.h"
 
-BlenderObject::BlenderObject(const char* objectFile, const char* textureFile, double scale)
+BlenderObject::BlenderObject(const char* objectFile, const char* textureFile, double scale, int num): objectList(num)
 {
-	this->scale = scale;
-
-	position = { 0,-CAMERA_HEIGHT,CAMERA_CARMIDPOINT_DIST };
-	rotation = { 0,0,0 };
-	img.surface = SDL_LoadBMP(textureFile);
-	if (img.surface == NULL) {
-		printf("error: surface cannot be created\n");
-		printf("%s", textureFile);
-		exit(1);
-	}
-	img.pixels = (Uint32*)img.surface->pixels;
-	img.width = img.surface->w;
-	img.height = img.surface->h;
-	Load(objectFile);
+	img.loadSurface(textureFile);
+	Load(objectFile, scale);
 }
 
-BlenderObject::~BlenderObject() {
+BlenderObject::~BlenderObject() 
+{}
+
+void BlenderObject::close() {
 	for (int i = 0; i < triangles.size(); ++i)
 		delete[]triangles[i];
-	SDL_FreeSurface(img.surface);
+	img.close();
 }
 
-void BlenderObject::Load(const char* objectFile)
+void BlenderObject::logic() 
+{}
+
+void BlenderObject::Load(const char* objectFile, double scale)
 {
 	// Load object
 	FILE* f;
@@ -72,11 +66,11 @@ void BlenderObject::Load(const char* objectFile)
 				fscanf(f, "%d%c%d%c%d", &a, &s, &b, &s, &c);
 				p2 = {vertices[a - 1].x * scale, vertices[a - 1].y * scale, vertices[a - 1].z * scale, texturePoints[b - 1].u, texturePoints[b - 1].v};
 				triangles.push_back(new Triangle(p0, p2, p1));
-				if (fgetc(f) != '\n') {
-					fscanf(f, "%d%c%d%c%d", &a, &s, &b, &s, &c);
-					p3 = { vertices[a - 1].x * scale, vertices[a - 1].y * scale, vertices[a - 1].z * scale, texturePoints[b - 1].u, texturePoints[b - 1].v };
-					triangles.push_back(new Triangle(p0, p1, p3));
-				}
+				//if (fgetc(f) != '\n') {
+				//	fscanf(f, "%d%c%d%c%d", &a, &s, &b, &s, &c);
+				//	p3 = { vertices[a - 1].x * scale, vertices[a - 1].y * scale, vertices[a - 1].z * scale, texturePoints[b - 1].u, texturePoints[b - 1].v };
+				//	triangles.push_back(new Triangle(p0, p1, p3));
+				//}
 			}
 			else {
 				fscanf(f," ");
@@ -97,8 +91,7 @@ void BlenderObject::Logic(double elapsedTime)
 {
 	rotation.y += 1 * elapsedTime;
 }*/
-
-void BlenderObject::draw(Point3D pos, Point3D worldRot, double camDeg, double camDepth, Engine* engine, bool clean, double maxy)
+void BlenderObject::BlenderObject_draw(Point3D pos, Point3D worldRot, double camDeg, double camDepth, Engine* engine, bool clean, double maxy, int ind)
 {
 	Uint32* bmp = engine->getPixels();
 	if (clean) {
@@ -109,7 +102,7 @@ void BlenderObject::draw(Point3D pos, Point3D worldRot, double camDeg, double ca
 	std::vector<Triangle*> allTriangles;
 	for (int i = 0; i < triangles.size(); ++i) {
 		//axle rotate
-		triangles[i]->calculateWorldPoints(worldRot, position, engine);
+		triangles[i]->calculateWorldPoints(worldRot, objectList[ind].position, engine);
 		triangles[i]->calculateCameraPoints(pos, camDeg, engine);
 
 		std::vector<Triangle*> clippedTriangles = triangles[i]->GetZClippedTriangles();
@@ -120,11 +113,12 @@ void BlenderObject::draw(Point3D pos, Point3D worldRot, double camDeg, double ca
 
 	for (int i = 0; i < allTriangles.size(); ++i) {
 		//camera rotate
-		allTriangles[i]->calculateDrawPoints({ 0,0,0 }, position, camDepth, engine);
+		allTriangles[i]->calculateDrawPoints({ 0,0,0 }, objectList[ind].position, camDepth, engine);
 		if (allTriangles[i]->getNormalZ() < 0) {
 			std::vector<Triangle*> clippedTriangles = allTriangles[i]->GetClippedTriangles();
 			for (int j = 0; j < clippedTriangles.size(); ++j) {
 				clippedTriangles[j]->draw(bmp, img, engine->getZBuffer(), maxy);
+				
 				delete clippedTriangles[j];
 			}
 		}

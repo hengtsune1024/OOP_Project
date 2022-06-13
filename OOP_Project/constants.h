@@ -1,6 +1,7 @@
 #pragma once
 
-#define POS 100
+#define PI 3.1415926535
+
 #define CUBE_SIZE 1000
 #define ROCK_SIZE 3000
 
@@ -9,9 +10,10 @@
 #define HEIGHT 600
 #define TITLE "OOP Project"		//window title
 
-//image
-//#define ALL_REGION -1	//when drawing image, pass {ALL_REGION} into SDL_Rect src to draw the whole image 
-						//or into SDL_Rect dst to fill image into the whole window 
+//game page
+#define MENU 1
+#define RECORD 2
+#define MAPSELECT 3
 
 //text
 #define SOLID 100
@@ -19,9 +21,16 @@
 #define BLENDED 102
 
 //map
-#define NUM_LINE 5000		//
+#define NUM_LINE 10000		//
 #define INITIAL_POS 30
-#define FINAL_POS 4200
+#define FINAL_POS 9500
+#define NUM_OBSTACLE 18
+#define NUM_TRAP 9
+#define NUM_TOOL 3
+#define NUM_PHYSICALITEM 2
+#define OBSTACLE_HALFLENGTH 10
+#define TOOL_HALFLENGTH 5
+#define TRAP_HALFLENGTH 5
 
 //camera
 #define FIELD_OF_VIEW 45
@@ -35,7 +44,6 @@
 #define MOVE_INTERVAL 50
 #define ACCELERATE_INTERVAL 50
 #define CAR_INTERVAL 50
-#define CHARGE_INTERVAL 50
 #define TRAP_INTERVAL 50
 #define STAIN_INTERVAL 3000
 
@@ -95,7 +103,7 @@ enum TrapType {
 };
 
 enum ToolType {
-	SPEEDUP, INVINCIBLE, ACCELERATE_SHORT, ACCELERATE_LONG, HEALING, NAVIGATION, LIGHTNING, GHOST, SWITCH
+	SPEEDUP, INVINCIBLE, HEALING, NAVIGATION, LIGHTNING, GHOST, SWITCH, ACCELERATE_SHORT, ACCELERATE_LONG
 };
 
 enum EndType {
