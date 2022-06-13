@@ -413,12 +413,20 @@ void RacingCar::touchobstacle(Obstacle& rock, int ind, vector<Line>& lines)
 			return;
 		}
 		if (motion.velLinear > 0) {
-			motion.posX -= ROCK_SIZE * cos(motion.axleDegree);
-			motion.posY -= ROCK_SIZE * sin(motion.axleDegree);
+			motion.posX -= ROCK_SIZE / 2 * cos(motion.axleDegree);
+			motion.posY -= ROCK_SIZE / 2 * sin(motion.axleDegree);
+			if (collided()) {
+				theOtherCar->motion.posX -= ROCK_SIZE / 2 * cos(motion.axleDegree);
+				theOtherCar->motion.posY -= ROCK_SIZE / 2 * sin(motion.axleDegree);
+			}
 		}
 		else if (motion.velLinear < 0) {
-			motion.posX += ROCK_SIZE * cos(motion.axleDegree);
-			motion.posY += ROCK_SIZE * sin(motion.axleDegree);
+			motion.posX += ROCK_SIZE / 2 * cos(motion.axleDegree);
+			motion.posY += ROCK_SIZE / 2 * sin(motion.axleDegree);
+			if (collided()) {
+				theOtherCar->motion.posX += ROCK_SIZE / 2 * cos(motion.axleDegree);
+				theOtherCar->motion.posY += ROCK_SIZE / 2 * sin(motion.axleDegree);
+			}
 		}
 		motion.velLinear = -motion.velLinear * 0.5;
 
