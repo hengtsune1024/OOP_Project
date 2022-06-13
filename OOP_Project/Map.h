@@ -82,11 +82,11 @@ class Map
 
 public:
 
-	Map();					// default constructor (initialize nothing)
 	Map(SDL_Renderer*, bool = false);		// initialize all members except timers
 	~Map();
 
 	void generateMap();
+	void carCollision(RacingCar* car);
 
 	// getters
 	RacingCar* getCar1() { return car1; }
@@ -96,6 +96,8 @@ public:
 	int getrecord() { return record; }
 	Tool* getTool() { return &tools; }
 	Engine* getEng() { return &engine; }
+	vector<Line>* getLines() { return &lines; }
+	Obstacle* getObstacle() { return &rock; }
 
 	// timer
 	void startTimer();

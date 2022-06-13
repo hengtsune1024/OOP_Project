@@ -112,6 +112,9 @@ public:
 	double getVelPerpen() { return motion.velPerpen; }
 	const Motion& getMotion() { return motion; }
 	Uint64 gettotaltime() { return totaltime; }
+	double getVelM() { return motion.velM; }
+	int getIndex() { return motion.posX / SEGMENT_LENGTH; }
+	int getInvincible() { return invincible; }
 	int getnavigate() { return navigate; }
 	int getghost() { return ghost; }
 
@@ -136,12 +139,21 @@ public:
 	void setVelM(double vm) { motion.velM = vm; }
 	void setRoadMod(double rm) { motion.roadMod = rm; }
 
+	
+	
+	//operator
+	void operator-=(double);
 
 	void rush(RushType rushtype);
 	void brake(int type = -1);		//car accelerating
-	void touchobstacle(Obstacle& rock);
+	void touchobstacle(Obstacle& rock, int ind, vector<Line>& lines);
 	void isarrive();
 	int Dizzy();
 	int islost() { return lost; }
 	void beattacked();
 };
+
+/*void setInvincible() {
+		invincible = SDL_GetTicks64();
+		objectList[0].texindex = 1;
+	}*/

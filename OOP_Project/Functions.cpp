@@ -168,6 +168,27 @@ void Functions::Victory(EndType type)
 	{
 		endtext.setString("FAILED");
 		endtext.setPos({ 130, 175 });
+		endtext.generateTexture();
+		endtext.draw();
+		endtext.close();
+		endtext.setString("HP = 0");
+		endtext.setPos({ 130, 285 });
+	}
+	else if (type == ALLDEAD) 
+	{
+		endtext.setString("FAILED");
+		endtext.generateTexture();
+		endtext.setPos({ 130, 175 });
+		endtext.draw();
+		endtext.setPos({ 730, 175 });
+		endtext.draw();
+
+		endtext.close();
+		endtext.setString("HP = 0");
+		endtext.generateTexture();
+		endtext.setPos({ 130, 285 });
+		endtext.draw();
+		endtext.setPos({ 730, 285 });
 	}
 	endtext.generateTexture();
 	endtext.draw();
@@ -183,20 +204,20 @@ void Functions::Grade(EndType type, int record)
 		setrecord(record);
 		switch (type)
 		{
-		case PLAYER1:
-			gradetext.setString("Winner : Player 1 ");
-			gradetext.setPos({ 300, 10 });
+			case PLAYER1:
+				gradetext.setString("Winner : Player 1 ");
+				gradetext.setPos({ 300, 10 });
 
-			break;
-		case PLAYER2:
-			gradetext.setString("Winner : Player 2 ");
-			gradetext.setPos({ 300, 10 });
+				break;
+			case PLAYER2:
+				gradetext.setString("Winner : Player 2 ");
+				gradetext.setPos({ 300, 10 });
 
-			break;
-		case VICTORY:
-			gradetext.setString("Victory");
-			gradetext.setPos({ 430, 10 });
-			break;
+				break;
+			case VICTORY:
+				gradetext.setString("Victory");
+				gradetext.setPos({ 430, 10 });
+				break;
 		}
 		gradetext.generateTexture();
 		gradetext.draw();
@@ -228,20 +249,24 @@ void Functions::Grade(EndType type, int record)
 	{
 		switch (type)
 		{
-		case PLAYER1:
-			gradetext.setString("Winner : Player 1 ");
-			gradetext.setPos({ 300, 10 });
+			case PLAYER1:
+				gradetext.setString("Winner : Player 1 ");
+				gradetext.setPos({ 300, 10 });
 
-			break;
-		case PLAYER2:
-			gradetext.setString("Winner : Player 2 ");
-			gradetext.setPos({ 300, 10 });
+				break;
+			case PLAYER2:
+				gradetext.setString("Winner : Player 2 ");
+				gradetext.setPos({ 300, 10 });
 
-			break;
-		case FAILED:
-			gradetext.setString("FAILED");
-			gradetext.setPos({ 430, 10 });
-			break;
+				break;
+			case FAILED:
+				gradetext.setString("FAILED");
+				gradetext.setPos({ 430, 10 });
+				break;
+			case ALLDEAD:
+				gradetext.setString("ALL DEAD");
+				gradetext.setPos({ 400, 10 });
+				break;
 		}
 		gradetext.generateTexture();
 		gradetext.draw();
@@ -362,7 +387,7 @@ void Functions::setrecord(int r)
 			rec[j] = r;
 		}
 	}
-	FILE* f = fopen("../bin/record.dat", "wb");
+	FILE* f = fopen("../bin/record.dat", "ab");
 	fseek(f, 0, SEEK_SET);
 	fwrite(rec, sizeof(rec), 1, f);
 	fclose(f);

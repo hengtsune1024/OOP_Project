@@ -14,7 +14,6 @@ class Trap : public BlenderObject
 	TrapSet car1trap;
 	TrapSet car2trap;
 
-	vector<bool> side;
 	Image stain;
 
 public:
@@ -29,10 +28,11 @@ public:
 	int getNearestTrap(int startpos);
 
 	void drawStain(SDL_Renderer* renderer,  bool car);
+	bool hitTrap(double carY, double height, double mod, int ind);
 
 	//virtaul override
 	void draw3D(Point3D campos, double camDeg, double camDepth, Engine* engine, bool& clean, int ind, double maxy = HEIGHT) override;
-	void logic() override;
+	void logic(void* = NULL, void* = NULL) override;
 
 	void close();
 };

@@ -1,8 +1,20 @@
 #include "BlenderObject.h"
 
-BlenderObject::BlenderObject(const char* objectFile, const char* textureFile, double scale, int num): objectList(num)
+BlenderObject::BlenderObject(const char* objectFile, const char* textureFile, double scale, int num, int texnum) :
+	objectList(num), clip(HEIGHT), textureNum(texnum)
 {
-	img.loadSurface(textureFile);
+	char path[50] = "\0";
+	img = new Image3D[texnum];
+	if (texnum == 1) {
+		img[0].loadSurface(textureFile);
+	}
+	else 
+	{
+		for (int i = 0; i < texnum; ++i) {
+			sprintf_s(path, "%s%d.bmp", textureFile, i + 1);
+			img[i].loadSurface(path);
+		}
+	}
 	Load(objectFile, scale);
 }
 
@@ -12,10 +24,13 @@ BlenderObject::~BlenderObject()
 void BlenderObject::close() {
 	for (int i = 0; i < triangles.size(); ++i)
 		delete[]triangles[i];
-	img.close();
+	for (int i = 0; i < textureNum; ++i) {
+		img[i].close();
+	}
+	delete[]img;
 }
 
-void BlenderObject::logic() 
+void BlenderObject::logic(void*, void*)
 {}
 
 void BlenderObject::Load(const char* objectFile, double scale)
@@ -117,7 +132,7 @@ void BlenderObject::BlenderObject_draw(Point3D pos, Point3D worldRot, double cam
 		if (allTriangles[i]->getNormalZ() < 0) {
 			std::vector<Triangle*> clippedTriangles = allTriangles[i]->GetClippedTriangles();
 			for (int j = 0; j < clippedTriangles.size(); ++j) {
-				clippedTriangles[j]->draw(bmp, img, engine->getZBuffer(), maxy);
+				clippedTriangles[j]->draw(bmp, img[objectList[ind].texindex], engine->getZBuffer(), maxy);
 				
 				delete clippedTriangles[j];
 			}

@@ -39,12 +39,14 @@ public:
     double getRoadVelM() { return roadVelM; }
     double getCritVel() { return criticalVel; }
     double getCurve() { return curve; }
+    double getClip() { return clip; }
 
     //setter
     void setz(double _z) { z = _z; }
     void sety(double _y) { y = _y; }
     void setx(double _x) { x = _x; }
     void addType(RoadType t) { type |= t; }
+    void deleteType(RoadType t) { type -= t; }
     void setType(unsigned long long t) { type = t; }
     void setAll(double _x, double _y, double _z, double _s, unsigned long long _t, double rd, double rvm, double max);
     void setSprite(Image* i, double sX) { sprite = i; spriteX = sX; }

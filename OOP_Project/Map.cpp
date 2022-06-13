@@ -9,21 +9,14 @@ SDL_Rect Map::viewPort1 = { 0,0,WIDTH,HEIGHT };
 SDL_Rect Map::viewPort2 = { WIDTH,0,WIDTH,HEIGHT };
 unsigned long long Map::type = 0;
 
-Map::Map() {}
-
 Map::Map(SDL_Renderer* renderer, bool dual) : lines(NUM_LINE), number_of_lines(NUM_LINE), dualMode(dual), endtype(PLAYING), record(0),
-	car1(new RacingCar("../images/car/car.txt", "../images/car/car.bmp", renderer, &lines[INITIAL_POS])),
-	car2(dual ? new RacingCar("../images/car/car.txt", "../images/car/car.bmp", renderer, &lines[INITIAL_POS]) : NULL),
+	car1(new RacingCar("../images/car/car.txt", "../images/car/car", renderer, &lines[INITIAL_POS])),
+	car2(dual ? new RacingCar("../images/car/car.txt", "../images/car/car", renderer, &lines[INITIAL_POS]) : NULL),
 	streetlight("../images/streetlight.png", renderer), moon("../images/moon.png", renderer),
-	cube("../images/cube/cube.txt", "../images/cube/cube.bmp", &lines, CUBE_SIZE / 2.457335),
+	cube("../images/cube/cube.txt", "../images/cube/cube", &lines, CUBE_SIZE / 2.457335),
 	virus(renderer), tools(renderer), rock("../images/rock/rock.txt", "../images/rock/rock.bmp")
 {
 	generateMap();
-
-	//map object
-	cube.setItem(&lines[150], 150, 0);
-	cube.setItem(&lines[450], 450, 1);
-	
 
 	if (dualMode) {
 		car1->setPosY(lines[INITIAL_POS].getx() - ROAD_WIDTH / 2);
@@ -60,49 +53,11 @@ void Map::generateMap()
 	vector<int> trapindex(NUM_TRAP, 0);
 	vector<int> toolindex(NUM_TOOL, 0);
 	vector<int> obstacleindex(NUM_OBSTACLE, 0);
+	vector<int> physicalindex(NUM_PHYSICALITEM, 0);
 	bool table[9000] = { false };
 
 	int upper, lower, minDist, range;
-	range = 9000 / NUM_TRAP;
-	minDist = range / 2;
-	for (int i = 0; i < NUM_TRAP; ++i) {
-		lower = 100 + range * i + 1;
-		if (i > 0 && lower < trapindex[i - 1] + minDist + 1)
-			lower = trapindex[i - 1] + minDist + 1;
-		upper = 100 + range * (i + 1);
-		do {
-			trapindex[i] = (upper - lower) * (rand() / (RAND_MAX + 1.0)) + lower;
-		} while (table[trapindex[i]]);
-		for (int j = trapindex[i] >= 10 ? trapindex[i] - 10 : 0; j <= trapindex[i] + 10 && j < 9000; ++j)
-			table[j] = true;
-	}
-	range = 9000 / NUM_TOOL;
-	minDist = range / 2;
-	for (int i = 0; i < NUM_TOOL; ++i) {
-		lower = 100 + range * i + 1;
-		if (i > 0 && lower < toolindex[i - 1] + minDist + 1)
-			lower = toolindex[i - 1] + minDist + 1;
-		upper = 100 + range * (i + 1);
-		do {
-			toolindex[i] = (upper - lower) * (rand() / (RAND_MAX + 1.0)) + lower;
-		} while (table[toolindex[i]]);
-		for (int j = toolindex[i] >= 10 ? toolindex[i] - 10 : 0; j <= toolindex[i] + 10 && j < 9000; ++j)
-			table[j] = true;
-	}
-	range = 9000 / NUM_OBSTACLE;
-	minDist = range / 2;
-	for (int i = 0; i < NUM_OBSTACLE; ++i) {
-		lower = 100 + range * i + 1;
-		if (i > 0 && lower < obstacleindex[i - 1] + minDist + 1)
-			lower = obstacleindex[i - 1] + minDist + 1;
-		upper = 100 + range * (i + 1);
-		do {
-			obstacleindex[i] = (upper - lower) * (rand() / (RAND_MAX + 1.0)) + lower;
-		} while (table[obstacleindex[i]]);
-		for (int j = obstacleindex[i] >= 10 ? obstacleindex[i] - 10 : 0; j <= obstacleindex[i] + 10 && j < 9000; ++j)
-			table[j] = true;
-	}
-
+	
 	//road design
 	struct Pair {
 		int start;
@@ -117,63 +72,11 @@ void Map::generateMap()
 		};
 	} generator;
 
-	// xchange
-	// divide 9000 to 10 parts with length 900, the ychange range is within 200 to 800
-	double divert = 0;
-	int sign = 1;
-	for (int i = 0; i < 10; ++i) 
-	{
-		if (divert < 1e-6 && divert > -1e-6)
-			sign = (rand() & 1) ? 1 : -1;
-		else if (divert > 0)
-			sign = -1;
-		else
-			sign = 1;
-		generator.curve = sign * ((1.0 - 0.1) * (rand() / (RAND_MAX + 1.0)) + 0.1);
-		range = (800 - 200) * (rand() / (RAND_MAX + 1.0)) + 200;
-		generator.start = (900 - range) * (rand() / (RAND_MAX + 1.0)) + 900 * i + 100;
-		generator.end = generator.start + range;
-		divert += range * (range - 1) * generator.curve / 2.0;
-		for (int j = generator.start; j <= generator.end; ++j) {
-			lines[j].setCurve(generator.curve);
-		}
-	}
-	// ychange
-	// divide 9000 to 6 parts with length 1500
-	// range between 900 adn 1400, height between 0.5 and 1.2 (CAMERA_HEIGHT), period between 20 and 40
-	int n;
-	double cos_, sin_, critV;
-	for (int i = 0; i < 6; ++i) 
-	{
-		generator.height = ((1.2 - 0.5) * (rand() / (RAND_MAX + 1.0)) + 0.5) * CAMERA_HEIGHT;
-		generator.period = (40 - 20) * (rand() / (RAND_MAX + 1.0)) + 20;
-		n = ((1400 - 900) * (rand() / (RAND_MAX + 1.0)) + 900) / (2 * PI * generator.period);
-		range = n * (2 * PI * generator.period);
-		generator.start = (1500 - range) * (rand() / (RAND_MAX + 1.0)) + 1500 * i + 100;
-		generator.end = generator.start + range;
-		for (int j = generator.start; j <= generator.end; ++j) {
-			cos_ = cos((j - generator.start) / generator.period);
-			sin_ = sin((j - generator.start) / generator.period);
-			critV = GRAVITY * (generator.period * generator.period + cos_ * cos_ * generator.height * generator.height) / (sin_ * generator.height) / lines[j].getRoadVelM() / lines[j].getRoadVelM() * 50;
-			if (critV < 0)
-				critV = -critV;
-			lines[j].sety(sin_ * generator.height);
-			lines[j].setCritVel(critV);
-			lines[j].setSlope(lines[j].gety() - lines[j - 1].gety());
-
-			if (lines[j].getSlope() > 1e-6)
-				lines[j].addType(INCLINE_BACKWARD);
-			else if(lines[j].getSlope() < -1e-6)
-				lines[j].addType(INCLINE_FORWARD);
-
-			//[left undone] incline_plan
-		}
-	}
 	// special roads
 	// divide 9000 to 9 parts with length 1000
 	minDist = 300;
 	int previous = -500;
-	for (int i = 0; i < 9; ++i) 
+	for (int i = 0; i < 9; ++i)
 	{
 		// acceleration road
 		do {
@@ -192,26 +95,194 @@ void Map::generateMap()
 
 		// different friction
 		// high_friction range between 50 and 300, low_friction range between 100 and 400
-		for (int k = 0; k < 2; ++k) 
+		for (int k = 0; k < 2; ++k)
 		{
 			switch (rand() & 3) {
-				case 0:
-				case 1:
-					range = (300 - 50) * (rand() / (RAND_MAX + 1.0)) + 50;
-					generator.start = (500 - range) * (rand() / (RAND_MAX + 1.0)) + 1000 * i + k * 500 + 100;
-					generator.end = generator.start + range;
-					for (int j = generator.start; j <= generator.end; ++j)
-						lines[j].addType(HIGH_FRICTION);
-					break;
-				case 2:
-				case 3:
-					range = (400 - 100) * (rand() / (RAND_MAX + 1.0)) + 100;
-					generator.start = (500 - range) * (rand() / (RAND_MAX + 1.0)) + 1000 * i + k * 500 + 100;
-					generator.end = generator.start + range;
-					for (int j = generator.start; j <= generator.end; ++j)
-						lines[j].addType(LOW_FRICTION);
-					break;
+			case 0:
+			case 1:
+				range = (300 - 50) * (rand() / (RAND_MAX + 1.0)) + 50;
+				generator.start = (500 - range) * (rand() / (RAND_MAX + 1.0)) + 1000 * i + k * 500 + 100;
+				generator.end = generator.start + range;
+				for (int j = generator.start; j <= generator.end; ++j)
+					lines[j].addType(HIGH_FRICTION);
+				break;
+			case 2:
+			case 3:
+				range = (400 - 100) * (rand() / (RAND_MAX + 1.0)) + 100;
+				generator.start = (500 - range) * (rand() / (RAND_MAX + 1.0)) + 1000 * i + k * 500 + 100;
+				generator.end = generator.start + range;
+				for (int j = generator.start; j <= generator.end; ++j)
+					lines[j].addType(LOW_FRICTION);
+				break;
 			}
+		}
+	}
+	// xchange
+	// divide 9000 to 10 parts with length 900, the ychange range is within 200 to 800
+	double divert = 0, total;
+	short sign = 1;
+	for (int i = 0; i < 10; ++i) 
+	{
+		if (divert < 1e-6 && divert > -1e-6)
+			sign = (rand() & 1) ? 1 : -1;
+		else if (divert > 0)
+			sign = -1;
+		else
+			sign = 1;
+		do{
+			generator.curve = sign * ((1.0 - 0.1) * (rand() / (RAND_MAX + 1.0)) + 0.1);
+			range = (800 - 200) * (rand() / (RAND_MAX + 1.0)) + 200;
+			generator.start = (900 - range) * (rand() / (RAND_MAX + 1.0)) + 900 * i + 100;
+			generator.end = generator.start + range;
+			total = range * (range - 1) * generator.curve / 2.0;
+		} while (total <= -100000 || total >= 100000);
+		divert += total;
+		for (int j = generator.start; j <= generator.end; ++j) {
+			lines[j].setCurve(generator.curve);
+		}
+	}
+	// ychange
+	// divide 9000 to 6 parts with length 1500
+	// range between 900 adn 1400, height between 0.5 and 1.2 (CAMERA_HEIGHT), period between 20 and 40
+	int n;
+	bool side;
+	double cos_, sin_, critV;
+	for (int i = 0; i < 6; ++i) 
+	{
+		//if (rand() & 7) 
+		if(false)
+		{
+			//sin function
+			generator.height = ((1.2 - 0.5) * (rand() / (RAND_MAX + 1.0)) + 0.5) * CAMERA_HEIGHT;
+			generator.period = (40 - 20) * (rand() / (RAND_MAX + 1.0)) + 20;
+			n = ((1400 - 900) * (rand() / (RAND_MAX + 1.0)) + 900) / (2 * PI * generator.period);
+			range = n * (2 * PI * generator.period);
+			generator.start = (1500 - range) * (rand() / (RAND_MAX + 1.0)) + 1500 * i + 100;
+			generator.end = generator.start + range;
+			for (int j = generator.start; j <= generator.end; ++j)
+			{
+				cos_ = cos((j - generator.start) / generator.period);
+				sin_ = sin((j - generator.start) / generator.period);
+				critV = GRAVITY * (generator.period * generator.period + cos_ * cos_ * generator.height * generator.height) / (sin_ * generator.height) / lines[j].getRoadVelM() / lines[j].getRoadVelM() * 50;
+				if (critV < 0)
+					critV = -critV;
+				lines[j].sety(sin_ * generator.height);
+				lines[j].setCritVel(critV);
+				lines[j].setSlope(lines[j].gety() - lines[j - 1].gety());
+
+				if (lines[j].getSlope() > 1e-6)
+					lines[j].addType(INCLINE_BACKWARD);
+				else if (lines[j].getSlope() < -1e-6)
+					lines[j].addType(INCLINE_FORWARD);
+			}
+		}
+		else 
+		{
+			//line function
+			side = rand() & 1;
+			generator.height = ((3.0 - 1.0) * (rand() / (RAND_MAX + 1.0)) + 1.0) * CAMERA_HEIGHT;
+			range = (300 - 100) * (rand() / (RAND_MAX + 1.0)) + 100;
+			generator.start = (500 - range) * (rand() / (RAND_MAX + 1.0)) + 1500 * i + (side ? 1000 : 0) + 100;
+			generator.end = generator.start + range;
+			for (int j = generator.start; j <= generator.end; ++j)
+			{
+				lines[j].sety((j - generator.start) * generator.height / range);
+				lines[j].setSlope(lines[j].gety() - lines[j - 1].gety());
+				lines[j].addType(INCLINE_BACKWARD);
+				lines[j].addType(INCLINE_PLANE);
+				lines[j].setCritVel(-1);
+				if (lines[j].getType() & HIGH_FRICTION)
+					lines[j].deleteType(HIGH_FRICTION);
+				else if(lines[j].getType() & LOW_FRICTION)
+					lines[j].deleteType(LOW_FRICTION);
+			}
+			for (int j = generator.end - 5; j <= generator.end + 15; ++j){
+				lines[j].addType(CLIFF);
+			}
+			for (int j = generator.end - 100 >= 15 ? generator.end - 100 - 15 : 0; j <= generator.end - 100 + 30 && j < 9000; ++j) {
+				table[j] = true;
+			}
+			
+			//one more sin function
+			generator.height = ((1.2 - 0.5) * (rand() / (RAND_MAX + 1.0)) + 0.5) * CAMERA_HEIGHT;
+			generator.period = (40 - 20) * (rand() / (RAND_MAX + 1.0)) + 20;
+			n = ((900 - 400) * (rand() / (RAND_MAX + 1.0)) + 400) / (2 * PI * generator.period);
+			range = n * (2 * PI * generator.period);
+			generator.start = (1000 - range) * (rand() / (RAND_MAX + 1.0)) + 1500 * i + (side ? 0 : 500) + 100;
+			generator.end = generator.start + range;
+			for (int j = generator.start; j <= generator.end; ++j)
+			{
+				cos_ = cos((j - generator.start) / generator.period);
+				sin_ = sin((j - generator.start) / generator.period);
+				critV = GRAVITY * (generator.period * generator.period + cos_ * cos_ * generator.height * generator.height) / (sin_ * generator.height) / lines[j].getRoadVelM() / lines[j].getRoadVelM() * 50;
+				if (critV < 0)
+					critV = -critV;
+				lines[j].sety(sin_ * generator.height);
+				lines[j].setCritVel(critV);
+				lines[j].setSlope(lines[j].gety() - lines[j - 1].gety());
+
+				if (lines[j].getSlope() > 1e-6)
+					lines[j].addType(INCLINE_BACKWARD);
+				else if (lines[j].getSlope() < -1e-6)
+					lines[j].addType(INCLINE_FORWARD);
+			}
+			
+		}
+	}
+	// trap
+	range = 9000 / NUM_TRAP;
+	minDist = range / 2;
+	for (int i = 0; i < NUM_TRAP; ++i) {
+		lower = 100 + range * i + 1;
+		if (i > 0 && lower < trapindex[i - 1] + minDist + 1)
+			lower = trapindex[i - 1] + minDist + 1;
+		upper = 100 + range * (i + 1);
+		do {
+			trapindex[i] = (upper - lower) * (rand() / (RAND_MAX + 1.0)) + lower;
+		} while (table[trapindex[i] - 100]);
+		for (int j = trapindex[i] - 100 >= 10 ? trapindex[i] - 100 - 10 : 0; j <= trapindex[i] - 100 + 10 && j < 9000; ++j)
+			table[j] = true;
+	}
+	// tool
+	range = 9000 / NUM_TOOL;
+	minDist = range / 2;
+	for (int i = 0; i < NUM_TOOL; ++i) {
+		lower = 100 + range * i + 1;
+		if (i > 0 && lower < toolindex[i - 1] + minDist + 1)
+			lower = toolindex[i - 1] + minDist + 1;
+		upper = 100 + range * (i + 1);
+		do {
+			toolindex[i] = (upper - lower) * (rand() / (RAND_MAX + 1.0)) + lower;
+		} while (table[toolindex[i] - 100]);
+		for (int j = toolindex[i] - 100 >= 10 ? toolindex[i] - 100 - 10 : 0; j <= toolindex[i] - 100 + 10 && j < 9000; ++j)
+			table[j] = true;
+	}
+	// obstacle
+	range = 9000 / NUM_OBSTACLE;
+	minDist = range / 2;
+	for (int i = 0; i < NUM_OBSTACLE; ++i) {
+		lower = 100 + range * i + 1;
+		if (i > 0 && lower < obstacleindex[i - 1] + minDist + 1)
+			lower = obstacleindex[i - 1] + minDist + 1;
+		upper = 100 + range * (i + 1);
+		do {
+			obstacleindex[i] = (upper - lower) * (rand() / (RAND_MAX + 1.0)) + lower;
+		} while (table[obstacleindex[i] - 100]);
+		for (int j = obstacleindex[i] - 100 >= 10 ? obstacleindex[i] - 100 - 10 : 0; j <= obstacleindex[i] - 100 + 10 && j < 9000; ++j)
+			table[j] = true;
+	}
+	// physical item
+	// divide 9000 to 10 parts with length 900, the ychange range is within 200 to 800
+	range = 900;
+	for (int i = 0; i < 10; ++i) {
+		lower = i * range + 100;
+		upper = lower + range;
+		for (int j = 0; j < 10; ++j) {
+			do {
+				physicalindex[i * 10 + j] = (upper - lower) * (rand() / (RAND_MAX + 1.0)) + lower;
+			} while (table[physicalindex[i * 10 + j] - 100]);
+			for (int k = physicalindex[i * 10 + j] - 100 >= 1 ? physicalindex[i * 10 + j] - 100 - 1 : 0; k <= physicalindex[i * 10 + j] - 100 + 1 && k < 9000; ++k)
+				table[k] = true;
 		}
 	}
 
@@ -247,7 +318,6 @@ void Map::generateMap()
 		else
 			lines[i].addType(NORMAL);
 
-		//[left undone] acceleration road and different firction
 	}
 
 	//add type to lines and set objects' positions
@@ -268,6 +338,10 @@ void Map::generateMap()
 		rock.setObstacle(&lines[obstacleindex[i]], obstacleindex[i], i);
 		for (int j = obstacleindex[i] - OBSTACLE_HALFLENGTH; j <= obstacleindex[i] + OBSTACLE_HALFLENGTH; ++j)
 			lines[j].addType(OBSTACLEAREA);
+	}
+	for (int i = 0; i < NUM_PHYSICALITEM; ++i)
+	{
+		cube.setItem(&lines[physicalindex[i]], physicalindex[i], i);
 	}
 }
 
@@ -300,7 +374,7 @@ Uint32 Map::Objectlogic(Uint32 interval, void* para)
 	map->virus.logic();
 
 	//physical object
-	map->cube.logic();
+	map->cube.logic(&(map->lines), &(map->rock));
 
 	return interval;
 }
@@ -315,7 +389,7 @@ void Map::draw(SDL_Renderer* renderer)
 	RacingCar* car = car1;
 	RacingCar* otherCar = car2;
 	int times = dualMode ? 2 : 1;
-	int startpos, camH,maxy, moonW, critz(0);
+	int startpos, camH,maxy, moonW;
 
 	do {
 
@@ -338,19 +412,16 @@ void Map::draw(SDL_Renderer* renderer)
 		if (dst.x > -moonW && dst.x < WIDTH)
 			moon.draw(renderer, NULL, &dst);
 
-		for (int i = startpos - 50; i < startpos + 300; ++i) {
-
-			if (i < 1) {
-				i = 0;
-				continue;
-			}
-			else if (i >= number_of_lines)
-				break;
-
+		for (int i = startpos > 50 ? startpos - 50 : 1; i < startpos + 300; ++i)
+		{
 			Line& l = lines[i];
 			const Line& p = lines[i - 1];
+
+			if (i < startpos && (l.getType() & CLIFF))
+				continue;
+
 			l.project(m.posY, camH, m.posX, m.camDegree, m.camDepth);
-			//l.project(lines[startpos+5].getx(), camH, lines[startpos+5].getz(), camDegree, camDepth, roadDegree);
+
 			if (l.getW() < 1e-6 && l.getW() > -1e-6)
 				continue;
 
@@ -359,29 +430,34 @@ void Map::draw(SDL_Renderer* renderer)
 				continue;
 
 			maxy = l.getY();
-			critz = l.getz();
-
-			//grass
-			grass = (i >> 2) & 1 ? 0xff10c810 : 0xff009A00;
-			drawQuad(renderer, { grass,  WIDTH / 2, p.getY(), WIDTH / 2, WIDTH / 2, l.getY(), WIDTH / 2 });
 
 			//road type
 			type = lines[i].getType();
-			if ((type & LOW_FRICTION)) {
+			if ((type & LOW_FRICTION)) 
+			{
+				grass = (i >> 2) & 1 ? 0xff10c810 : 0xff009A00;
+				drawQuad(renderer, { grass,  WIDTH / 2, p.getY(), WIDTH / 2, WIDTH / 2, l.getY(), WIDTH / 2 });
 				rumble = (i >> 2) & 1 ? 0xffffffff : 0xff000000;
 				road = (i >> 2) & 1 ? 0xffffff80 : 0xffffffff;
 				drawQuad(renderer, { rumble, p.getX(), p.getY(), p.getW() * 1.2, l.getX(), l.getY(), l.getW() * 1.2 });
 				drawQuad(renderer, { road, p.getX(), p.getY(), p.getW(), l.getX(), l.getY(), l.getW() });
 			}
-			else if ((type & HIGH_FRICTION)) {
+			else if ((type & HIGH_FRICTION)) 
+			{
+				grass = (i >> 2) & 1 ? 0xff10c810 : 0xff009A00;
+				drawQuad(renderer, { grass,  WIDTH / 2, p.getY(), WIDTH / 2, WIDTH / 2, l.getY(), WIDTH / 2 });
 				rumble = (i >> 2) & 1 ? 0xffffffff : 0xff000000;
 				road = (i >> 2) & 1 ? 0xff00499A : 0xff00346E;
 				drawQuad(renderer, { rumble, p.getX(), p.getY(), p.getW() * 1.2, l.getX(), l.getY(), l.getW() * 1.2 });
 				drawQuad(renderer, { road, p.getX(), p.getY(), p.getW(), l.getX(), l.getY(), l.getW() });
 			}
-			else if ((type & ENDPOINT) || (type & STARTPOINT)) {
+			else if ((type & ENDPOINT) || (type & STARTPOINT)) 
+			{
+				grass = (i >> 2) & 1 ? 0xff10c810 : 0xff009A00;
+				drawQuad(renderer, { grass,  WIDTH / 2, p.getY(), WIDTH / 2, WIDTH / 2, l.getY(), WIDTH / 2 });
 				double width_scale = 1.2;
-				for (int j = 0; j <= 7; ++j) {
+				for (int j = 0; j <= 7; ++j) 
+				{
 
 					width_scale = 1.2 * (15 - (j << 1)) / 15;
 					rumble = ((i >> 2) + j) & 1 ? 0xffffffff : 0xff000000;
@@ -389,7 +465,23 @@ void Map::draw(SDL_Renderer* renderer)
 					drawQuad(renderer, { rumble,p.getX(), p.getY(), p.getW() * width_scale, l.getX(), l.getY(), l.getW() * width_scale });
 				}
 			}
-			else if ((type & NORMAL) || (type & TRAPAREA) || (type & TOOLAREA) || (type & OBSTACLEAREA) || (type & CLIFF)) {
+			else if (type & INCLINE_PLANE) 
+			{
+				grass = (i >> 2) & 1 ? 0xff10c810 : 0xff009A00;
+				drawQuad(renderer, { grass,  WIDTH / 2, p.getY(), WIDTH / 2, WIDTH / 2, l.getY(), WIDTH / 2 });
+				drawQuad(renderer, { 0xff411e02,p.getX(), p.getY(), p.getW() * 1.2, l.getX(), l.getY(), l.getW() * 1.2 });
+				double width_scale = 1;
+				for (int j = 0; j <= 7; ++j) 
+				{
+					width_scale = (15 - (j << 1)) / 15;
+					road = j & 1 ? 0xff265ba0 : 0xff0d3c78;
+					drawQuad(renderer, { road,p.getX(), p.getY(), p.getW() * width_scale, l.getX(), l.getY(), l.getW() * width_scale });
+				}
+			}
+			else if ((type & NORMAL) || (type & TRAPAREA) || (type & TOOLAREA) || (type & OBSTACLEAREA)) 
+			{
+				grass = (i >> 2) & 1 ? 0xff10c810 : 0xff009A00;
+				drawQuad(renderer, { grass,  WIDTH / 2, p.getY(), WIDTH / 2, WIDTH / 2, l.getY(), WIDTH / 2 });
 				rumble = (i >> 2) & 1 ? 0xffffffff : 0xff000000;
 				road = (i >> 2) & 1 ? 0xff6b6b6b : 0xff696969;
 				drawQuad(renderer, { rumble, p.getX(), p.getY(), p.getW() * 1.2, l.getX(), l.getY(), l.getW() * 1.2 });
@@ -433,34 +525,28 @@ void Map::draw(SDL_Renderer* renderer)
 
 		for (int i = 0; i < NUM_TRAP; ++i)
 			if (startpos >= virus.getIndex(i) - 300 && startpos <= virus.getIndex(i))
-				virus.draw3D(pos, m.camDegree, m.camDepth, &engine, clean, i, HEIGHT);
+				virus.draw3D(pos, m.camDegree, m.camDepth, &engine, clean, i, lines[virus.getIndex(i)].getClip());
 
 
 		for (int i = 0; i < NUM_PHYSICALITEM; ++i)
 			if (startpos >= cube.getIndex(i) - 300 && startpos <= cube.getIndex(i))
-				cube.draw3D(pos, m.camDegree, m.camDepth, &engine, clean, i, HEIGHT);
+				cube.draw3D(pos, m.camDegree, m.camDepth, &engine, clean, i, lines[cube.getIndex(i)].getClip());
 
 		for (int i = 0; i < NUM_OBSTACLE; ++i)
 			if (startpos >= rock.getIndex(i) - 300 && startpos <= rock.getIndex(i)) {
-				rock.draw3D(pos, m.camDegree, m.camDepth, &engine, clean, i);
+				rock.draw3D(pos, m.camDegree, m.camDepth, &engine, clean, i, lines[rock.getIndex(i)].getClip());
 			}
 
 		for (int i = 0; i < NUM_TOOL; ++i)
 			if (startpos >= tools.getIndex(i) - 300 && startpos <= tools.getIndex(i)) {
-				tools.draw3D(pos, m.camDegree, m.camDepth, &engine, clean, i, HEIGHT);
+				tools.draw3D(pos, m.camDegree, m.camDepth, &engine, clean, i, lines[tools.getIndex(i)].getClip());
 			}
 
 		if (otherCar != NULL && otherCar->getPosX() > m.posX - 50 * SEGMENT_LENGTH && otherCar->getPosX() - m.posX < 300 * SEGMENT_LENGTH) {
-			if (otherCar->getPosX() > critz) {
-				car->drawOtherCar(renderer, &engine, clean, maxy, camH);
-			}
-			else {
-				car->drawOtherCar(renderer, &engine, clean, HEIGHT, camH);
-			}
-			clean = false;
+			car->setCurrentPos(&lines[(int)(m.posX / SEGMENT_LENGTH)]);
+			otherCar->setCurrentPos(&lines[(int)(otherCar->getPosX() / SEGMENT_LENGTH)]);
+			car->drawOtherCar(renderer, &engine, clean, lines[otherCar->getIndex()].getClip(), camH);
 		}
-
-		
 
 		//car
 		car->draw(renderer, &engine, clean);
@@ -494,8 +580,8 @@ Uint32 Map::move(Uint32 interval, void* para)
 	Map* map = (Map*)para;
 	RacingCar* car = map->car1;
 	int times = map->dualMode ? 2 : 1;
-	int startpos;
-	double punish;
+	int startpos, front, back;
+	double punish, midY, camH, dist, velX, velY;
 	
 	do {
 		const Motion& motion = car->getMotion();
@@ -505,7 +591,7 @@ Uint32 Map::move(Uint32 interval, void* para)
 
 		//perpendicular (z-direction)
 		car->setCamHeight(motion.camHeight + motion.velPerpen);
-		if (car->isInAir() && ((motion.camHeight + motion.baseHeight) - (CAMERA_HEIGHT + map->lines[startpos].gety()) < -1e-6 && !(type & CLIFF))) {
+		if (car->isInAir() && ((motion.camHeight + motion.baseHeight) - (CAMERA_HEIGHT + map->lines[startpos].gety()) < -1e-6)) {
 			car->setCamHeight(CAMERA_HEIGHT);
 			car->setInAir(false);
 			if (car->getCurrentPos()->getSlope()) {
@@ -526,10 +612,9 @@ Uint32 Map::move(Uint32 interval, void* para)
 			}
 		}
 
-		double dist = CAR_HALF_LENGTH * cos(motion.axleDegree);
-		int front = (motion.posX + CAMERA_CARMIDPOINT_DIST + dist) / SEGMENT_LENGTH;
-		int back = (motion.posX + CAMERA_CARMIDPOINT_DIST - dist) / SEGMENT_LENGTH;
-
+		dist = CAR_HALF_LENGTH * cos(motion.axleDegree);
+		front = (motion.posX + CAMERA_CARMIDPOINT_DIST + dist) / SEGMENT_LENGTH;
+		back = (motion.posX + CAMERA_CARMIDPOINT_DIST - dist) / SEGMENT_LENGTH;
 		
 
 		car->setRoadDegree(car->getCurrentPos()->getRoadDegree());
@@ -546,7 +631,6 @@ Uint32 Map::move(Uint32 interval, void* para)
 			car->setOutofRoad(false);
 		}
 
-		
 		//friction
 		type = map->lines[startpos].getType();
 
@@ -581,14 +665,14 @@ Uint32 Map::move(Uint32 interval, void* para)
 		//set car road type
 		car->setFrictionType(type);
 
-		double velX, velY;
 		velX = motion.velLinear * cos(motion.axleDegree) * punish * motion.velM;
 		velY = motion.velLinear * sin(motion.axleDegree) * punish * motion.velM;
 
 		//move in x-direction
 		car->setPosX(motion.posX + velX);
-		if (motion.posX < 0 || motion.posX >(map->number_of_lines - 20) * SEGMENT_LENGTH || (velX < 0 && (map->lines[(int)(motion.posX / SEGMENT_LENGTH)].getType() & CLIFF)))
+		if (motion.posX < SEGMENT_LENGTH || motion.posX >(map->number_of_lines - 20) * SEGMENT_LENGTH || (velX < 0 && (map->lines[(int)(motion.posX / SEGMENT_LENGTH)].getType() & CLIFF)))
 			car->setPosX(motion.posX - velX);
+		
 
 		/********* Do not move these codes ********/
 
@@ -639,28 +723,16 @@ Uint32 Map::move(Uint32 interval, void* para)
 				car->setPosY(motion.posY - velY);
 				car->setPosX(motion.posX - velX);
 
-				double dz = map->car1->getPosX() - map->car2->getPosX();
-				double e = 0.6;
+				int pos = motion.posX / SEGMENT_LENGTH;
 
-				double cos_ = cos(map->car1->getAxleDegree() - map->car2->getAxleDegree());
-				double v1 = map->car1->getVelLinear(), v2 = map->car2->getVelLinear() * cos_;
-				double v = ((1 - e) * v1 + (1 + e) * v2) / 2.0;
-				map->car1->setVelLinear(v);
-
-				v1 = map->car1->getVelLinear() * cos_, v2 = map->car2->getVelLinear();
-				v = ((1 - e) * v2 + (1 + e) * v1) / 2.0;
-				map->car2->setVelLinear(v);
-
-				if (dz < 0 && map->car1->getRushing()) {
-					map->car1->rush(NONE);
+				if (motion.posX < SEGMENT_LENGTH || motion.posX >(map->number_of_lines - 20) * SEGMENT_LENGTH || (velX < 0 && (map->lines[pos].getType() & CLIFF)) || (map->lines[pos].getType() & OBSTACLEAREA))
+				{
+					car->setPosY(motion.posY + velY);
+					car->setPosX(motion.posX + velX);
 				}
-				else if (dz > 0 && map->car2->getRushing()) {
-					map->car2->rush(NONE);
-				}
+				map->carCollision(car);
 			}
 		}
-
-
 		//rotate car
 		car->setAxleDegree(motion.axleDegree + motion.velAngular);
 
@@ -710,8 +782,7 @@ Uint32 Map::move(Uint32 interval, void* para)
 				car->setXangle(motion.Xangle + 0.02);
 			}
 		}
-
-
+		
 		//special road
 		if (!car->isInAir()) 
 		{
@@ -719,8 +790,8 @@ Uint32 Map::move(Uint32 interval, void* para)
 			//critVel=GRAVITY*|(1+y'^2)/y''|
 			if (((type & INCLINE_BACKWARD) && motion.velLinear > 1e-6) || ((type & INCLINE_FORWARD) && motion.velLinear < -1e-6)) {
 				double critVel = car->getCurrentPos()->getCritVel();
-				cout << critVel << endl;
-				if ((critVel > -1e-6 && velX * velX > critVel) || (map->lines[startpos].getType() & INCLINE_PLANE)) {
+
+				if ((critVel > -1e-6 && velX * velX > critVel) || (type & CLIFF)) {
 					car->setVelPerpen(velX * (map->lines[startpos].getSlope() / sqrt(SEGMENT_LENGTH * SEGMENT_LENGTH + map->lines[startpos].getSlope() * map->lines[startpos].getSlope())));
 				
 					if (motion.velPerpen < GRAVITY * 5 && !(type & CLIFF)) {
@@ -728,14 +799,17 @@ Uint32 Map::move(Uint32 interval, void* para)
 					}
 					else {
 						car->setInAir(true, map->lines[startpos].gety());
-						
+						if ((type & CLIFF) && (velX < 20)){
+							car->setPosX(motion.posX + 5 * SEGMENT_LENGTH);
+						}
 					}
 				}
 			}
 
 			startpos = (motion.posX + CAMERA_CARMIDPOINT_DIST) / SEGMENT_LENGTH;
-			double midY = motion.posY + CAMERA_CARMIDPOINT_DIST * sin(motion.axleDegree);
+			midY = motion.posY + CAMERA_CARMIDPOINT_DIST * sin(motion.axleDegree);
 			type = map->lines[startpos].getType();
+			car->setCurrentPos(&(map->lines[startpos]));
 
 			//rush
 			if (car->getRushing() != ACCROAD && ((type & ACCELERATE_LEFT) || (type & ACCELERATE_RIGHT))) {
@@ -746,37 +820,45 @@ Uint32 Map::move(Uint32 interval, void* para)
 					car->rush(ACCROAD);
 				}
 			}
-			//trap
-			if (type & TRAPAREA)
-			{
-				int index = map->virus.getNearestTrap(startpos);
-				if ((map->virus.getSide(index) && midY < map->lines[startpos].getx() + (ROAD_WIDTH / 2.0 + TRAP_WIDTH) * motion.velM && midY > map->lines[startpos].getx() + (ROAD_WIDTH / 2.0 - TRAP_WIDTH) * motion.velM) ||
-					(!map->virus.getSide(index) && midY < map->lines[startpos].getx() + (-ROAD_WIDTH / 2.0 + TRAP_WIDTH) * motion.velM && midY > map->lines[startpos].getx() + (-ROAD_WIDTH / 2.0 - TRAP_WIDTH) * motion.velM))
-				{
-					//map->virus.gettrap((map->dualMode ? times - 1 : true), index);
-					car->gettrap(map->virus.gettrap((map->dualMode ? times - 1 : true), index));
-				}	
-			}
 
-			if (car->getHP() <= 0)
+			if (map->cube.collide(car)) 
 			{
-				if (map->dualMode)
-					map->endtype = (times == 2 ? PLAYER2 : PLAYER1);
-				else
-					map->endtype = FAILED;
-				map->endtime = SDL_GetTicks64() + 3000;
-
+				car->setPosY(motion.posY - velY / 2);
+				car->setPosX(motion.posX - velX / 2);
 			}
-			//tool
-			if ((type & TOOLAREA) && midY < map->lines[startpos].getx() + TOOL_WIDTH * motion.velM && midY > map->lines[startpos].getx() - TOOL_WIDTH * motion.velM)
-			{
-				map->tools.getTools((map->dualMode ? times - 1 : true), map->tools.getNearestTool(startpos));
-			}
+			
+		}
 
-			//obstacle
-			if (!car->getnavigate() && !car->getghost() && (type & OBSTACLEAREA) && midY < map->lines[startpos].getx() + OBSTACLE_WIDTH * motion.velM && midY > map->lines[startpos].getx() - OBSTACLE_WIDTH * motion.velM)
+		startpos = (motion.posX + CAMERA_CARMIDPOINT_DIST) / SEGMENT_LENGTH;
+		midY = motion.posY + CAMERA_CARMIDPOINT_DIST * sin(motion.axleDegree);
+		type = map->lines[startpos].getType();
+		car->setCurrentPos(&(map->lines[startpos]));
+		camH = car->isInAir() ? motion.camHeight + motion.baseHeight : motion.camHeight + map->lines[startpos].gety();
+
+		//trap
+		if (type & TRAPAREA)
+		{
+			int index = map->virus.getNearestTrap(startpos);
+			if (map->virus.hitTrap(midY, camH - CAMERA_HEIGHT, motion.velM, index))
+				car->gettrap(map->virus.gettrap((map->dualMode ? times - 1 : true), index));
+				//map->virus.gettrap(STAIN, (map->dualMode ? times - 1 : true), index);
+		}
+
+		//tool
+		if (type & TOOLAREA)
+		{
+			int index = map->tools.getNearestTool(startpos);
+			if (map->tools.hitTool(midY, camH - CAMERA_HEIGHT, motion.velM, index))
+				map->tools.getTools((map->dualMode ? times - 1 : true), index);
+		}
+
+		//obstacle
+		if (type & OBSTACLEAREA)
+		{
+			int index = map->rock.getNearestObstacle(startpos);
+			if (!map->rock.getBroken(index) && map->rock.hitObstacle(midY,camH - CAMERA_HEIGHT, index))
 			{
-				car->touchobstacle(map->rock);
+				car->touchobstacle(map->rock, index, map->lines);
 
 				if (car->getHP() <= 0)
 				{
@@ -788,29 +870,26 @@ Uint32 Map::move(Uint32 interval, void* para)
 
 				}
 			}
+		}
 
-			//arrive
-			if ((type & ENDPOINT))
+		//arrive
+		if ((type & ENDPOINT))
+		{
+			car->isarrive();
+			if (map->dualMode)
 			{
-				car->isarrive();
-				if (map->dualMode)
+				if (!map->endtype)
 				{
-					if (!map->endtype)
-					{
-						map->endtype = (times == 1 ? PLAYER2 : PLAYER1);
-						map->record = car->gettotaltime();
-					}
-				}
-				else
-				{
-					map->endtype = VICTORY;
+					map->endtype = (times == 1 ? PLAYER2 : PLAYER1);
 					map->record = car->gettotaltime();
 				}
-				map->endtime = SDL_GetTicks64() + 3000;
 			}
-
-			
-			map->cube.collide(car);
+			else
+			{
+				map->endtype = VICTORY;
+				map->record = car->gettotaltime();
+			}
+			map->endtime = SDL_GetTicks64() + 3000;
 		}
 
 		if (map->dualMode) 
@@ -876,6 +955,110 @@ Uint32 Map::accelerate(Uint32 interval, void* para)
 	} while (--times);
 
 	return interval;
+}
+
+void Map::carCollision(RacingCar* car) 
+{
+	if (!dualMode)
+		return;
+
+	RacingCar* otherCar = car->getOtherCar();
+	double dz = car->getPosX() - otherCar->getPosX();
+	double e = 0.6;
+	double cos_ = cos(car1->getAxleDegree() - car2->getAxleDegree());
+	double v1 = car->getVelLinear();
+	double v2 = otherCar->getVelLinear();
+	bool car1rush = car->getRushing(), car2rush = otherCar->getRushing();
+	bool car1invincible = car->getInvincible(), car2invincible = otherCar->getInvincible();
+
+	//damage
+	if (!car1invincible) {
+		if (car1rush || car2rush)
+			(*car) -= v1 * v1 / 2 / 100000;
+		else
+			(*car) -= v1 * v1 / 2 / 1000000;
+		if (car->getHP() <= 0)
+		{
+			endtype = (car == car1) ? PLAYER2 : PLAYER1;
+			endtime = SDL_GetTicks64() + 3000;
+		}
+	}
+	if (!car2invincible) {
+		if (car1rush || car2rush)
+			(*otherCar) -= v1 * v1 / 2 / 100000;
+		else
+			(*otherCar) -= v1 * v1 / 2 / 1000000;
+		if (car->getHP() <= 0)
+		{
+			endtype = (endtype == PLAYING) ? PLAYER1 : ALLDEAD;
+			endtime = SDL_GetTicks64() + 3000;
+		}
+	}
+	//velocity
+	if (car1invincible ^ car2invincible) {
+		if (car1invincible && car1rush) {
+			if (dz < 0) {
+				otherCar->setVelLinear(((1 - e) * v2 + (1 + e) * v1 * cos_) / 2.0);
+				if (car->getPosY() > otherCar->getPosY()) {
+					otherCar->setAxleDegree(-MAX_ROTATE_DEGREE);
+				}
+				else {
+					otherCar->setAxleDegree(MAX_ROTATE_DEGREE);
+				}
+			}
+		}
+		else if (car2invincible && car2rush) {
+			if (dz > 0) {
+				car->setVelLinear(((1 - e) * v1 + (1 + e) * v2 * cos_) / 2.0);
+				if (otherCar->getPosY() > car->getPosY()) {
+					car->setAxleDegree(-MAX_ROTATE_DEGREE);
+				}
+				else {
+					car->setAxleDegree(-MAX_ROTATE_DEGREE);
+				}
+			}
+		}
+		else {
+			car->setVelLinear(((1 - e) * v1 + (1 + e) * v2 * cos_) / 2.0);
+			otherCar->setVelLinear(((1 - e) * v2 + (1 + e) * v1 * cos_) / 2.0);
+		}
+	}
+	else if (car1invincible && car2invincible)
+	{
+		if (car1rush == car2rush) {
+			car->setVelLinear(((1 - e) * v1 + (1 + e) * v2 * cos_) / 2.0);
+			otherCar->setVelLinear(((1 - e) * v2 + (1 + e) * v1 * cos_) / 2.0);
+		}
+		else if (car1rush && dz < 0) {
+			otherCar->setVelLinear(((1 - e) * v2 + (1 + e) * v1 * cos_) / 2.0);
+			if (car->getPosY() > otherCar->getPosY()) {
+				otherCar->setAxleDegree(-MAX_ROTATE_DEGREE);
+			}
+			else {
+				otherCar->setAxleDegree(MAX_ROTATE_DEGREE);
+			}
+		}
+		else if (car2rush && dz > 0) {
+			car->setVelLinear(((1 - e) * v1 + (1 + e) * v2 * cos_) / 2.0);
+			if (otherCar->getPosY() > car->getPosY()) {
+				car->setAxleDegree(-MAX_ROTATE_DEGREE);
+			}
+			else {
+				car->setAxleDegree(-MAX_ROTATE_DEGREE);
+			}
+		}
+	}
+	else {
+		car->setVelLinear(((1 - e) * v1 + (1 + e) * v2 * cos_) / 2.0);
+		otherCar->setVelLinear(((1 - e) * v2 + (1 + e) * v1 * cos_) / 2.0);
+	}
+	//rush
+	if (!car1invincible) {
+		car->rush(NONE);
+	}
+	if (!car2invincible) {
+		otherCar->rush(NONE);
+	}
 }
 
 void Map::changecar()
@@ -1223,7 +1406,7 @@ void Map::removeTimer() {
 				if ((type & OBSTACLEAREA) && motion.posY < map->lines[startpos].getx() + TOOL_WIDTH * motion.velM && motion.posY > map->lines[startpos].getx() - TOOL_WIDTH * motion.velM)
 				{
 					car->touchobstacle();
-					//printf("Touch Obstacle\n");
+					//("Touch Obstacle\n");
 				}
 			}
 
@@ -1531,3 +1714,43 @@ if (car->getRushing() != ACCROAD && ((type & ACCELERATE_LEFT) || (type & ACCELER
 
 		}
 		*/
+		/*
+						if (!car->getInvincible())
+						{
+							if (car->getRushing() || otherCar->getRushing())
+								(*car) -= motion.velLinear * motion.velLinear / 2 / 100000;
+							else
+								(*car) -= motion.velLinear * motion.velLinear / 2 / 1000000;
+
+							if (car->getHP() <= 0)
+							{
+								map->endtype = PLAYER2;
+								map->endtime = SDL_GetTicks64() + 3000;
+							}
+
+							if (dz < 0 && car->getRushing())
+								car->rush(NONE);
+
+							car->setVelLinear(((1 - e) * v1 + (1 + e) * v2 * cos_) / 2.0);
+						}
+						else if (!car->getRushing()) {
+							car->setVelLinear(((1 - e) * v1 + (1 + e) * v2 * cos_) / 2.0);
+						}
+
+						if (!otherCar->getInvincible())
+						{
+							if (car->getRushing() || otherCar->getRushing())
+								(*otherCar) -= motion.velLinear * motion.velLinear / 2 / 100000;
+							else
+								(*otherCar) -= motion.velLinear * motion.velLinear / 2 / 1000000;
+							if (otherCar->getHP() <= 0)
+							{
+								map->endtype = map->endtype == PLAYING ? PLAYER1 : ALLDEAD;
+								map->endtime = SDL_GetTicks64() + 3000;
+							}
+
+							if (dz > 0 && otherCar->getRushing())
+								car->rush(NONE);
+
+							otherCar->setVelLinear(((1 - e) * v2 + (1 + e) * v1 * cos_) / 2.0);
+						}*/

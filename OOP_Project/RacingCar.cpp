@@ -1,17 +1,17 @@
 #include "RacingCar.h"
 RacingCar::RacingCar() :
 	isRushing(NONE), fullEnergy(true), energy(100.0), healthPoint(100.0),
-	motion(MOTION_INIT), roadtype(NORMAL), outOfRoad(false), inAir(false), BlenderObject("../images/car1.txt", "../images/car1.bmp", 500, 1)
+	motion(MOTION_INIT), roadtype(NORMAL), outOfRoad(false), inAir(false), BlenderObject("../images/car/car.txt", "../images/car/car", 500, 1, 2)
 {}
 
 RacingCar::~RacingCar()
 {}
 
 RacingCar::RacingCar(const char* obfpath, const char* imgpath, SDL_Renderer* renderer, Line* initpos) :
-
-	isRushing(NONE), fullEnergy(true), energy(100.0), healthPoint(100.0), motion(MOTION_INIT), accState(0), roadtype(NORMAL),
-	currentPos(initpos), BlenderObject(obfpath, imgpath, 1000, 1), theOtherCar(NULL), starttime(SDL_GetTicks64() + 3000), timing("00:00:000"), arrive(false), totaltime(0), invincible(0),
-	timetext(timing, "../fonts/akabara-cinderella.ttf", 20, 0x02, { 255, 255, 255 }, SHADED, { 0, 0, 0 }, renderer, { 200, 10 }, { 10, 10 }, NULL, SDL_FLIP_NONE, 255),
+	isRushing(NONE), fullEnergy(true), energy(100.0), healthPoint(100.0), motion(MOTION_INIT), accState(0), roadtype(NORMAL), currentPos(initpos),
+	theOtherCar(NULL), starttime(SDL_GetTicks64() + 3000), timing("00:00:000"), arrive(false), totaltime(0), invincible(0),
+	BlenderObject(obfpath, imgpath, 1000, 1, 2),
+	timetext(timing, "../fonts/akabara-cinderella.ttf", 20, 0x02, { 255, 255, 255 }, SHADED, { 0, 0, 0 }, renderer, { 250, 10 }, { 10, 10 }, NULL, SDL_FLIP_NONE, 255),
 	dizzy(0), lost(0), slow(0)
 {}
 
@@ -23,10 +23,18 @@ void RacingCar::quit()
 	timetext.close();
 }
 
+void RacingCar::operator-=(double d) {
+	healthPoint -= d;
+}
+
 bool RacingCar::collided() {
 	if (theOtherCar == NULL)
 		return false;
 	//collision
+	double height = (inAir ? motion.camHeight + motion.baseHeight : motion.camHeight + currentPos->gety()) 
+			- (theOtherCar->inAir ? theOtherCar->motion.camHeight + theOtherCar->motion.baseHeight : theOtherCar->motion.camHeight + theOtherCar->currentPos->gety());
+	if (height > 1277 || height < -1277)
+		return false;
 	double dx = (motion.posY + CAMERA_CARMIDPOINT_DIST * sin(motion.axleDegree)) - (theOtherCar->motion.posY + CAMERA_CARMIDPOINT_DIST * sin(theOtherCar->motion.axleDegree));
 	double dz = (motion.posX + CAMERA_CARMIDPOINT_DIST * cos(motion.axleDegree)) - (theOtherCar->motion.posX + CAMERA_CARMIDPOINT_DIST * cos(theOtherCar->motion.axleDegree));
 
@@ -35,11 +43,11 @@ bool RacingCar::collided() {
 		double rd = theOtherCar->motion.axleDegree - motion.axleDegree;
 		double cos_ = cos(rd), sin_ = sin(rd);//CAR_HALF_LENGTHcos_  CAR_HALF_WIDTH
 		{
-			double rz[4] = { CAR_HALF_LENGTH * cos_ - CAR_HALF_WIDTH * sin_ - dz,CAR_HALF_LENGTH * cos_ + CAR_HALF_WIDTH * sin_ - dz ,
-							-CAR_HALF_LENGTH * cos_ - CAR_HALF_WIDTH * sin_ - dz ,-CAR_HALF_LENGTH * cos_ + CAR_HALF_WIDTH * sin_ - dz };
-			double rx[4] = { CAR_HALF_LENGTH * sin_ + CAR_HALF_WIDTH * cos_ - dx,CAR_HALF_LENGTH * sin_ - CAR_HALF_WIDTH * cos_ - dx,
-							-CAR_HALF_LENGTH * sin_ + CAR_HALF_WIDTH * cos_ - dx,-CAR_HALF_LENGTH * sin_ - CAR_HALF_WIDTH * cos_ - dx };
-			for (int i = 0; i < 4; ++i) {
+			double rz[5] = { CAR_HALF_LENGTH * cos_ - CAR_HALF_WIDTH * sin_ - dz,CAR_HALF_LENGTH * cos_ + CAR_HALF_WIDTH * sin_ - dz ,
+							-CAR_HALF_LENGTH * cos_ - CAR_HALF_WIDTH * sin_ - dz ,-CAR_HALF_LENGTH * cos_ + CAR_HALF_WIDTH * sin_ - dz, CAR_HALF_LENGTH * cos_ - dz };
+			double rx[5] = { CAR_HALF_LENGTH * sin_ + CAR_HALF_WIDTH * cos_ - dx,CAR_HALF_LENGTH * sin_ - CAR_HALF_WIDTH * cos_ - dx,
+							-CAR_HALF_LENGTH * sin_ + CAR_HALF_WIDTH * cos_ - dx,-CAR_HALF_LENGTH * sin_ - CAR_HALF_WIDTH * cos_ - dx,  CAR_HALF_LENGTH* sin_ - dx };
+			for (int i = 0; i < 5; ++i) {
 				if (rz[i] < CAR_HALF_LENGTH && rz[i] > -CAR_HALF_LENGTH && rx[i] < CAR_HALF_WIDTH && rx[i] > -CAR_HALF_WIDTH) {
 					//collided
 					return true;
@@ -48,12 +56,12 @@ bool RacingCar::collided() {
 		}
 		rd = -rd;
 		sin_ = -sin_;
-		double rz[4] = { CAR_HALF_LENGTH * cos_ - CAR_HALF_WIDTH * sin_ - dz,CAR_HALF_LENGTH * cos_ + CAR_HALF_WIDTH * sin_ - dz ,
-						-CAR_HALF_LENGTH * cos_ - CAR_HALF_WIDTH * sin_ - dz ,-CAR_HALF_LENGTH * cos_ + CAR_HALF_WIDTH * sin_ - dz };
-		double rx[4] = { CAR_HALF_LENGTH * sin_ + CAR_HALF_WIDTH * cos_ - dx,CAR_HALF_LENGTH * sin_ - CAR_HALF_WIDTH * cos_ - dx,
-						-CAR_HALF_LENGTH * sin_ + CAR_HALF_WIDTH * cos_ - dx,-CAR_HALF_LENGTH * sin_ - CAR_HALF_WIDTH * cos_ - dx };
+		double rz[5] = { CAR_HALF_LENGTH * cos_ - CAR_HALF_WIDTH * sin_ - dz,CAR_HALF_LENGTH * cos_ + CAR_HALF_WIDTH * sin_ - dz ,
+						-CAR_HALF_LENGTH * cos_ - CAR_HALF_WIDTH * sin_ - dz ,-CAR_HALF_LENGTH * cos_ + CAR_HALF_WIDTH * sin_ - dz, CAR_HALF_LENGTH * cos_ - dz };
+		double rx[5] = { CAR_HALF_LENGTH * sin_ + CAR_HALF_WIDTH * cos_ - dx,CAR_HALF_LENGTH * sin_ - CAR_HALF_WIDTH * cos_ - dx,
+						-CAR_HALF_LENGTH * sin_ + CAR_HALF_WIDTH * cos_ - dx,-CAR_HALF_LENGTH * sin_ - CAR_HALF_WIDTH * cos_ - dx , CAR_HALF_LENGTH* sin_ - dx };
 
-		for (int i = 0; i < 4; ++i) {
+		for (int i = 0; i < 5; ++i) {
 			if (rz[i] < CAR_HALF_LENGTH && rz[i] > -CAR_HALF_LENGTH && rx[i] < CAR_HALF_WIDTH && rx[i] > -CAR_HALF_WIDTH) {
 				//collided, 
 				return true;
@@ -72,7 +80,7 @@ void RacingCar::draw3D(Point3D campos, double camDeg, double camDepth, Engine* e
 void RacingCar::draw(SDL_Renderer* renderer, Engine* engine, bool& clean)
 {
 	//car image
-	draw3D({0,0,0}, motion.camDegree, motion.camDepth, engine, clean, HEIGHT);
+	draw3D({0,0,0}, motion.camDegree, motion.camDepth, engine, clean, 0, HEIGHT);
 
 	//energy bottle
 	roundedBoxColor(renderer, 10, 10, 10 + WIDTH / 4, 30, 2, 0xff828282);
@@ -113,10 +121,13 @@ void RacingCar::drawOtherCar(SDL_Renderer* renderer, Engine* engine, bool& clean
 		{ motion.posY - theOtherCar->getPosY() ,camH - theOtherCar->getCamHeight() - theOtherCar->getCurrentPos()->gety(),motion.posX - theOtherCar->getPosX()},
 		{ 0,(theOtherCar->motion.axleDegree - motion.axleDegree),0},
 		motion.camDegree, motion.camDepth, engine, clean, maxy);*/
-	theOtherCar->BlenderObject_draw(
-		{ motion.posY - theOtherCar->getPosY() ,currentPos->gety() - theOtherCar->getCurrentPos()->gety() + 0,motion.posX - theOtherCar->getPosX()},
-		{ -theOtherCar->motion.Xangle,theOtherCar->motion.axleDegree,0 },
-		motion.camDegree, motion.camDepth, engine, clean, maxy, 0);
+
+	double height = (inAir ? motion.camHeight + motion.baseHeight - CAMERA_HEIGHT : currentPos->gety()) 
+		- (theOtherCar->inAir ? theOtherCar->motion.camHeight + theOtherCar->motion.baseHeight - CAMERA_HEIGHT : theOtherCar->currentPos->gety());
+
+	theOtherCar->BlenderObject_draw( { motion.posY - theOtherCar->getPosY() , height, motion.posX - theOtherCar->getPosX() }, 
+		{ -theOtherCar->motion.Xangle,theOtherCar->motion.axleDegree,0 }, motion.camDegree, motion.camDepth, engine, clean, maxy, 0);
+
 	clean = false;
 }
 
@@ -138,8 +149,10 @@ Uint32 RacingCar::changeData(Uint32 interval, void* param)
 	}
 
 	//invincible tool
-	if (SDL_GetTicks64() - car->invincible >= 5000)
+	if (SDL_GetTicks64() - car->invincible >= INVINCIBLE_INTERVAL){
 		car->invincible = 0;
+		car->objectList[0].texindex = 0;
+	}
 
 	//navigate tool
 	if (SDL_GetTicks64() - car->navigate >= 5000)
@@ -334,6 +347,7 @@ int RacingCar::usetool(ToolType type, Tool* tools, bool car)
 			break;
 		case INVINCIBLE:
 			invincible = SDL_GetTicks64();
+			objectList[0].texindex = 1;
 			break;
 		case HEALING:
 			healthPoint += 30;
@@ -386,9 +400,15 @@ void RacingCar::touchobstacle(Obstacle& rock)
 
 		if (!invincible)
 			healthPoint -= motion.velLinear * motion.velLinear / 2 / 100000;
-			//healthPoint -= motion.velLinear > 0 ? motion.velLinear / 100 : motion.velLinear / -100;
-		//cout << healthPoint << endl;
+		else if (isRushing) {
+			rock.broken(rock.getNearestObstacle(motion.posX / SEGMENT_LENGTH));
+			return;
+		}
+
+		motion.posX -= ROCK_SIZE * cos(motion.axleDegree);
+		motion.posY -= ROCK_SIZE * sin(motion.axleDegree);
 		motion.velLinear = -motion.velLinear * 0.5;
+
 		if (isRushing) {
 			isRushing = NONE;
 			motion.velLinear = -MAX_BACKWARD_SPEED * 0.5;

@@ -45,10 +45,11 @@ public:
 	void drawmytool(SDL_Renderer* renderer, bool car);	//car=1 for car1, car=0 for car2
 	void getalltools(bool car);
 
+	bool hitTool(double carx, double height, double mod, int ind);
 
 	//virtual override
 	void draw3D(Point3D pos, double camDeg, double camDepth, Engine* engine, bool& clean, int ind, double maxy = HEIGHT) override;
-	void logic() override;
+	void logic(void* = NULL, void* = NULL) override;
 
 	int checktoolset(ToolSet set);
 

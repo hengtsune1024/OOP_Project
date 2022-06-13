@@ -1,5 +1,5 @@
 #include "Tool.h"
-Tool::Tool(): BlenderObject("../images/tool/tool.txt", "../images/tool/tool.bmp", 750, NUM_TOOL)
+Tool::Tool(): BlenderObject("../images/tool/tool.txt", "../images/tool/tool.bmp", 750, NUM_TOOL,1)
 {
 	gettime = SDL_GetTicks64() - STAIN_INTERVAL;
 }
@@ -18,6 +18,11 @@ Tool::Tool(SDL_Renderer* renderer) : car1tool{ 0,0,0,0,0,0,1 }, car2tool{ 0,0,0,
 	BlenderObject("../images/tool/tool.txt", "../images/tool/tool.bmp", 750, NUM_TOOL)
 {
 	gettime = SDL_GetTicks64() - STAIN_INTERVAL;
+}
+
+bool Tool::hitTool(double carx, double height, double mod, int ind) 
+{
+	return objectList[ind].shownflag && carx > objectList[ind].position.x - TOOL_WIDTH * mod && carx < objectList[ind].position.x + TOOL_WIDTH * mod && height < objectList[ind].position.y + 1300;
 }
 
 int Tool::getNearestTool(int startpos)
@@ -247,7 +252,7 @@ void Tool::getTools(bool car, int ind)
 	}
 }
 
-void Tool::logic()
+void Tool::logic(void*, void*)
 {
 	for (int i = 0; i < NUM_TOOL; ++i) {
 		objectList[i].rotation.y += 0.1;

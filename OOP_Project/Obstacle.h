@@ -6,6 +6,7 @@
 class Obstacle: public BlenderObject
 {
 	int touchtime;
+	vector<bool> isBroken;
 
 public:
 	Obstacle();
@@ -16,9 +17,14 @@ public:
 	void setObstacle(Line* line, int lineindex, int ind);
 
 	//state
-	int istouching(); 
+	int istouching();
+	bool hitObstacle(double carx, double height, int ind);
+	int getNearestObstacle(int startpos);
 	
 	void close();
+	void broken(int ind) { isBroken[ind] = true; }
+	bool getBroken(int ind) { return isBroken[ind]; }
+	
 
 	//virtaul override
 	void draw3D(Point3D pos, double camDeg, double camDepth, Engine* engine, bool& clean, int ind, double maxy = HEIGHT) override;

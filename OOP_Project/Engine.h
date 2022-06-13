@@ -1,10 +1,18 @@
 #pragma once
-#include "Point3D.h"
 #include "constants.h"
 #include <cmath>
 #include <SDL.h>
 #include <SDL_image.h>
 #include <iostream>
+
+struct Point3D {
+	double x;
+	double y;
+	double z;
+	double u;
+	double v;
+	double w = 1;
+};
 
 class Engine
 {
