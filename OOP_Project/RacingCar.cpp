@@ -11,7 +11,7 @@ RacingCar::RacingCar(const char* obfpath, const char* imgpath, SDL_Renderer* ren
 	isRushing(NONE), fullEnergy(true), energy(100.0), healthPoint(100.0), motion(MOTION_INIT), accState(0), roadtype(NORMAL), currentPos(initpos),
 	theOtherCar(NULL), starttime(SDL_GetTicks64() + 3000), timing("00:00:000"), arrive(false), totaltime(0), invincible(0),
 	BlenderObject(obfpath, imgpath, 1000, 1, 2),
-	timetext(timing, "../fonts/akabara-cinderella.ttf", 20, 0x02, { 255, 255, 255 }, SHADED, { 0, 0, 0 }, renderer, { 250, 10 }, { 10, 10 }, NULL, SDL_FLIP_NONE, 255),
+	timetext(timing, "../fonts/akabara-cinderella.ttf", 20, 0x02, { 255, 255, 255 }, SHADED, { 0, 0, 0 }, renderer, { 200, 10 }, { 10, 10 }, NULL, SDL_FLIP_NONE, 255),
 	dizzy(0), lost(0), slow(0)
 {}
 
@@ -97,7 +97,7 @@ void RacingCar::draw(SDL_Renderer* renderer, Engine* engine, bool& clean)
 		roundedBoxColor(renderer, 13, 43, 13 + (WIDTH / 4 - 6) * (healthPoint / 100.0), 57, 2, 0xff0000ff);
 	else
 		roundedBoxColor(renderer, 13, 43, 13 + (WIDTH / 4 - 6) * 0.02, 57, 1, 0xff0000ff);
-
+	/*
 	//tool column
 	roundedRectangleRGBA(renderer, 350, 10, 385, 45, 1, 255, 0, 255, 255);
 	roundedRectangleRGBA(renderer, 390, 10, 425, 45, 1, 255, 0, 255, 255);
@@ -105,7 +105,7 @@ void RacingCar::draw(SDL_Renderer* renderer, Engine* engine, bool& clean)
 	roundedRectangleRGBA(renderer, 470, 10, 505, 45, 1, 255, 0, 255, 255);
 	roundedRectangleRGBA(renderer, 510, 10, 545, 45, 1, 255, 0, 255, 255);
 	roundedRectangleRGBA(renderer, 550, 10, 585, 45, 1, 255, 0, 255, 255);
-
+	*/
 
 
 	//timing
@@ -153,10 +153,6 @@ Uint32 RacingCar::changeData(Uint32 interval, void* param)
 		car->invincible = 0;
 		car->objectList[0].texindex = 0;
 	}
-
-	//navigate tool
-	if (SDL_GetTicks64() - car->navigate >= 5000)
-		car->navigate = 0;
 
 	//ghost tool
 	if (SDL_GetTicks64() - car->ghost >= 5000)
@@ -354,14 +350,11 @@ int RacingCar::usetool(ToolType type, Tool* tools, bool car)
 			if (healthPoint >= 100)
 				healthPoint = 100;
 			break;
-		case NAVIGATION:
-			navigate = SDL_GetTicks64();
+		case GHOST:
+			ghost = SDL_GetTicks64();
 			break;
 		case LIGHTNING:
 			return 1;
-			break;
-		case GHOST:
-			ghost = SDL_GetTicks64();
 			break;
 		case SWITCH:
 			tools->getalltools(car);
@@ -385,9 +378,12 @@ void RacingCar::gettrap(int type)
 		slow = SDL_GetTicks64();
 		break;
 	case BOMB:
-		healthPoint -= 50;
-		setVelLinear(0);
-		dizzy = SDL_GetTicks64();
+		if (!invincible)
+		{
+			healthPoint -= 50;
+			setVelLinear(0);
+			dizzy = SDL_GetTicks64();
+		}
 		break;
 	default:;
 	}
@@ -436,16 +432,14 @@ void RacingCar::setInAir(bool ia, double baseheight) {
 		motion.baseHeight = baseheight;
 }
 
-int RacingCar::Dizzy()
-{
-	return dizzy;
-}
-
 void RacingCar::beattacked()
 {
-	setVelLinear(0);
-	healthPoint -= 20;
-	dizzy = SDL_GetTicks64();
+	if (!invincible)
+	{
+		setVelLinear(0);
+		healthPoint -= 20;
+		dizzy = SDL_GetTicks64();
+	}
 }
 
 //previous code

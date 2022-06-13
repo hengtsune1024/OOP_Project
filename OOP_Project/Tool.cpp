@@ -11,10 +11,10 @@ void Tool::close() {
 	tool1img.close();
 	tool2img.close();
 }
-//{ 1,1,1,1,1,1,1}  { 0,0,0,0,0,0,0 }
-Tool::Tool(SDL_Renderer* renderer) : car1tool{ 0,0,0,0,0,0,1 }, car2tool{ 0,0,0,0,0,0,1 },
-	tool1img("../images/star.png", renderer), tool2img("../images/star.png", renderer), tool3img("../images/star.png", renderer), 
-	tool4img("../images/star.png", renderer), tool5img("../images/star.png", renderer), tool6img("../images/star.png", renderer),
+//{ 1,1,1,1,1,1}  { 0,0,0,0,0,0 }
+Tool::Tool(SDL_Renderer* renderer, bool d) : car1tool{ 1,1,1,1,1,1 }, car2tool{ 1,1,1,1,1,1 }, dual(d),
+	tool1img("../images/mushroom.png", renderer), tool2img("../images/star.png", renderer), tool3img("../images/heal.png", renderer), 
+	tool4img("../images/ghost.png", renderer), tool5img("../images/lightning.png", renderer), tool6img("../images/8.png", renderer),
 	BlenderObject("../images/tool/tool.txt", "../images/tool/tool.bmp", 750, NUM_TOOL, 1)
 {
 	gettime = SDL_GetTicks64() - STAIN_INTERVAL;
@@ -55,42 +55,68 @@ void Tool::draw3D(Point3D pos, double camDeg, double camDepth, Engine* engine, b
 
 
 void Tool::drawmytool(SDL_Renderer* renderer, bool car) {
-	SDL_Rect loc1 = { 345,11,43,35 };
-	SDL_Rect loc2 = { 385,11,43,35 };
-	SDL_Rect loc3 = { 425,11,43,35 };
-	SDL_Rect loc4 = { 465,11,43,35 };
-	SDL_Rect loc5 = { 505,11,43,35 };
-	SDL_Rect loc6 = { 545,11,43,35 };
+	SDL_Rect loc1 = { 347,11,43,35 };
+	SDL_Rect loc2 = { 387,11,43,35 };
+	SDL_Rect loc3 = { 427,11,43,35 };
+	SDL_Rect loc4 = { 467,11,43,35 };
+	SDL_Rect loc5 = { 507,11,43,35 };
+	SDL_Rect loc6 = { 547,11,43,35 };
+	if (!dual)
+	{
+		//tool column
+		roundedRectangleRGBA(renderer, 350, 10, 385, 45, 1, 255, 0, 255, 255);
+		roundedRectangleRGBA(renderer, 390, 10, 425, 45, 1, 255, 0, 255, 255);
+		roundedRectangleRGBA(renderer, 430, 10, 465, 45, 1, 255, 0, 255, 255);
+		roundedRectangleRGBA(renderer, 470, 10, 505, 45, 1, 255, 0, 255, 255);
 
-	if (car) {
-		//car1
 		if (car1tool.Tool1)
 			tool1img.draw(renderer, NULL, &loc1);
 		if (car1tool.Tool2)
 			tool2img.draw(renderer, NULL, &loc2);
 		if (car1tool.Tool3)
-			tool2img.draw(renderer, NULL, &loc3);
+			tool3img.draw(renderer, NULL, &loc3);
 		if (car1tool.Tool4)
-			tool2img.draw(renderer, NULL, &loc4);
-		if (car1tool.Tool5)
-			tool2img.draw(renderer, NULL, &loc5);
-		if (car1tool.Tool6)
-			tool2img.draw(renderer, NULL, &loc6);
+			tool4img.draw(renderer, NULL, &loc4);
 	}
-	else {
-		//car2
-		if (car2tool.Tool1)
-			tool1img.draw(renderer, NULL, &loc1);
-		if (car2tool.Tool2)
-			tool2img.draw(renderer, NULL, &loc2);
-		if (car2tool.Tool3)
-			tool2img.draw(renderer, NULL, &loc3);
-		if (car2tool.Tool4)
-			tool2img.draw(renderer, NULL, &loc4);
-		if (car2tool.Tool5)
-			tool2img.draw(renderer, NULL, &loc5);
-		if (car2tool.Tool6)
-			tool2img.draw(renderer, NULL, &loc6);
+	else
+	{
+		roundedRectangleRGBA(renderer, 350, 10, 385, 45, 1, 255, 0, 255, 255);
+		roundedRectangleRGBA(renderer, 390, 10, 425, 45, 1, 255, 0, 255, 255);
+		roundedRectangleRGBA(renderer, 430, 10, 465, 45, 1, 255, 0, 255, 255);
+		roundedRectangleRGBA(renderer, 470, 10, 505, 45, 1, 255, 0, 255, 255);
+		roundedRectangleRGBA(renderer, 510, 10, 545, 45, 1, 255, 0, 255, 255);
+		roundedRectangleRGBA(renderer, 550, 10, 585, 45, 1, 0, 255, 255, 255);
+		if (car) {
+			//car1
+
+			if (car1tool.Tool1)
+				tool1img.draw(renderer, NULL, &loc1);
+			if (car1tool.Tool2)
+				tool2img.draw(renderer, NULL, &loc2);
+			if (car1tool.Tool3)
+				tool3img.draw(renderer, NULL, &loc3);
+			if (car1tool.Tool4)
+				tool4img.draw(renderer, NULL, &loc4);
+			if (car1tool.Tool5)
+				tool5img.draw(renderer, NULL, &loc5);
+			if (car1tool.Tool6)
+				tool6img.draw(renderer, NULL, &loc6);
+		}
+		else {
+			//car2
+			if (car2tool.Tool1)
+				tool1img.draw(renderer, NULL, &loc1);
+			if (car2tool.Tool2)
+				tool2img.draw(renderer, NULL, &loc2);
+			if (car2tool.Tool3)
+				tool3img.draw(renderer, NULL, &loc3);
+			if (car2tool.Tool4)
+				tool4img.draw(renderer, NULL, &loc4);
+			if (car2tool.Tool5)
+				tool5img.draw(renderer, NULL, &loc5);
+			if (car2tool.Tool6)
+				tool6img.draw(renderer, NULL, &loc6);
+		}
 	}
 	/*
 	if (SDL_GetTicks64() - gettime < 3000)
@@ -102,20 +128,22 @@ void Tool::drawmytool(SDL_Renderer* renderer, bool car) {
 void Tool::getTools(bool car, int ind) 
 {
 	srand(std::time(NULL));
-	int num = rand() % 100;
-	if (num < 96)
-		num %= 6;
+	int num = rand() % 51;
+	if (num < 50)
+		num %= 5;
 	else
-		num = 6;
+		num = 5;
+	if (!dual)
+		num = rand() % 4;
 	if (objectList[ind].shownflag)
 	{
 		gettime = SDL_GetTicks64();
 		while (num != -1)
 		{
 			if (car) {
-				if (!checktoolset(car1tool) || num == 6)
+				if (!checktoolset(car1tool) || num == 5)
 				{
-					car1tool.Tool7 = 1;
+					car1tool.Tool6 = 1;
 					num = -1;
 				}
 				else 
@@ -149,14 +177,14 @@ void Tool::getTools(bool car, int ind)
 						else
 							num++;
 						break;
-					case NAVIGATION:
+					case GHOST:
 						if (!car1tool.Tool4)
 						{
 							car1tool.Tool4 = 1;
 							num = -1;
 						}
 						else
-							num++;
+							num = 0;
 						break;
 					case LIGHTNING:
 						if (!car1tool.Tool5)
@@ -167,23 +195,15 @@ void Tool::getTools(bool car, int ind)
 						else
 							num++;
 						break;
-					case GHOST:
-						if (!car1tool.Tool6)
-						{
-							car1tool.Tool6 = 1;
-							num = -1;
-						}
-						else
-							num = 0;
-						break;
+
 
 					}
 				}
 			}
 			else {
-				if (!checktoolset(car2tool) || num == 6)
+				if (!checktoolset(car2tool) || num == 5)
 				{
-					car2tool.Tool7 = 1;
+					car2tool.Tool6 = 1;
 					num = -1;
 				}
 				else
@@ -217,14 +237,14 @@ void Tool::getTools(bool car, int ind)
 						else
 							num++;
 						break;
-					case NAVIGATION:
+					case GHOST:
 						if (!car2tool.Tool4)
 						{
 							car2tool.Tool4 = 1;
 							num = -1;
 						}
 						else
-							num++;
+							num = 0;
 						break;
 					case LIGHTNING:
 						if (!car2tool.Tool5)
@@ -235,15 +255,7 @@ void Tool::getTools(bool car, int ind)
 						else
 							num++;
 						break;
-					case GHOST:
-						if (!car2tool.Tool6)
-						{
-							car2tool.Tool6 = 1;
-							num = -1;
-						}
-						else
-							num = 0;
-						break;
+
 					}
 				}
 			}
@@ -287,11 +299,11 @@ int Tool::usetool(ToolType type, bool car) {
 					return HEALING;
 				}
 				break;
-			case NAVIGATION:
+			case GHOST:
 				if (car1tool.Tool4)
 				{
 					car1tool.Tool4 = 0;
-					return NAVIGATION;
+					return GHOST;
 				}
 				break;
 			case LIGHTNING:
@@ -301,17 +313,11 @@ int Tool::usetool(ToolType type, bool car) {
 					return LIGHTNING;
 				}
 				break;
-			case GHOST:
+
+			case SWITCH:
 				if (car1tool.Tool6)
 				{
 					car1tool.Tool6 = 0;
-					return GHOST;
-				}
-				break;
-			case SWITCH:
-				if (car1tool.Tool7)
-				{
-					car1tool.Tool7 = 0;
 					return SWITCH;
 				}
 				break;
@@ -341,11 +347,11 @@ int Tool::usetool(ToolType type, bool car) {
 				return HEALING;
 			}
 			break;
-		case NAVIGATION:
+		case GHOST:
 			if (car2tool.Tool4)
 			{
 				car2tool.Tool4 = 0;
-				return NAVIGATION;
+				return GHOST;
 			}
 			break;
 		case LIGHTNING:
@@ -355,17 +361,11 @@ int Tool::usetool(ToolType type, bool car) {
 				return LIGHTNING;
 			}
 			break;
-		case GHOST:
+
+		case SWITCH:
 			if (car2tool.Tool6)
 			{
 				car2tool.Tool6 = 0;
-				return GHOST;
-			}
-			break;
-		case SWITCH:
-			if (car2tool.Tool7)
-			{
-				car2tool.Tool7 = 0;
 				return SWITCH;
 			}
 			break;
@@ -376,7 +376,7 @@ int Tool::usetool(ToolType type, bool car) {
 
 int Tool::checktoolset(ToolSet set)
 {
-	if (!set.Tool1 || !set.Tool2 || !set.Tool3 || !set.Tool4 || !set.Tool5 || !set.Tool6)
+	if (!set.Tool1 || !set.Tool2 || !set.Tool3 || !set.Tool4 || !set.Tool5)
 		return 1;
 	else
 		return 0;
@@ -391,7 +391,6 @@ void Tool::getalltools(bool car)
 		car1tool.Tool3 = 1;
 		car1tool.Tool4 = 1;
 		car1tool.Tool5 = 1;
-		car1tool.Tool6 = 1;
 	}
 	else
 	{
@@ -400,6 +399,5 @@ void Tool::getalltools(bool car)
 		car2tool.Tool3 = 1;
 		car2tool.Tool4 = 1;
 		car2tool.Tool5 = 1;
-		car2tool.Tool6 = 1;
 	}
 }

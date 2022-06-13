@@ -11,10 +11,9 @@ struct ToolSet {
 	int Tool1;	//speedup
 	int Tool2;	//invincible
 	int Tool3;	//healing
-	int Tool4;	//navigation
+	int Tool4;	//ghost 
 	int Tool5;	//lightning
-	int Tool6;	//ghost
-	int Tool7;	//SWITCH
+	int Tool6;	//SWITCH
 };
 
 class Tool: public BlenderObject
@@ -22,6 +21,7 @@ class Tool: public BlenderObject
 	ToolSet car1tool;
 	ToolSet car2tool;
 	int gettime;
+	bool dual;
 
 	Image tool1img;
 	Image tool2img;
@@ -29,11 +29,11 @@ class Tool: public BlenderObject
 	Image tool4img;
 	Image tool5img;
 	Image tool6img;
-	Image tool7img;
+
 public:
 	Tool();
 	~Tool();
-	Tool(SDL_Renderer* renderer);
+	Tool(SDL_Renderer* renderer, bool d);
 
 	//setter and getter
 	void setTool(Line* line, int lineindex, int ind);

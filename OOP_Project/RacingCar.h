@@ -53,7 +53,6 @@ class RacingCar: public BlenderObject
 	bool inAir;
 
 	int invincible;
-	int navigate;
 	int ghost;
 
 	int dizzy;
@@ -115,7 +114,6 @@ public:
 	double getVelM() { return motion.velM; }
 	int getIndex() { return motion.posX / SEGMENT_LENGTH; }
 	int getInvincible() { return invincible; }
-	int getnavigate() { return navigate; }
 	int getghost() { return ghost; }
 
 	//setter
@@ -148,7 +146,7 @@ public:
 	void brake(int type = -1);		//car accelerating
 	void touchobstacle(Obstacle& rock, int ind, vector<Line>& lines);
 	void isarrive();
-	int Dizzy();
+	int Dizzy() { return dizzy; }
 	int islost() { return lost; }
 	void beattacked();
 };

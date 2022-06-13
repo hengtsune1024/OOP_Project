@@ -14,7 +14,7 @@ Map::Map(SDL_Renderer* renderer, bool dual) : lines(NUM_LINE), number_of_lines(N
 	car2(dual ? new RacingCar("../images/car/car.txt", "../images/car/car", renderer, &lines[INITIAL_POS]) : NULL),
 	streetlight("../images/streetlight.png", renderer), moon("../images/moon.png", renderer),
 	cube("../images/cube/cube.txt", "../images/cube/cube", &lines, CUBE_SIZE / 2.457335),
-	virus(renderer), tools(renderer), rock("../images/rock/rock.txt", "../images/rock/rock.bmp")
+	virus(renderer), tools(renderer, dual), rock("../images/rock/rock.txt", "../images/rock/rock.bmp")
 {
 	generateMap();
 
@@ -839,9 +839,8 @@ Uint32 Map::move(Uint32 interval, void* para)
 		if (type & TRAPAREA)
 		{
 			int index = map->virus.getNearestTrap(startpos);
-			if (map->virus.hitTrap(midY, camH - CAMERA_HEIGHT, motion.velM, index))
+			if (!car->getghost() && map->virus.hitTrap(midY, camH - CAMERA_HEIGHT, motion.velM, index))
 				car->gettrap(map->virus.gettrap((map->dualMode ? times - 1 : true), index));
-				//map->virus.gettrap(STAIN, (map->dualMode ? times - 1 : true), index);
 		}
 
 		//tool
@@ -856,20 +855,21 @@ Uint32 Map::move(Uint32 interval, void* para)
 		if (type & OBSTACLEAREA)
 		{
 			int index = map->rock.getNearestObstacle(startpos);
-			if (!map->rock.getBroken(index) && map->rock.hitObstacle(midY,camH - CAMERA_HEIGHT, index))
+			if (!car->getghost() && !map->rock.getBroken(index) && map->rock.hitObstacle(midY, camH - CAMERA_HEIGHT, index))
 			{
 				car->touchobstacle(map->rock, index, map->lines);
-
-				if (car->getHP() <= 0)
-				{
-					if (map->dualMode)
-						map->endtype = (times == 2 ? PLAYER2 : PLAYER1);
-					else
-						map->endtype = FAILED;
-					map->endtime = SDL_GetTicks64() + 3000;
-
-				}
 			}
+		}
+
+		//checkHP
+		if (car->getHP() <= 0)
+		{
+			if (map->dualMode)
+				map->endtype = (times == 2 ? PLAYER2 : PLAYER1);
+			else
+				map->endtype = FAILED;
+			if (!map->endtime)
+				map->endtime = SDL_GetTicks64() + 3000;
 		}
 
 		//arrive
