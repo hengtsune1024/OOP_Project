@@ -130,12 +130,12 @@ void Map::generateMap()
 		else
 			sign = 1;
 		do{
-			generator.curve = sign * ((1.0 - 0.1) * (rand() / (RAND_MAX + 1.0)) + 0.1);
+			generator.curve = sign * ((0.8 - 0.1) * (rand() / (RAND_MAX + 1.0)) + 0.1);
 			range = (800 - 200) * (rand() / (RAND_MAX + 1.0)) + 200;
 			generator.start = (900 - range) * (rand() / (RAND_MAX + 1.0)) + 900 * i + 100;
 			generator.end = generator.start + range;
 			total = range * (range - 1) * generator.curve / 2.0;
-		} while (total <= -100000 || total >= 100000);
+		} while (total <= -75000 || total >= 75000);
 		divert += total;
 		for (int j = generator.start; j <= generator.end; ++j) {
 			lines[j].setCurve(generator.curve);
@@ -550,17 +550,16 @@ void Map::draw(SDL_Renderer* renderer)
 			car->drawOtherCar(renderer, &engine, clean, lines[otherCar->getIndex()].getClip(), camH);
 		}
 
-		//car
-		car->draw(renderer, &engine, clean);
+		car->draw3D({ 0,0,0 }, car->getMotion().camDegree, car->getMotion().camDepth, &engine, clean, 0, HEIGHT);
 
 		engine.drawAll(renderer);
 
-		/**************************/
-		virus.drawStain(renderer, (dualMode ? times - 1 : true));	//only draws stain
-		/**************************/
+		//car
+		car->draw(renderer, &engine, clean);
 
 		tools.drawmytool(renderer, (dualMode ? times - 1 : true));
 
+		virus.drawStain(renderer, (dualMode ? times - 1 : true));	//only draws stain
 
 
 		if (dualMode) {
@@ -672,7 +671,7 @@ Uint32 Map::move(Uint32 interval, void* para)
 
 		//move in x-direction
 		car->setPosX(motion.posX + velX);
-		if (motion.posX < SEGMENT_LENGTH || motion.posX >(map->number_of_lines - 20) * SEGMENT_LENGTH || (velX < 0 && (map->lines[(int)(motion.posX / SEGMENT_LENGTH)].getType() & CLIFF)))
+		if (motion.posX < 30 * SEGMENT_LENGTH || motion.posX >(map->number_of_lines - 20) * SEGMENT_LENGTH || (velX < 0 && (map->lines[(int)(motion.posX / SEGMENT_LENGTH)].getType() & CLIFF)))
 			car->setPosX(motion.posX - velX);
 		
 

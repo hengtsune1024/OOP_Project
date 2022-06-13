@@ -125,7 +125,10 @@ void eventHandler(SDL_Event& e, RenderWindow& w, Map& map, RacingCar* car1, Raci
 			if (!car1->Dizzy())
 				car1->rush(ENERGY);
 				break;
+		case SDLK_q:
 
+			break;
+		
 		case SDLK_1:
 			car1->usetool(SPEEDUP, map.getTool(), true);
 			break;
@@ -143,13 +146,20 @@ void eventHandler(SDL_Event& e, RenderWindow& w, Map& map, RacingCar* car1, Raci
 			break;
 		case SDLK_5:
 			if (!car1->Dizzy())
-				if (car1->usetool(LIGHTNING, map.getTool(), true))
+				if (car1->usetool(LIGHTNING, map.getTool(), true)) 
+				{
 					car2->beattacked();
+					if (car2->getHP() <= 0)
+					{
+						map.setEndType(PLAYER1);
+					}
+				}
 			break;
 		case SDLK_6:
 			if (!car1->Dizzy())
 				car1->usetool(GHOST, map.getTool(), true);
 			break;
+		
 		case SDLK_0:
 			if (!car1->Dizzy())
 			{
@@ -216,8 +226,13 @@ void eventHandler(SDL_Event& e, RenderWindow& w, Map& map, RacingCar* car1, Raci
 			break;
 		case SDLK_KP_5:
 			if (car2 && !car2->Dizzy())
-				if (car2->usetool(LIGHTNING, map.getTool(), false))
+				if (car2->usetool(LIGHTNING, map.getTool(), false)) {
 					car1->beattacked();
+					if (car1->getHP() <= 0)
+					{
+						map.setEndType(PLAYER2);
+					}
+				}
 			break;
 		case SDLK_KP_6:
 			if (car2 && !car2->Dizzy())
