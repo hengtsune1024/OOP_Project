@@ -15,7 +15,7 @@ void Tool::close() {
 Tool::Tool(SDL_Renderer* renderer) : car1tool{ 0,0,0,0,0,0,1 }, car2tool{ 0,0,0,0,0,0,1 },
 	tool1img("../images/star.png", renderer), tool2img("../images/star.png", renderer), tool3img("../images/star.png", renderer), 
 	tool4img("../images/star.png", renderer), tool5img("../images/star.png", renderer), tool6img("../images/star.png", renderer),
-	BlenderObject("../images/tool/tool.txt", "../images/tool/tool.bmp", 750, NUM_TOOL)
+	BlenderObject("../images/tool/tool.txt", "../images/tool/tool.bmp", 750, NUM_TOOL, 1)
 {
 	gettime = SDL_GetTicks64() - STAIN_INTERVAL;
 }

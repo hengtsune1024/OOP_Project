@@ -392,7 +392,7 @@ void RacingCar::gettrap(int type)
 	default:;
 	}
 }
-void RacingCar::touchobstacle(Obstacle& rock)
+void RacingCar::touchobstacle(Obstacle& rock, int ind, vector<Line>& lines)
 {
 	if (!rock.istouching())
 	{
