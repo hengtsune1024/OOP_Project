@@ -467,7 +467,6 @@ void Tool::getalltools(bool car)
 		car1tool.Tool[2] = 1;
 		car1tool.Tool[3] = 1;
 		car1tool.Tool[4] = 1;
-		car1tool.Tool[5] = 1;
 	}
 	else
 	{
@@ -476,7 +475,6 @@ void Tool::getalltools(bool car)
 		car2tool.Tool[2] = 1;
 		car2tool.Tool[3] = 1;
 		car2tool.Tool[4] = 1;
-		car2tool.Tool[5] = 1;
 	}
 }
 
