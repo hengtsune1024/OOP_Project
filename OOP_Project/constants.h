@@ -21,7 +21,7 @@
 #define BLENDED 102
 
 //map
-#define NUM_LINE 10000		//
+#define NUM_LINE 10000		
 #define INITIAL_POS 60
 #define FINAL_POS 9500
 #define NUM_OBSTACLE 30
@@ -115,7 +115,7 @@ enum ToolType {
 };
 
 enum EndType {
-	PLAYING, PLAYER1, PLAYER2, VICTORY, FAILED, ALLDEAD
+	PLAYING, PLAYER1, PLAYER2, VICTORY, FAILED
 };
 /*
 

@@ -94,48 +94,52 @@ void Trap::drawStain(SDL_Renderer* renderer, bool car)
 	}
 }
 
-int Trap::gettrap(bool car, int ind) 
+int Trap::gettrap(bool car, bool invincible, int ind)
 {
+	if (invincible) 
+	{
+		objectList[ind].shownflag = false;
+		return -1;
+	}
 	srand(std::time(NULL));
-	//int num = rand() % 4;
-	int num = 2;
-	if (objectList[ind].shownflag == true)
+	int num = rand() & 3;
+	if (objectList[ind].shownflag)
 	{
 		objectList[ind].shownflag = false;
 		if (car)
 		{
 			switch (num)
 			{
-			case STAIN:
-				car1trap.staintime = SDL_GetTicks64();
-				break;
-			case BANANA:
-				return BANANA;
-				break;
-			case SPEEDDOWN:
-				return SPEEDDOWN;
-				break;
-			case BOMB:
-				return BOMB;
-				break;
+				case STAIN:
+					car1trap.staintime = SDL_GetTicks64();
+					break;
+				case BANANA:
+					return BANANA;
+					break;
+				case SPEEDDOWN:
+					return SPEEDDOWN;
+					break;
+				case BOMB:
+					return BOMB;
+					break;
 			}
 		}
 		else
 		{
 			switch (num)
 			{
-			case STAIN:
-				car2trap.staintime = SDL_GetTicks64();
-				break;
-			case BANANA:
-				return BANANA;
-				break;
-			case SPEEDDOWN:
-				return SPEEDDOWN;
-				break;
-			case BOMB:
-				return BOMB;
-				break;
+				case STAIN:
+					car2trap.staintime = SDL_GetTicks64();
+					break;
+				case BANANA:
+					return BANANA;
+					break;
+				case SPEEDDOWN:
+					return SPEEDDOWN;
+					break;
+				case BOMB:
+					return BOMB;
+					break;
 			}
 		}
 	}

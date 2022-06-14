@@ -311,7 +311,7 @@ void Map::generateMap()
 		//road modify
 		if (i > 0)
 			lines[i].setRoadVelM((sin(lines[i].getRoadDegree()) * (lines[i].getx() - lines[i - 1].getx()) + cos(lines[i].getRoadDegree()) * SEGMENT_LENGTH) / SEGMENT_LENGTH);
-
+		
 		// type
 		if (i >= INITIAL_POS - 10 && i < INITIAL_POS + 22)
 			lines[i].addType(STARTPOINT);
@@ -526,21 +526,21 @@ void Map::draw(SDL_Renderer* renderer)
 		bool clean = true;
 
 		for (int i = 0; i < NUM_TRAP; ++i)
-			if (startpos >= virus.getIndex(i) - 300 && startpos <= virus.getIndex(i))
+			if (startpos >= virus.getIndex(i) - 300 && startpos <= virus.getIndex(i) + 10)
 				virus.draw3D(pos, m.camDegree, m.camDepth, &engine, clean, i, lines[virus.getIndex(i)].getClip());
 
 
 		for (int i = 0; i < NUM_PHYSICALITEM; ++i)
-			if (startpos >= cube.getIndex(i) - 300 && startpos <= cube.getIndex(i))
+			if (startpos >= cube.getIndex(i) - 300 && startpos <= cube.getIndex(i) + 10)
 				cube.draw3D(pos, m.camDegree, m.camDepth, &engine, clean, i, lines[cube.getIndex(i)].getClip());
 
 		for (int i = 0; i < NUM_OBSTACLE; ++i)
-			if (startpos >= rock.getIndex(i) - 300 && startpos <= rock.getIndex(i)) {
+			if (startpos >= rock.getIndex(i) - 300 && startpos <= rock.getIndex(i) + 10) {
 				rock.draw3D(pos, m.camDegree, m.camDepth, &engine, clean, i, lines[rock.getIndex(i)].getClip());
 			}
 
 		for (int i = 0; i < NUM_TOOL; ++i)
-			if (startpos >= tools.getIndex(i) - 300 && startpos <= tools.getIndex(i)) {
+			if (startpos >= tools.getIndex(i) - 300 && startpos <= tools.getIndex(i) + 10) {
 				tools.draw3D(pos, m.camDegree, m.camDepth, &engine, clean, i, lines[tools.getIndex(i)].getClip());
 			}
 
@@ -550,6 +550,9 @@ void Map::draw(SDL_Renderer* renderer)
 			car->drawOtherCar(renderer, &engine, clean, lines[otherCar->getIndex()].getClip(), camH);
 		}
 
+		engine.drawAll(renderer);
+
+		clean = true;
 		car->draw3D({ 0,0,0 }, car->getMotion().camDegree, car->getMotion().camDepth, &engine, clean, 0, HEIGHT);
 
 		engine.drawAll(renderer);
@@ -583,13 +586,12 @@ Uint32 Map::move(Uint32 interval, void* para)
 	int times = map->dualMode ? 2 : 1;
 	int startpos, front, back;
 	double punish, midY, camH, dist, velX, velY;
-	
+
 	do {
 		const Motion& motion = car->getMotion();
 		startpos = motion.posX / SEGMENT_LENGTH;
 		car->setCurrentPos(&(map->lines[startpos]));
 		type = map->lines[startpos].getType();
-
 		//perpendicular (z-direction)
 		car->setCamHeight(motion.camHeight + motion.velPerpen);
 		if (car->isInAir() && ((motion.camHeight + motion.baseHeight) - (CAMERA_HEIGHT + map->lines[startpos].gety()) < -1e-6)) {
@@ -631,7 +633,9 @@ Uint32 Map::move(Uint32 interval, void* para)
 		else {
 			car->setOutofRoad(false);
 		}
-
+		if (car->isSlow()) {
+			punish *= 0.7;
+		}
 		//friction
 		type = map->lines[startpos].getType();
 
@@ -661,7 +665,6 @@ Uint32 Map::move(Uint32 interval, void* para)
 		}
 
 		car->setVelM(car->getRoadMod() * car->getCurrentPos()->getRoadVelM());
-
 
 		//set car road type
 		car->setFrictionType(type);
@@ -721,7 +724,6 @@ Uint32 Map::move(Uint32 interval, void* para)
 		{
 			if (car->collided()) 
 			{
-				cout << "collide with car\n";
 				car->setPosY(motion.posY - velY);
 				car->setPosX(motion.posX - velX);
 
@@ -815,7 +817,7 @@ Uint32 Map::move(Uint32 interval, void* para)
 			car->setCurrentPos(&(map->lines[startpos]));
 
 			//rush
-			if (car->getRushing() != ACCROAD && ((type & ACCELERATE_LEFT) || (type & ACCELERATE_RIGHT))) {
+			if (!car->Dizzy() && car->getRushing() != ACCROAD && ((type & ACCELERATE_LEFT) || (type & ACCELERATE_RIGHT))) {
 				if ((type & ACCELERATE_LEFT) && (midY < map->lines[startpos].getx() && midY > map->lines[startpos].getx() - ROAD_WIDTH * motion.velM)) {
 					car->rush(ACCROAD);
 				}
@@ -832,7 +834,7 @@ Uint32 Map::move(Uint32 interval, void* para)
 			
 		}
 
-		startpos = (motion.posX + CAMERA_CARMIDPOINT_DIST) / SEGMENT_LENGTH;
+		startpos = (motion.posX + CAMERA_CARMIDPOINT_DIST * cos(motion.axleDegree)) / SEGMENT_LENGTH;
 		midY = motion.posY + CAMERA_CARMIDPOINT_DIST * sin(motion.axleDegree);
 		type = map->lines[startpos].getType();
 		car->setCurrentPos(&(map->lines[startpos]));
@@ -843,7 +845,7 @@ Uint32 Map::move(Uint32 interval, void* para)
 		{
 			int index = map->virus.getNearestTrap(startpos);
 			if (!car->getghost() && map->virus.hitTrap(midY, camH - CAMERA_HEIGHT, motion.velM, index))
-				car->gettrap(map->virus.gettrap((map->dualMode ? times - 1 : true), index));
+				car->gettrap(map->virus.gettrap((map->dualMode ? times - 1 : true), car->getInvincible(), index));
 		}
 		//tool
 		if (type & TOOLAREA)
@@ -859,12 +861,20 @@ Uint32 Map::move(Uint32 interval, void* para)
 			int index = map->rock.getNearestObstacle(startpos);
 			if (!car->getghost() && !map->rock.getBroken(index) && map->rock.hitObstacle(midY, camH - CAMERA_HEIGHT, index))
 			{
+				car->setPosX(motion.posX - velX);
+				car->setPosY(motion.posY - velY);
+
+				if (car->collided()) {
+					RacingCar* otherCar = car->getOtherCar();
+					otherCar->setPosX(otherCar->getPosX() - velX);
+					otherCar->setPosY(otherCar->getPosY() - velY);
+				}
 				car->touchobstacle(map->rock, index, map->lines);
 			}
 		}
 
 		//checkHP
-		if (car->getHP() <= 0)
+		if (map->endtype == PLAYING && car->getHP() <= 0)
 		{
 			if (map->dualMode)
 				map->endtype = (times == 2 ? PLAYER2 : PLAYER1);
@@ -872,6 +882,8 @@ Uint32 Map::move(Uint32 interval, void* para)
 				map->endtype = FAILED;
 			if (!map->endtime)
 				map->endtime = SDL_GetTicks64() + 3000;
+
+			return 0;
 		}
 
 		//arrive
@@ -915,7 +927,8 @@ Uint32 Map::accelerate(Uint32 interval, void* para)
 	do {
 		const Motion& motion = car->getMotion();
 		car->brake();
-		
+		double maxfV = MAX_FORWARD_SPEED * (car->getHP() / 5 + 80) / 100;
+		double maxbV = MAX_BACKWARD_SPEED * (car->getHP() / 5 + 80) / 100;
 		if (car->getRushing()) //excpet RushType == NONE(0), other types will go here
 		{
 			double speedDecrease = AFTERRUSH_SPEED_DECREASE;
@@ -925,8 +938,8 @@ Uint32 Map::accelerate(Uint32 interval, void* para)
 				++speedDecrease;
 
 			car->setVelLinear(motion.velLinear - speedDecrease);
-			if (motion.velLinear < MAX_FORWARD_SPEED) {
-				car->setVelLinear(MAX_FORWARD_SPEED);
+			if (motion.velLinear < maxfV) {
+				car->setVelLinear(maxfV);
 				if (motion.accLinear == 0)
 					car->brake(0);
 				car->rush(NONE);
@@ -939,11 +952,12 @@ Uint32 Map::accelerate(Uint32 interval, void* para)
 		else
 		{
 			car->setVelLinear(motion.velLinear + motion.accLinear);
-			if (motion.velLinear > MAX_FORWARD_SPEED) {
-				car->setVelLinear(MAX_FORWARD_SPEED);
+
+			if (motion.velLinear > maxfV) {
+				car->setVelLinear(maxfV);
 			}
-			else if (motion.velLinear < -MAX_BACKWARD_SPEED) {
-				car->setVelLinear(-MAX_BACKWARD_SPEED);
+			else if (motion.velLinear < -maxbV) {
+				car->setVelLinear(-maxbV);
 			}
 			bool incline = (car->getCurrentPos()->getType() & INCLINE_BACKWARD) || (car->getCurrentPos()->getType() & INCLINE_FORWARD);
 			if (!incline && (((motion.accLinear < 0 && motion.accLinear >= -HIGH_FRICTION_ACC - 50) && motion.velLinear < 0) || ((motion.accLinear > 0 && motion.accLinear <= HIGH_FRICTION_ACC + 50) && motion.velLinear > 0))) {
@@ -956,7 +970,6 @@ Uint32 Map::accelerate(Uint32 interval, void* para)
 		}
 
 	} while (--times);
-
 	return interval;
 }
 
@@ -982,9 +995,9 @@ void Map::carCollision(RacingCar* car)
 			(*car) -= v1 * v1 / 2 / 100000;
 		else
 			(*car) -= v1 * v1 / 2 / 1000000;
-		if (car->getHP() <= 0)
+		if (endtype == PLAYING && car->getHP() <= 0)
 		{
-			endtype = (car == car1) ? PLAYER2 : PLAYER1;
+			endtype = PLAYER2;
 			endtime = SDL_GetTicks64() + 3000;
 		}
 	}
@@ -993,9 +1006,9 @@ void Map::carCollision(RacingCar* car)
 			(*otherCar) -= v1 * v1 / 2 / 100000;
 		else
 			(*otherCar) -= v1 * v1 / 2 / 1000000;
-		if (car->getHP() <= 0)
+		if (endtype == PLAYING && car->getHP() <= 0)
 		{
-			endtype = (endtype == PLAYING) ? PLAYER1 : ALLDEAD;
+			endtype = PLAYER1;
 			endtime = SDL_GetTicks64() + 3000;
 		}
 	}
@@ -1143,6 +1156,12 @@ void Map::removeTimer() {
 	SDL_RemoveTimer(moveTimer);
 	SDL_RemoveTimer(accelerateTimer);
 	SDL_RemoveTimer(mapObjectTimer);
+}
+
+void Map::getAllTool() {
+	tools.getalltools(true);
+	tools.getalltools(false);
+
 }
 
 /*
@@ -1437,7 +1456,9 @@ void Map::removeTimer() {
 						car->rush(ACCROAD);
 					}
 				}
-				//trap
+				
+
+
 				if ((type & TRAPAREA) && motion.posY < map->lines[startpos].getx() + TRAP_WIDTH * motion.velM && motion.posY > map->lines[startpos].getx() - TRAP_WIDTH * motion.velM)
 					car->getTrap()->gettrap(STAIN);
 				//tool

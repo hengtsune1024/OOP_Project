@@ -68,6 +68,7 @@ class RacingCar: public BlenderObject
 	int lnstate;
 	Image* lnimg;
 
+	bool touch=false;
 
 	int select;
 	int toolnum;
@@ -127,6 +128,7 @@ public:
 	int getIndex() { return motion.posX / SEGMENT_LENGTH; }
 	int getInvincible() { return invincible; }
 	int getghost() { return ghost; }
+	int isSlow() { return slow; }
 
 	//setter
 	void setOtherCar(RacingCar* c) { theOtherCar = c; }

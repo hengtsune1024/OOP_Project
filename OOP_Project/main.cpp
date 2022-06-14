@@ -127,43 +127,55 @@ void eventHandler(SDL_Event& e, RenderWindow& w, Map& map, RacingCar* car1, Raci
 		case SDLK_e:
 			switch (map.gettools().getchosentool(true))
 			{
-			case 0:
-				if (!car1->Dizzy())
-					car1->usetool(SPEEDUP, map.getTool(), true);
-				break;
-			case 1:
-				if (!car1->Dizzy())
-					car1->usetool(INVINCIBLE, map.getTool(), true);
-				break;
-			case 2:
-				if (!car1->Dizzy())
-					car1->usetool(HEALING, map.getTool(), true);
-				break;
-			case 3:
-				if (!car1->Dizzy())
-					car1->usetool(GHOST, map.getTool(), true);
-				break;
-			case 4:
-				if (car2 && !car1->Dizzy())
-					if (car1->usetool(LIGHTNING, map.getTool(), true))
-						car2->beattacked();
-				break;
-			case 5:
-				if (car2 && !car1->Dizzy())
-				{
-					if (car1->usetool(SWITCH, map.getTool(), true))
-						if (car1->getPosX() < car2->getPosX())
-							map.changecar();
-				}
-				break;
+				case 0:
+					if (!car1->Dizzy())
+						car1->usetool(SPEEDUP, map.getTool(), true);
+					break;
+				case 1:
+					if (!car1->Dizzy())
+						car1->usetool(INVINCIBLE, map.getTool(), true);
+					break;
+				case 2:
+					if (!car1->Dizzy())
+						car1->usetool(HEALING, map.getTool(), true);
+					break;
+				case 3:
+					if (!car1->Dizzy())
+						car1->usetool(GHOST, map.getTool(), true);
+					break;
+				case 4:
+					if (car2 && !car1->Dizzy())
+						if (car1->usetool(LIGHTNING, map.getTool(), true))
+							car2->beattacked();
+					break;
+				case 5:
+					if (car2 && !car1->Dizzy())
+					{
+						if (car1->usetool(SWITCH, map.getTool(), true))
+							if (car1->getPosX() < car2->getPosX())
+								map.changecar();
+					}
+					break;
 			}
 			break;
 		case SDLK_SPACE:
 			if (!car1->Dizzy())
 				car1->rush(ENERGY);
 			break;
-
-
+			/*
+		case SDLK_v:
+			map.getAllTool();
+			break;
+		case SDLK_b:
+			car1->gettrap(BANANA);
+			break;
+		case SDLK_n:
+			car1->gettrap(SPEEDDOWN);
+			break;
+		case SDLK_m:
+			car1->gettrap(BOMB);
+			break;
+			*/
 
 		//car 2
 		case SDLK_i:

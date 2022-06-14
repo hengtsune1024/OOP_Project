@@ -10,7 +10,7 @@ RacingCar::~RacingCar()
 RacingCar::RacingCar(const char* obfpath, const char* imgpath, SDL_Renderer* renderer, Line* initpos) :
 	isRushing(NONE), fullEnergy(true), energy(100.0), healthPoint(100.0), motion(MOTION_INIT), accState(0), roadtype(NORMAL), currentPos(initpos),
 	theOtherCar(NULL), starttime(SDL_GetTicks64() + 3000), timing("00:00:000"), arrive(false), totaltime(0), invincible(0), select(0), toolnum(0),
-	BlenderObject(obfpath, imgpath, 1000, 1, 2),
+	BlenderObject(obfpath, imgpath, 1000, 1, 3),
 	timetext(timing, "../fonts/akabara-cinderella.ttf", 20, 0x02, { 255, 255, 255 }, SHADED, { 0, 0, 0 }, renderer, { 200, 10 }, { 10, 10 }, NULL, SDL_FLIP_NONE, 255),
 	dizzy(0), lost(0), slow(0), slowimg("../images/slow.png", renderer),
 	dizzyimg("../images/dizzy.png", renderer), lostimg("../images/banana.png", renderer)
@@ -48,7 +48,8 @@ void RacingCar::changeSelect() {
 
 }
 
-bool RacingCar::collided() {
+bool RacingCar::collided() 
+{
 	if (theOtherCar == NULL)
 		return false;
 	//collision
@@ -182,18 +183,23 @@ Uint32 RacingCar::changeData(Uint32 interval, void* param)
 
 	Uint64 t = SDL_GetTicks64();
 	//invincible tool
-	if (t - car->invincible >= INVINCIBLE_INTERVAL){
+	if (car->invincible && t - car->invincible >= INVINCIBLE_INTERVAL){
 		car->invincible = 0;
 		car->objectList[0].texindex = 0;
 	}
 
 	//ghost tool
-	if (car->ghost && t - car->ghost >= GHOST_INTERVAL)
+	if (car->ghost && t - car->ghost >= GHOST_INTERVAL){
 		car->ghost = 0;
+		car->objectList[0].texindex = 0;
+	}
 
 	//dizzy
 	if (car->dizzy && t - car->dizzy >= DIZZY_INTERVAL)
 		car->dizzy = 0;
+
+	if (car->dizzy && car->isRushing)
+		car->rush(NONE);
 
 	//lost
 	if (car->lost && t - car->lost >= LOST_INTERVAL){
@@ -205,12 +211,13 @@ Uint32 RacingCar::changeData(Uint32 interval, void* param)
 	if (car->slow && t - car->slow >= SLOW_INTERVAL)
 		car->slow = 0;
 
-	if (car->slow)
-		car->setVelLinear(car->getVelLinear() * 0.7);
+	//if (car->slow){
+	//	car->motion.velLinear = car->motion.velLinear * 0.7;
+	//}
 
 	//slow down with losing HP
-	if (!car->getRushing())
-		car->setVelLinear(car->getVelLinear() * (car->healthPoint / 5 + 80) / 100);
+	//if (!car->isRushing)
+	//	car->motion.velLinear = car->motion.velLinear * (car->healthPoint / 5 + 80) / 100;
 
 	//lightning
 	if (car->drawln)
@@ -260,6 +267,7 @@ void RacingCar::brake(int type)
 		type = accState;
 	else
 		accState = type;
+
 	if (inAir) {
 		motion.accLinear = 0;
 		return;
@@ -300,6 +308,8 @@ void RacingCar::brake(int type)
 	}
 	//foward
 	else if (type == 1) {
+
+		
 		if ((roadtype & NORMAL) || outOfRoad) {
 			motion.accLinear = ACCELERATION - FRICTION_ACC;
 		}
@@ -309,6 +319,7 @@ void RacingCar::brake(int type)
 		else if (roadtype & LOW_FRICTION) {
 			motion.accLinear = ACCELERATION - LOW_FRICTION_ACC;
 		}
+
 		if ((roadtype & INCLINE_BACKWARD) || (roadtype & INCLINE_FORWARD)) {
 			motion.accLinear -= INCLINE_ACC * currentPos->getSlope() / SEGMENT_LENGTH;
 		}
@@ -324,9 +335,11 @@ void RacingCar::brake(int type)
 		else if (roadtype & LOW_FRICTION) {
 			motion.accLinear = -ACCELERATION + LOW_FRICTION_ACC;
 		}
+
 		if ((roadtype & INCLINE_BACKWARD) || (roadtype & INCLINE_FORWARD)) {
 			motion.accLinear -= INCLINE_ACC * currentPos->getSlope() / SEGMENT_LENGTH;
 		}
+
 	}
 
 	//cout << motion.accLinear << ',' << motion.velLinear << endl;
@@ -393,12 +406,13 @@ int RacingCar::usetool(ToolType type, Tool* tools, bool car)
 			break;
 		case GHOST:
 			ghost = SDL_GetTicks64();
+			objectList[0].texindex = 2;
 			break;
 		case LIGHTNING:
 			return 1;
 			break;
 		case SWITCH:
-			tools->getalltools(car);
+			//tools->getalltools(car);
 			return 1;
 			break;
 	}
@@ -409,29 +423,37 @@ void RacingCar::gettrap(int type)
 {
 	switch (type)
 	{
-	case STAIN:
-		break;
-	case BANANA:
-		lost = SDL_GetTicks64();
-		break;
-	case SPEEDDOWN:
-		slow = SDL_GetTicks64();
-		break;
-	case BOMB:
-		if (!invincible)
-		{
-			healthPoint -= 50;
-			setVelLinear(getVelLinear() * 0.3);
-			brake(0);
-			dizzy = SDL_GetTicks64();
-		}
-		break;
-	default:;
+		case STAIN:
+
+			break;
+		case BANANA:
+			lost = SDL_GetTicks64();
+			break;
+		case SPEEDDOWN:
+			slow = SDL_GetTicks64();
+			break;
+		case BOMB:
+			if (!invincible)
+			{
+				healthPoint -= 25;
+				motion.velLinear *= 0.3;
+				motion.velAngular = 0;
+				brake(0);
+				dizzy = SDL_GetTicks64();
+				if (isRushing) {
+					rush(NONE);
+				}
+
+			}
+			break;
+		case -1:
+			return;
+		default:;
 	}
 }
 void RacingCar::touchobstacle(Obstacle& rock, int ind, vector<Line>& lines)
 {
-	if (!rock.istouching())
+	if (!rock.istouching(ind))
 	{
 		//cout << motion.velLinear << endl;
 
@@ -441,6 +463,7 @@ void RacingCar::touchobstacle(Obstacle& rock, int ind, vector<Line>& lines)
 			rock.broken(rock.getNearestObstacle(motion.posX / SEGMENT_LENGTH));
 			return;
 		}
+		/*
 		if (motion.velLinear > 0) {
 			motion.posX -= ROCK_SIZE / 2 * cos(motion.axleDegree);
 			motion.posY -= ROCK_SIZE / 2 * sin(motion.axleDegree);
@@ -456,7 +479,16 @@ void RacingCar::touchobstacle(Obstacle& rock, int ind, vector<Line>& lines)
 				theOtherCar->motion.posX += ROCK_SIZE / 2 * cos(motion.axleDegree);
 				theOtherCar->motion.posY += ROCK_SIZE / 2 * sin(motion.axleDegree);
 			}
-		}
+		}*/
+		/*
+		motion.posX -= motion.velLinear * cos(motion.axleDegree) * motion.velM;
+		motion.posY -= motion.velLinear * sin(motion.axleDegree) * motion.velM;
+
+		if (collided()) {
+			theOtherCar->motion.posX -= motion.velLinear * cos(motion.axleDegree);
+			theOtherCar->motion.posY -= motion.velLinear * sin(motion.axleDegree);
+		}*/
+
 		motion.velLinear = -motion.velLinear * 0.5;
 
 		if (isRushing) {
@@ -491,10 +523,14 @@ void RacingCar::beattacked()
 	drawln = SDL_GetTicks64();
 	if (!invincible)
 	{
-		setVelLinear(getVelLinear() * 0.3);
-		brake(0);
 		healthPoint -= 20;
+		motion.velLinear *= 0.3;
+		motion.velAngular = 0;
+		brake(0);
 		dizzy = SDL_GetTicks64();
+		if (isRushing) {
+			rush(NONE);
+		}
 	}
 
 }

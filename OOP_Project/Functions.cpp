@@ -186,22 +186,6 @@ void Functions::Victory(EndType type)
 		endtext.setString("HP = 0");
 		endtext.setPos({ 130, 285 });
 	}
-	else if (type == ALLDEAD) 
-	{
-		endtext.setString("FAILED");
-		endtext.generateTexture();
-		endtext.setPos({ 130, 175 });
-		endtext.draw();
-		endtext.setPos({ 730, 175 });
-		endtext.draw();
-
-		endtext.close();
-		endtext.setString("HP = 0");
-		endtext.generateTexture();
-		endtext.setPos({ 130, 285 });
-		endtext.draw();
-		endtext.setPos({ 730, 285 });
-	}
 	endtext.generateTexture();
 	endtext.draw();
 	window.display();
@@ -274,10 +258,6 @@ void Functions::Grade(EndType type, int record)
 			case FAILED:
 				gradetext.setString("FAILED");
 				gradetext.setPos({ 430, 10 });
-				break;
-			case ALLDEAD:
-				gradetext.setString("ALL DEAD");
-				gradetext.setPos({ 400, 10 });
 				break;
 		}
 		gradetext.generateTexture();

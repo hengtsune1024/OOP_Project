@@ -5,7 +5,7 @@
 
 class Obstacle: public BlenderObject
 {
-	int touchtime;
+	vector<Uint32> touchtime;
 	vector<bool> isBroken;
 
 public:
@@ -17,7 +17,7 @@ public:
 	void setObstacle(Line* line, int lineindex, int ind);
 
 	//state
-	int istouching();
+	int istouching(int ind);
 	bool hitObstacle(double carx, double height, int ind);
 	int getNearestObstacle(int startpos);
 	

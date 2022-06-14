@@ -102,6 +102,7 @@ public:
 	Engine* getEng() { return &engine; }
 	vector<Line>* getLines() { return &lines; }
 	Obstacle* getObstacle() { return &rock; }
+	Trap* getTrap() { return &virus; }
 
 	// timer
 	void startTimer();
@@ -117,6 +118,8 @@ public:
 
 	void changecar();
 
+
+	void getAllTool();
 };
 
 // unused code
