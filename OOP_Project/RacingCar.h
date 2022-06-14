@@ -121,6 +121,7 @@ public:
 	int getIndex() { return motion.posX / SEGMENT_LENGTH; }
 	int getInvincible() { return invincible; }
 	int getghost() { return ghost; }
+	int isSlow() { return slow; }
 
 	//setter
 	void setOtherCar(RacingCar* c) { theOtherCar = c; }

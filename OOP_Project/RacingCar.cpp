@@ -193,12 +193,13 @@ Uint32 RacingCar::changeData(Uint32 interval, void* param)
 	if (car->slow && t - car->slow >= SLOW_INTERVAL)
 		car->slow = 0;
 
-	if (car->slow)
-		car->setVelLinear(car->getVelLinear() * 0.7);
+	//if (car->slow){
+	//	car->motion.velLinear = car->motion.velLinear * 0.7;
+	//}
 
 	//slow down with losing HP
-	if (!car->getRushing())
-		car->setVelLinear(car->getVelLinear() * (car->healthPoint / 5 + 80) / 100);
+	//if (!car->isRushing)
+	//	car->motion.velLinear = car->motion.velLinear * (car->healthPoint / 5 + 80) / 100;
 
 
 	//car rotation
@@ -243,6 +244,7 @@ void RacingCar::brake(int type)
 		type = accState;
 	else
 		accState = type;
+
 	if (inAir) {
 		motion.accLinear = 0;
 		return;
@@ -392,24 +394,29 @@ void RacingCar::gettrap(int type)
 {
 	switch (type)
 	{
-	case STAIN:
-		break;
-	case BANANA:
-		lost = SDL_GetTicks64();
-		break;
-	case SPEEDDOWN:
-		slow = SDL_GetTicks64();
-		break;
-	case BOMB:
-		if (!invincible)
-		{
-			healthPoint -= 50;
-			setVelLinear(getVelLinear() * 0.3);
-			brake(0);
-			dizzy = SDL_GetTicks64();
-		}
-		break;
-	default:;
+		case STAIN:
+
+			break;
+		case BANANA:
+			lost = SDL_GetTicks64();
+			break;
+		case SPEEDDOWN:
+			slow = SDL_GetTicks64();
+			break;
+		case BOMB:
+			if (!invincible)
+			{
+				healthPoint -= 25;
+				motion.velLinear *= 0.3;
+				motion.velAngular = 0;
+				brake(0);
+				dizzy = SDL_GetTicks64();
+				if (isRushing) {
+					rush(NONE);
+				}
+			}
+			break;
+		default:;
 	}
 }
 void RacingCar::touchobstacle(Obstacle& rock, int ind, vector<Line>& lines)
@@ -473,10 +480,14 @@ void RacingCar::beattacked()
 {
 	if (!invincible)
 	{
-		setVelLinear(getVelLinear() * 0.3);
-		brake(0);
 		healthPoint -= 20;
+		motion.velLinear *= 0.3;
+		motion.velAngular = 0;
+		brake(0);
 		dizzy = SDL_GetTicks64();
+		if (isRushing) {
+			rush(NONE);
+		}
 	}
 }
 

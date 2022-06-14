@@ -12,7 +12,7 @@ void Tool::close() {
 	tool2img.close();
 }
 //{ 1,1,1,1,1,1}  { 0,0,0,0,0,0 }
-Tool::Tool(SDL_Renderer* renderer, bool d) : car1tool{ 0,1,0,1,0,1 }, car2tool{ 0,1,0,1,0,1 }, dual(d),
+Tool::Tool(SDL_Renderer* renderer, bool d) : car1tool{ 0,0,0,0,0,0 }, car2tool{ 0,0,0,0,0,0 }, dual(d),
 	tool1img("../images/tool/mushroom.png", renderer), tool2img("../images/tool/star.png", renderer), tool3img("../images/tool/heal.png", renderer), 
 	tool4img("../images/tool/ghost.png", renderer), tool5img("../images/tool/lightning.png", renderer), tool6img("../images/tool/8.png", renderer),
 	BlenderObject("../images/tool/tool.txt", "../images/tool/tool.bmp", 750, NUM_TOOL, 1),
@@ -467,6 +467,7 @@ void Tool::getalltools(bool car)
 		car1tool.Tool[2] = 1;
 		car1tool.Tool[3] = 1;
 		car1tool.Tool[4] = 1;
+		car1tool.Tool[5] = 1;
 	}
 	else
 	{
@@ -475,6 +476,7 @@ void Tool::getalltools(bool car)
 		car2tool.Tool[2] = 1;
 		car2tool.Tool[3] = 1;
 		car2tool.Tool[4] = 1;
+		car2tool.Tool[5] = 1;
 	}
 }
 

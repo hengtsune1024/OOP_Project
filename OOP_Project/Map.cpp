@@ -583,13 +583,12 @@ Uint32 Map::move(Uint32 interval, void* para)
 	int times = map->dualMode ? 2 : 1;
 	int startpos, front, back;
 	double punish, midY, camH, dist, velX, velY;
-	
+
 	do {
 		const Motion& motion = car->getMotion();
 		startpos = motion.posX / SEGMENT_LENGTH;
 		car->setCurrentPos(&(map->lines[startpos]));
 		type = map->lines[startpos].getType();
-
 		//perpendicular (z-direction)
 		car->setCamHeight(motion.camHeight + motion.velPerpen);
 		if (car->isInAir() && ((motion.camHeight + motion.baseHeight) - (CAMERA_HEIGHT + map->lines[startpos].gety()) < -1e-6)) {
@@ -631,7 +630,9 @@ Uint32 Map::move(Uint32 interval, void* para)
 		else {
 			car->setOutofRoad(false);
 		}
-
+		if (car->isSlow()) {
+			punish *= 0.7;
+		}
 		//friction
 		type = map->lines[startpos].getType();
 
@@ -915,7 +916,8 @@ Uint32 Map::accelerate(Uint32 interval, void* para)
 	do {
 		const Motion& motion = car->getMotion();
 		car->brake();
-		
+		double maxfV = MAX_FORWARD_SPEED * (car->getHP() / 5 + 80) / 100;
+		double maxbV = MAX_BACKWARD_SPEED * (car->getHP() / 5 + 80) / 100;
 		if (car->getRushing()) //excpet RushType == NONE(0), other types will go here
 		{
 			double speedDecrease = AFTERRUSH_SPEED_DECREASE;
@@ -925,8 +927,8 @@ Uint32 Map::accelerate(Uint32 interval, void* para)
 				++speedDecrease;
 
 			car->setVelLinear(motion.velLinear - speedDecrease);
-			if (motion.velLinear < MAX_FORWARD_SPEED) {
-				car->setVelLinear(MAX_FORWARD_SPEED);
+			if (motion.velLinear < maxfV) {
+				car->setVelLinear(maxfV);
 				if (motion.accLinear == 0)
 					car->brake(0);
 				car->rush(NONE);
@@ -939,11 +941,12 @@ Uint32 Map::accelerate(Uint32 interval, void* para)
 		else
 		{
 			car->setVelLinear(motion.velLinear + motion.accLinear);
-			if (motion.velLinear > MAX_FORWARD_SPEED) {
-				car->setVelLinear(MAX_FORWARD_SPEED);
+
+			if (motion.velLinear > maxfV) {
+				car->setVelLinear(maxfV);
 			}
-			else if (motion.velLinear < -MAX_BACKWARD_SPEED) {
-				car->setVelLinear(-MAX_BACKWARD_SPEED);
+			else if (motion.velLinear < -maxbV) {
+				car->setVelLinear(-maxbV);
 			}
 			bool incline = (car->getCurrentPos()->getType() & INCLINE_BACKWARD) || (car->getCurrentPos()->getType() & INCLINE_FORWARD);
 			if (!incline && (((motion.accLinear < 0 && motion.accLinear >= -HIGH_FRICTION_ACC - 50) && motion.velLinear < 0) || ((motion.accLinear > 0 && motion.accLinear <= HIGH_FRICTION_ACC + 50) && motion.velLinear > 0))) {
@@ -956,7 +959,6 @@ Uint32 Map::accelerate(Uint32 interval, void* para)
 		}
 
 	} while (--times);
-
 	return interval;
 }
 
@@ -1143,6 +1145,12 @@ void Map::removeTimer() {
 	SDL_RemoveTimer(moveTimer);
 	SDL_RemoveTimer(accelerateTimer);
 	SDL_RemoveTimer(mapObjectTimer);
+}
+
+void Map::getAllTool() {
+	tools.getalltools(true);
+	tools.getalltools(false);
+
 }
 
 /*
