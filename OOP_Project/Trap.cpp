@@ -96,7 +96,8 @@ void Trap::drawStain(SDL_Renderer* renderer, bool car)
 
 int Trap::gettrap(bool car, bool invincible, int ind)
 {
-	if (invincible) {
+	if (invincible) 
+	{
 		objectList[ind].shownflag = false;
 		return -1;
 	}

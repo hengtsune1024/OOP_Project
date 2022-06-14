@@ -10,7 +10,7 @@ RacingCar::~RacingCar()
 RacingCar::RacingCar(const char* obfpath, const char* imgpath, SDL_Renderer* renderer, Line* initpos) :
 	isRushing(NONE), fullEnergy(true), energy(100.0), healthPoint(100.0), motion(MOTION_INIT), accState(0), roadtype(NORMAL), currentPos(initpos),
 	theOtherCar(NULL), starttime(SDL_GetTicks64() + 3000), timing("00:00:000"), arrive(false), totaltime(0), invincible(0), select(0), toolnum(0),
-	BlenderObject(obfpath, imgpath, 1000, 1, 2),
+	BlenderObject(obfpath, imgpath, 1000, 1, 3),
 	timetext(timing, "../fonts/akabara-cinderella.ttf", 20, 0x02, { 255, 255, 255 }, SHADED, { 0, 0, 0 }, renderer, { 200, 10 }, { 10, 10 }, NULL, SDL_FLIP_NONE, 255),
 	dizzy(0), lost(0), slow(0), slowimg("../images/slow.png", renderer),
 	dizzyimg("../images/dizzy.png", renderer), lostimg("../images/banana.png", renderer)
@@ -171,14 +171,16 @@ Uint32 RacingCar::changeData(Uint32 interval, void* param)
 
 	Uint64 t = SDL_GetTicks64();
 	//invincible tool
-	if (t - car->invincible >= INVINCIBLE_INTERVAL){
+	if (car->invincible && t - car->invincible >= INVINCIBLE_INTERVAL){
 		car->invincible = 0;
 		car->objectList[0].texindex = 0;
 	}
 
 	//ghost tool
-	if (car->ghost && t - car->ghost >= GHOST_INTERVAL)
+	if (car->ghost && t - car->ghost >= GHOST_INTERVAL){
 		car->ghost = 0;
+		car->objectList[0].texindex = 0;
+	}
 
 	//dizzy
 	if (car->dizzy && t - car->dizzy >= DIZZY_INTERVAL)
@@ -289,6 +291,8 @@ void RacingCar::brake(int type)
 	}
 	//foward
 	else if (type == 1) {
+
+		
 		if ((roadtype & NORMAL) || outOfRoad) {
 			motion.accLinear = ACCELERATION - FRICTION_ACC;
 		}
@@ -298,6 +302,7 @@ void RacingCar::brake(int type)
 		else if (roadtype & LOW_FRICTION) {
 			motion.accLinear = ACCELERATION - LOW_FRICTION_ACC;
 		}
+
 		if ((roadtype & INCLINE_BACKWARD) || (roadtype & INCLINE_FORWARD)) {
 			motion.accLinear -= INCLINE_ACC * currentPos->getSlope() / SEGMENT_LENGTH;
 		}
@@ -313,9 +318,11 @@ void RacingCar::brake(int type)
 		else if (roadtype & LOW_FRICTION) {
 			motion.accLinear = -ACCELERATION + LOW_FRICTION_ACC;
 		}
+
 		if ((roadtype & INCLINE_BACKWARD) || (roadtype & INCLINE_FORWARD)) {
 			motion.accLinear -= INCLINE_ACC * currentPos->getSlope() / SEGMENT_LENGTH;
 		}
+
 	}
 
 	//cout << motion.accLinear << ',' << motion.velLinear << endl;
@@ -382,6 +389,7 @@ int RacingCar::usetool(ToolType type, Tool* tools, bool car)
 			break;
 		case GHOST:
 			ghost = SDL_GetTicks64();
+			objectList[0].texindex = 2;
 			break;
 		case LIGHTNING:
 			return 1;
@@ -438,7 +446,7 @@ void RacingCar::touchobstacle(Obstacle& rock, int ind, vector<Line>& lines)
 			rock.broken(rock.getNearestObstacle(motion.posX / SEGMENT_LENGTH));
 			return;
 		}
-
+		/*
 		if (motion.velLinear > 0) {
 			motion.posX -= ROCK_SIZE / 2 * cos(motion.axleDegree);
 			motion.posY -= ROCK_SIZE / 2 * sin(motion.axleDegree);
@@ -454,7 +462,16 @@ void RacingCar::touchobstacle(Obstacle& rock, int ind, vector<Line>& lines)
 				theOtherCar->motion.posX += ROCK_SIZE / 2 * cos(motion.axleDegree);
 				theOtherCar->motion.posY += ROCK_SIZE / 2 * sin(motion.axleDegree);
 			}
-		}
+		}*/
+		/*
+		motion.posX -= motion.velLinear * cos(motion.axleDegree) * motion.velM;
+		motion.posY -= motion.velLinear * sin(motion.axleDegree) * motion.velM;
+
+		if (collided()) {
+			theOtherCar->motion.posX -= motion.velLinear * cos(motion.axleDegree);
+			theOtherCar->motion.posY -= motion.velLinear * sin(motion.axleDegree);
+		}*/
+
 		motion.velLinear = -motion.velLinear * 0.5;
 
 		if (isRushing) {

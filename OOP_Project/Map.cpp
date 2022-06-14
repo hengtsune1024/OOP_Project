@@ -526,21 +526,21 @@ void Map::draw(SDL_Renderer* renderer)
 		bool clean = true;
 
 		for (int i = 0; i < NUM_TRAP; ++i)
-			if (startpos >= virus.getIndex(i) - 300 && startpos <= virus.getIndex(i))
+			if (startpos >= virus.getIndex(i) - 300 && startpos <= virus.getIndex(i) + 10)
 				virus.draw3D(pos, m.camDegree, m.camDepth, &engine, clean, i, lines[virus.getIndex(i)].getClip());
 
 
 		for (int i = 0; i < NUM_PHYSICALITEM; ++i)
-			if (startpos >= cube.getIndex(i) - 300 && startpos <= cube.getIndex(i))
+			if (startpos >= cube.getIndex(i) - 300 && startpos <= cube.getIndex(i) + 10)
 				cube.draw3D(pos, m.camDegree, m.camDepth, &engine, clean, i, lines[cube.getIndex(i)].getClip());
 
 		for (int i = 0; i < NUM_OBSTACLE; ++i)
-			if (startpos >= rock.getIndex(i) - 300 && startpos <= rock.getIndex(i)) {
+			if (startpos >= rock.getIndex(i) - 300 && startpos <= rock.getIndex(i) + 10) {
 				rock.draw3D(pos, m.camDegree, m.camDepth, &engine, clean, i, lines[rock.getIndex(i)].getClip());
 			}
 
 		for (int i = 0; i < NUM_TOOL; ++i)
-			if (startpos >= tools.getIndex(i) - 300 && startpos <= tools.getIndex(i)) {
+			if (startpos >= tools.getIndex(i) - 300 && startpos <= tools.getIndex(i) + 10) {
 				tools.draw3D(pos, m.camDegree, m.camDepth, &engine, clean, i, lines[tools.getIndex(i)].getClip());
 			}
 
@@ -550,6 +550,9 @@ void Map::draw(SDL_Renderer* renderer)
 			car->drawOtherCar(renderer, &engine, clean, lines[otherCar->getIndex()].getClip(), camH);
 		}
 
+		engine.drawAll(renderer);
+
+		clean = true;
 		car->draw3D({ 0,0,0 }, car->getMotion().camDegree, car->getMotion().camDepth, &engine, clean, 0, HEIGHT);
 
 		engine.drawAll(renderer);
@@ -721,7 +724,6 @@ Uint32 Map::move(Uint32 interval, void* para)
 		{
 			if (car->collided()) 
 			{
-				cout << "collide with car\n";
 				car->setPosY(motion.posY - velY);
 				car->setPosX(motion.posX - velX);
 
@@ -832,7 +834,7 @@ Uint32 Map::move(Uint32 interval, void* para)
 			
 		}
 
-		startpos = (motion.posX + CAMERA_CARMIDPOINT_DIST) / SEGMENT_LENGTH;
+		startpos = (motion.posX + CAMERA_CARMIDPOINT_DIST * cos(motion.axleDegree)) / SEGMENT_LENGTH;
 		midY = motion.posY + CAMERA_CARMIDPOINT_DIST * sin(motion.axleDegree);
 		type = map->lines[startpos].getType();
 		car->setCurrentPos(&(map->lines[startpos]));
@@ -859,6 +861,14 @@ Uint32 Map::move(Uint32 interval, void* para)
 			int index = map->rock.getNearestObstacle(startpos);
 			if (!car->getghost() && !map->rock.getBroken(index) && map->rock.hitObstacle(midY, camH - CAMERA_HEIGHT, index))
 			{
+				car->setPosX(motion.posX - velX);
+				car->setPosY(motion.posY - velY);
+
+				if (car->collided()) {
+					RacingCar* otherCar = car->getOtherCar();
+					otherCar->setPosX(otherCar->getPosX() - velX);
+					otherCar->setPosY(otherCar->getPosY() - velY);
+				}
 				car->touchobstacle(map->rock, index, map->lines);
 			}
 		}
@@ -985,9 +995,9 @@ void Map::carCollision(RacingCar* car)
 			(*car) -= v1 * v1 / 2 / 100000;
 		else
 			(*car) -= v1 * v1 / 2 / 1000000;
-		if (car->getHP() <= 0)
+		if (endtype == PLAYING && car->getHP() <= 0)
 		{
-			endtype = (car == car1) ? PLAYER2 : PLAYER1;
+			endtype = PLAYER2;
 			endtime = SDL_GetTicks64() + 3000;
 		}
 	}
@@ -996,9 +1006,9 @@ void Map::carCollision(RacingCar* car)
 			(*otherCar) -= v1 * v1 / 2 / 100000;
 		else
 			(*otherCar) -= v1 * v1 / 2 / 1000000;
-		if (car->getHP() <= 0)
+		if (endtype == PLAYING && car->getHP() <= 0)
 		{
-			endtype = (endtype == PLAYING) ? PLAYER1 : ALLDEAD;
+			endtype = PLAYER1;
 			endtime = SDL_GetTicks64() + 3000;
 		}
 	}

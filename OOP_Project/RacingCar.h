@@ -62,6 +62,7 @@ class RacingCar: public BlenderObject
 	Image lostimg;
 	Image slowimg;
 
+	bool touch=false;
 
 	int select;
 	int toolnum;

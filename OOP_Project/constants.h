@@ -22,7 +22,7 @@
 
 //map
 #define NUM_LINE 10000		
-#define INITIAL_POS 9300
+#define INITIAL_POS 60
 #define FINAL_POS 9500
 #define NUM_OBSTACLE 30
 #define NUM_TRAP 18
@@ -114,7 +114,7 @@ enum ToolType {
 };
 
 enum EndType {
-	PLAYING, PLAYER1, PLAYER2, VICTORY, FAILED, ALLDEAD
+	PLAYING, PLAYER1, PLAYER2, VICTORY, FAILED
 };
 /*
 
