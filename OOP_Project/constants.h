@@ -21,8 +21,8 @@
 #define BLENDED 102
 
 //map
-#define NUM_LINE 10000		//
-#define INITIAL_POS 60
+#define NUM_LINE 10000		
+#define INITIAL_POS 9300
 #define FINAL_POS 9500
 #define NUM_OBSTACLE 30
 #define NUM_TRAP 18

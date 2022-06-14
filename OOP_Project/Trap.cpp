@@ -94,11 +94,15 @@ void Trap::drawStain(SDL_Renderer* renderer, bool car)
 	}
 }
 
-int Trap::gettrap(bool car, int ind) 
+int Trap::gettrap(bool car, bool invincible, int ind)
 {
+	if (invincible) {
+		objectList[ind].shownflag = false;
+		return -1;
+	}
 	srand(std::time(NULL));
 	int num = rand() & 3;
-	if (objectList[ind].shownflag == true)
+	if (objectList[ind].shownflag)
 	{
 		objectList[ind].shownflag = false;
 		if (car)

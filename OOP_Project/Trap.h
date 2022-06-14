@@ -23,7 +23,7 @@ public:
 
 	//setter and getter
 	void setTrap(Line *line, int lineindex, int ind);
-	int gettrap(bool car, int ind);
+	int gettrap(bool car, bool invincible, int ind);
 	//bool getSide(int ind) { return side[ind]; }
 	int getNearestTrap(int startpos);
 

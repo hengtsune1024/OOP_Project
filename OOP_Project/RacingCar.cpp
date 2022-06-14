@@ -184,6 +184,9 @@ Uint32 RacingCar::changeData(Uint32 interval, void* param)
 	if (car->dizzy && t - car->dizzy >= DIZZY_INTERVAL)
 		car->dizzy = 0;
 
+	if (car->dizzy && car->isRushing)
+		car->rush(NONE);
+
 	//lost
 	if (car->lost && t - car->lost >= LOST_INTERVAL){
 		car->lost = 0;
@@ -384,7 +387,7 @@ int RacingCar::usetool(ToolType type, Tool* tools, bool car)
 			return 1;
 			break;
 		case SWITCH:
-			tools->getalltools(car);
+			//tools->getalltools(car);
 			return 1;
 			break;
 	}
@@ -418,6 +421,8 @@ void RacingCar::gettrap(int type)
 
 			}
 			break;
+		case -1:
+			return;
 		default:;
 	}
 }

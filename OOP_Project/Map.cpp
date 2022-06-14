@@ -311,7 +311,7 @@ void Map::generateMap()
 		//road modify
 		if (i > 0)
 			lines[i].setRoadVelM((sin(lines[i].getRoadDegree()) * (lines[i].getx() - lines[i - 1].getx()) + cos(lines[i].getRoadDegree()) * SEGMENT_LENGTH) / SEGMENT_LENGTH);
-
+		
 		// type
 		if (i >= INITIAL_POS - 10 && i < INITIAL_POS + 22)
 			lines[i].addType(STARTPOINT);
@@ -663,7 +663,6 @@ Uint32 Map::move(Uint32 interval, void* para)
 
 		car->setVelM(car->getRoadMod() * car->getCurrentPos()->getRoadVelM());
 
-
 		//set car road type
 		car->setFrictionType(type);
 
@@ -816,7 +815,7 @@ Uint32 Map::move(Uint32 interval, void* para)
 			car->setCurrentPos(&(map->lines[startpos]));
 
 			//rush
-			if (car->getRushing() != ACCROAD && ((type & ACCELERATE_LEFT) || (type & ACCELERATE_RIGHT))) {
+			if (!car->Dizzy() && car->getRushing() != ACCROAD && ((type & ACCELERATE_LEFT) || (type & ACCELERATE_RIGHT))) {
 				if ((type & ACCELERATE_LEFT) && (midY < map->lines[startpos].getx() && midY > map->lines[startpos].getx() - ROAD_WIDTH * motion.velM)) {
 					car->rush(ACCROAD);
 				}
@@ -844,7 +843,7 @@ Uint32 Map::move(Uint32 interval, void* para)
 		{
 			int index = map->virus.getNearestTrap(startpos);
 			if (!car->getghost() && map->virus.hitTrap(midY, camH - CAMERA_HEIGHT, motion.velM, index))
-				car->gettrap(map->virus.gettrap((map->dualMode ? times - 1 : true), index));
+				car->gettrap(map->virus.gettrap((map->dualMode ? times - 1 : true), car->getInvincible(), index));
 		}
 		//tool
 		if (type & TOOLAREA)
@@ -865,7 +864,7 @@ Uint32 Map::move(Uint32 interval, void* para)
 		}
 
 		//checkHP
-		if (car->getHP() <= 0)
+		if (map->endtype == PLAYING && car->getHP() <= 0)
 		{
 			if (map->dualMode)
 				map->endtype = (times == 2 ? PLAYER2 : PLAYER1);
@@ -1447,7 +1446,9 @@ void Map::getAllTool() {
 						car->rush(ACCROAD);
 					}
 				}
-				//trap
+				
+
+
 				if ((type & TRAPAREA) && motion.posY < map->lines[startpos].getx() + TRAP_WIDTH * motion.velM && motion.posY > map->lines[startpos].getx() - TRAP_WIDTH * motion.velM)
 					car->getTrap()->gettrap(STAIN);
 				//tool
