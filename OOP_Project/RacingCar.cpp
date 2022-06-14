@@ -14,7 +14,16 @@ RacingCar::RacingCar(const char* obfpath, const char* imgpath, SDL_Renderer* ren
 	timetext(timing, "../fonts/akabara-cinderella.ttf", 20, 0x02, { 255, 255, 255 }, SHADED, { 0, 0, 0 }, renderer, { 200, 10 }, { 10, 10 }, NULL, SDL_FLIP_NONE, 255),
 	dizzy(0), lost(0), slow(0), slowimg("../images/slow.png", renderer),
 	dizzyimg("../images/dizzy.png", renderer), lostimg("../images/banana.png", renderer)
-{}
+{
+	lnnum = 6;
+	lnimg = new Image[lnnum];
+	for (int i = 0; i < lnnum; ++i) {
+		char _path[100];
+		sprintf_s(_path, "%s%02d.png", "../images/lightning/", i + 1);
+		lnimg[i].set(_path, renderer);
+	}
+	lnstate = 0;
+}
 
 void RacingCar::quit()
 {
@@ -127,6 +136,9 @@ void RacingCar::draw(SDL_Renderer* renderer, Engine* engine, bool& clean)
 	if (slow)
 		slowimg.draw(renderer, NULL, &stateloc);
 
+	//lightning
+	if (drawln)
+		lnimg[lnstate].draw(renderer, NULL, NULL);
 
 	//timing
 	timetext.close();
@@ -200,6 +212,11 @@ Uint32 RacingCar::changeData(Uint32 interval, void* param)
 	if (!car->getRushing())
 		car->setVelLinear(car->getVelLinear() * (car->healthPoint / 5 + 80) / 100);
 
+	//lightning
+	if (car->drawln)
+		car->lnstate = (car->lnstate + 1) % car->lnnum;
+	if (SDL_GetTicks64() - car->drawln >= 1000)
+		car->drawln = 0;
 
 	//car rotation
 	double dif = car->motion.axleDegree - car->motion.camDegree;
@@ -471,6 +488,7 @@ void RacingCar::setInAir(bool ia, double baseheight) {
 
 void RacingCar::beattacked()
 {
+	drawln = SDL_GetTicks64();
 	if (!invincible)
 	{
 		setVelLinear(getVelLinear() * 0.3);
@@ -478,6 +496,7 @@ void RacingCar::beattacked()
 		healthPoint -= 20;
 		dizzy = SDL_GetTicks64();
 	}
+
 }
 
 //previous code

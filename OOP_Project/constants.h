@@ -38,6 +38,8 @@
 #define DIZZY_INTERVAL 3000
 #define LOST_INTERVAL 5000
 #define SLOW_INTERVAL 5000
+#define STAIN_INTERVAL 3000
+
 
 //camera
 #define FIELD_OF_VIEW 45
@@ -52,7 +54,6 @@
 #define ACCELERATE_INTERVAL 50
 #define CAR_INTERVAL 50
 #define TRAP_INTERVAL 50
-#define STAIN_INTERVAL 3000
 
 //speed
 #define MAX_FORWARD_SPEED 1600		//max car forward moving speed

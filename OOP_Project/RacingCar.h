@@ -61,6 +61,12 @@ class RacingCar: public BlenderObject
 	Image dizzyimg;
 	Image lostimg;
 	Image slowimg;
+	
+	//lightning animation
+	int drawln;
+	int lnnum;
+	int lnstate;
+	Image* lnimg;
 
 
 	int select;
