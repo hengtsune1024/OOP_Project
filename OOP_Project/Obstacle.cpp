@@ -1,15 +1,14 @@
 #include "Obstacle.h"
-Obstacle::Obstacle() : BlenderObject("../images/rock/rock.txt", "../images/rock/rock.bmp", ROCK_SIZE, NUM_OBSTACLE,1)
+Obstacle::Obstacle() : BlenderObject("../images/rock/rock.txt", "../images/rock/rock.bmp", ROCK_SIZE, NUM_OBSTACLE,1), touchtime(NUM_OBSTACLE, 0)
 {
-	touchtime = 0;
 }
 Obstacle::~Obstacle()
 {
 }
 
-Obstacle::Obstacle(const char* objpath, const char* imgpath) : BlenderObject(objpath, imgpath, ROCK_SIZE, NUM_OBSTACLE, 1), isBroken(NUM_OBSTACLE, false)
+Obstacle::Obstacle(const char* objpath, const char* imgpath) : BlenderObject(objpath, imgpath, ROCK_SIZE, NUM_OBSTACLE, 1),
+	isBroken(NUM_OBSTACLE, false), touchtime(NUM_OBSTACLE, 0)
 {
-	touchtime = 0;
 }
 
 bool Obstacle::hitObstacle(double carx, double height, int ind)
@@ -46,13 +45,13 @@ void Obstacle::setObstacle(Line* line, int lineindex, int ind)
 	objectList[ind].index = lineindex;
 }
 
-int Obstacle::istouching()
+int Obstacle::istouching(int ind)
 {
-	if (SDL_GetTicks64() - touchtime < 250)
+	if (SDL_GetTicks64() - touchtime[ind] < 250)
 		return 1;
 	else
 	{
-		touchtime = SDL_GetTicks64();
+		touchtime[ind] = SDL_GetTicks64();
 		return 0;
 	}
 }

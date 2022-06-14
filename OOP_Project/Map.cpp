@@ -873,6 +873,8 @@ Uint32 Map::move(Uint32 interval, void* para)
 				map->endtype = FAILED;
 			if (!map->endtime)
 				map->endtime = SDL_GetTicks64() + 3000;
+
+			return 0;
 		}
 
 		//arrive

@@ -39,7 +39,8 @@ void RacingCar::changeSelect() {
 
 }
 
-bool RacingCar::collided() {
+bool RacingCar::collided() 
+{
 	if (theOtherCar == NULL)
 		return false;
 	//collision
@@ -414,6 +415,7 @@ void RacingCar::gettrap(int type)
 				if (isRushing) {
 					rush(NONE);
 				}
+
 			}
 			break;
 		default:;
@@ -421,7 +423,7 @@ void RacingCar::gettrap(int type)
 }
 void RacingCar::touchobstacle(Obstacle& rock, int ind, vector<Line>& lines)
 {
-	if (!rock.istouching())
+	if (!rock.istouching(ind))
 	{
 		//cout << motion.velLinear << endl;
 
@@ -431,6 +433,7 @@ void RacingCar::touchobstacle(Obstacle& rock, int ind, vector<Line>& lines)
 			rock.broken(rock.getNearestObstacle(motion.posX / SEGMENT_LENGTH));
 			return;
 		}
+
 		if (motion.velLinear > 0) {
 			motion.posX -= ROCK_SIZE / 2 * cos(motion.axleDegree);
 			motion.posY -= ROCK_SIZE / 2 * sin(motion.axleDegree);
