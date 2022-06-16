@@ -12,7 +12,7 @@ void Tool::close() {
 	tool2img.close();
 }
 //{ 1,1,1,1,1,1}  { 0,0,0,0,0,0 }
-Tool::Tool(SDL_Renderer* renderer, bool d) : car1tool{ 0,0,0,0,0,0 }, car2tool{ 0,0,0,0,0,0 }, dual(d),
+Tool::Tool(SDL_Renderer* renderer, bool d) : car1tool{ 1,1,1,1,1,1 }, car2tool{ 1,1,1,1,1,1 }, dual(d),
 	tool1img("../images/tool/mushroom.png", renderer), tool2img("../images/tool/star.png", renderer), tool3img("../images/tool/heal.png", renderer), 
 	tool4img("../images/tool/ghost.png", renderer), tool5img("../images/tool/lightning.png", renderer), tool6img("../images/tool/8.png", renderer),
 	BlenderObject("../images/tool/tool.txt", "../images/tool/tool.bmp", 750, NUM_TOOL, 1),
@@ -205,8 +205,11 @@ void Tool::getTools(bool car, int ind)
 			if (car) {
 				if (!checktoolset(car1tool) || num == 5)
 				{
-					car1tool.Tool[5] = 1;
-					chosen1 = 5;
+					if (dual)
+					{
+						car1tool.Tool[5] = 1;
+						chosen1 = 5;
+					}
 					num = -1;
 				}
 				else 
@@ -263,8 +266,6 @@ void Tool::getTools(bool car, int ind)
 						else
 							num++;
 						break;
-
-
 					}
 				}
 			}
@@ -452,7 +453,9 @@ int Tool::usetool(ToolType type, bool car) {
 
 int Tool::checktoolset(ToolSet set)
 {
-	if (!set.Tool[0] || !set.Tool[1] || !set.Tool[2] || !set.Tool[3] || !set.Tool[4])
+	if (dual && (!set.Tool[0] || !set.Tool[1] || !set.Tool[2] || !set.Tool[3] || !set.Tool[4]))
+		return 1;
+	else if (!dual && (!set.Tool[0] || !set.Tool[1] || !set.Tool[2] || !set.Tool[3]))
 		return 1;
 	else
 		return 0;
@@ -487,7 +490,6 @@ void Tool::setchosentool(bool car)
 			chosen1 < 3 ? chosen1++ : chosen1 = 0;
 			if (car1tool.Tool[chosen1])
 				break;
-
 		}
 	}
 	else
