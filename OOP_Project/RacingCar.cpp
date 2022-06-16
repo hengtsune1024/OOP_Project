@@ -8,10 +8,10 @@ RacingCar::RacingCar() :
 RacingCar::~RacingCar()
 {}
 
-RacingCar::RacingCar(const char* obfpath, const char* imgpath, SDL_Renderer* renderer, Line* initpos) :
+RacingCar::RacingCar(const char* objpath, const char* imgpath, SDL_Renderer* renderer, Line* initpos) :
 	isRushing(NONE), fullEnergy(true), energy(100.0), healthPoint(100.0), motion(MOTION_INIT), accState(0), roadtype(NORMAL), currentPos(initpos),
 	theOtherCar(NULL), starttime(SDL_GetTicks64() + 3000), timing("00:00:000"), arrive(false), totaltime(0), invincible(0),
-	BlenderObject(obfpath, imgpath, 1000, 1, 3),
+	BlenderObject(objpath, imgpath, 1000, 1, 3),
 	timetext(timing, "../fonts/akabara-cinderella.ttf", 20, 0x02, { 255, 255, 255 }, SHADED, { 0, 0, 0 }, renderer, { 200, 10 }, { 10, 10 }, NULL, SDL_FLIP_NONE, 255),
 	dizzy(0), lost(0), slow(0), slowimg("../images/slow.png", renderer),
 	dizzyimg("../images/dizzy.png", renderer), lostimg("../images/banana.png", renderer)
@@ -32,6 +32,13 @@ void RacingCar::quit()
 	SDL_RemoveTimer(cartimer);
 	BlenderObject::close();
 	timetext.close();
+	dizzyimg.close();
+	slowimg.close();
+	lostimg.close();
+	for (int i = 0; i < lnnum; ++i)
+		lnimg[i].close();
+	delete[]lnimg;
+	cout << "[RacingCar] car quit\n";
 }
 
 void RacingCar::operator-=(double d) {
@@ -182,13 +189,15 @@ Uint32 RacingCar::changeData(Uint32 interval, void* param)
 	//invincible tool
 	if (car->invincible && t - car->invincible >= INVINCIBLE_INTERVAL){
 		car->invincible = 0;
-		car->objectList[0].texindex = 0;
+		if (!car->ghost)
+			car->objectList[0].texindex = 0;
 	}
 
 	//ghost tool
 	if (car->ghost && t - car->ghost >= GHOST_INTERVAL){
 		car->ghost = 0;
-		car->objectList[0].texindex = 0;
+		if (!car->invincible)
+			car->objectList[0].texindex = 0;
 	}
 
 	//dizzy

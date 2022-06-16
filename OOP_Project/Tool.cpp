@@ -10,6 +10,10 @@ void Tool::close() {
 	BlenderObject::close();
 	tool1img.close();
 	tool2img.close();
+	tool3img.close();
+	tool4img.close();
+	tool5img.close();
+	tool6img.close();
 }
 //{ 1,1,1,1,1,1}  { 0,0,0,0,0,0 }
 Tool::Tool(SDL_Renderer* renderer, bool d) : car1tool{ 0,0,0,0,0,0 }, car2tool{ 0,0,0,0,0,0 }, dual(d),
