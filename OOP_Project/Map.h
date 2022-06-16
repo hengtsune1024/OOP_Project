@@ -82,6 +82,7 @@ class Map
 
 public:
 
+	Map();
 	Map(SDL_Renderer*, bool = false);		// initialize all members except timers
 	~Map();
 
@@ -121,33 +122,3 @@ public:
 
 	void getAllTool();
 };
-
-// unused code
-/*
-	
-	void setVelLinear(double v) { velLinear = v; }
-	void setVelAngular(double v) { velAngular = v; }
-	void setAccLinear(double a) { accLinear = a; }
-	double getPosX() { return posX; }
-	double getPosY() { return posY; }
-	double getVelLinear() { return velLinear; }
-	double getVelAngular() { return velAngular; }
-	double getAccLinear() { return accLinear; }
-	
-	
-	double posX;			// x position in 3D world (moving forward and backword)
-	double posY;			// y position in 3D world (moving right and left)
-	double velLinear;		// linear velocity 
-	double velAngular;		// angular velocity 
-	double accLinear;		// linear acceleration 
-	double camDegree;		// camera degree (in radius, x-axis is 0)
-	double roadDegree;		// the degree from x-axis to the road vector (from current segment to the next segment) 
-	double camDepth;
-	double velM;
-	double camHeight;
-
-	//void turn(int);
-	//void rush(RushType);
-	
-
-*/

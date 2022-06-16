@@ -19,7 +19,7 @@ int main(int argc, char* argv[])
 	RenderWindow window;
 	sdl.init();
 	SDL_Event e;
-	window.init(false);
+	window.init();
 	Image Ferrari("../images/ferrari.png", window.GetRenderer());
 	Functions func(window, &dual, &quit, &menu);
 	while (!quit)

@@ -1,4 +1,5 @@
 #include "RacingCar.h"
+
 RacingCar::RacingCar() :
 	isRushing(NONE), fullEnergy(true), energy(100.0), healthPoint(100.0),
 	motion(MOTION_INIT), roadtype(NORMAL), outOfRoad(false), inAir(false), BlenderObject("../images/car/car.txt", "../images/car/car", 500, 1, 2)

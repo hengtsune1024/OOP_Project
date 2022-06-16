@@ -1,5 +1,7 @@
 #include "PhysicalItem.h"
 
+PhysicalItem::PhysicalItem() : move(NUM_PHYSICALITEM, { 0,0,0,0,false,false }), lines(0)
+{}
 
 PhysicalItem::PhysicalItem(const char* objfile, const char* texfile, vector<Line>* l, double scale) : BlenderObject(objfile, texfile, scale, NUM_PHYSICALITEM, 2) ,
 	move(NUM_PHYSICALITEM, {0,0,0,0,false,false}), lines(l)

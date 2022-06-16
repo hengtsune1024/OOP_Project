@@ -1,19 +1,22 @@
 #include "Functions.h"
+Functions::Functions() : dual(NULL), quit(NULL), menu(NULL), rec{ 0 }, count(0), countstring("\0"), recordstr("\0"), window(NULL)
+{}
+
 Functions::~Functions()
-{
-}
-Functions::Functions(RenderWindow& w, bool* d, bool* q, bool* m) : count(3),window(w),
-starttext("START", "../fonts/akabara-cinderella.ttf", 75, 0x00, { 255, 255, 0 }, BLENDED, { NULL, NULL, NULL }, window.GetRenderer(), { 470, 410 }, { NULL, NULL }, NULL, SDL_FLIP_NONE, 255),
-icontext("3D Racing Car", "../fonts/akabara-cinderella.ttf", 100, 0x00, { 0, 255, 255 }, BLENDED, { NULL, NULL, NULL }, window.GetRenderer(), { 250, 200 }, { NULL, NULL }, NULL, SDL_FLIP_NONE, 255),
-modetext("Single", "../fonts/akabara-cinderella.ttf", 30, 0x00, { 0, 0, 255 }, BLENDED, { NULL, NULL, NULL }, window.GetRenderer(), { 18, 41 }, { NULL, NULL }, NULL, SDL_FLIP_NONE, 255),
-counttext("3", "../fonts/akabara-cinderella.ttf", 100, 0x00, { 255, 255, 255 }, BLENDED, { NULL, NULL, NULL }, window.GetRenderer(), { 260, 175 }, { NULL, NULL }, NULL, SDL_FLIP_NONE, 255),
-recordtext("Record", "../fonts/akabara-cinderella.ttf", 26, 0x00, { 0, 0, 255 }, BLENDED, { NULL, NULL, NULL }, window.GetRenderer(), { 18, 168 }, { NULL, NULL }, NULL, SDL_FLIP_NONE, 255),
-endtext("WIN", "../fonts/akabara-cinderella.ttf", 100, 0x00, { 255, 255, 255 }, BLENDED, { NULL, NULL, NULL }, window.GetRenderer(), { 260, 175 }, { NULL, NULL }, NULL, SDL_FLIP_NONE, 255),
-gradetext("GRADE", "../fonts/akabara-cinderella.ttf", 75, 0x00, { 255, 255, 255 }, BLENDED, { NULL, NULL, NULL }, window.GetRenderer(), { 470, 10 }, { NULL, NULL }, NULL, SDL_FLIP_NONE, 255),
-hinttext("Click to continue", "../fonts/akabara-cinderella.ttf", 50, 0x00, { 211, 211, 211 }, BLENDED, { NULL, NULL, NULL }, window.GetRenderer(), { 390, 520 }, { NULL, NULL }, NULL, SDL_FLIP_NONE, 255),
-rectext(" ", "../fonts/akabara-cinderella.ttf", 55, 0x00, { 255, 0, 0 }, BLENDED, { NULL, NULL, NULL }, window.GetRenderer(), { 250, 500 }, { NULL, NULL }, NULL, SDL_FLIP_NONE, 255),
-quittext("Quit","../fonts/akabara-cinderella.ttf", 26, 0x00, { 0, 0, 255 }, BLENDED, { NULL, NULL, NULL }, window.GetRenderer(), { 1112, 527 }, { NULL, NULL }, NULL, SDL_FLIP_NONE, 255),
-maptext(" ", "../fonts/akabara-cinderella.ttf",40,0x00,{0,0,0}, BLENDED, { NULL, NULL, NULL }, window.GetRenderer(), { 0, 0 }, { NULL, NULL }, NULL, SDL_FLIP_NONE, 255)
+{}
+
+Functions::Functions(RenderWindow& w, bool* d, bool* q, bool* m) : count(3), window(&w),
+starttext("START", "../fonts/akabara-cinderella.ttf", 75, 0x00, { 255, 255, 0 }, BLENDED, { NULL, NULL, NULL }, window->GetRenderer(), { 470, 410 }, { NULL, NULL }, NULL, SDL_FLIP_NONE, 255),
+icontext("3D Racing Car", "../fonts/akabara-cinderella.ttf", 100, 0x00, { 0, 255, 255 }, BLENDED, { NULL, NULL, NULL }, window->GetRenderer(), { 250, 200 }, { NULL, NULL }, NULL, SDL_FLIP_NONE, 255),
+modetext("Single", "../fonts/akabara-cinderella.ttf", 30, 0x00, { 0, 0, 255 }, BLENDED, { NULL, NULL, NULL }, window->GetRenderer(), { 18, 41 }, { NULL, NULL }, NULL, SDL_FLIP_NONE, 255),
+counttext("3", "../fonts/akabara-cinderella.ttf", 100, 0x00, { 255, 255, 255 }, BLENDED, { NULL, NULL, NULL }, window->GetRenderer(), { 260, 175 }, { NULL, NULL }, NULL, SDL_FLIP_NONE, 255),
+recordtext("Record", "../fonts/akabara-cinderella.ttf", 26, 0x00, { 0, 0, 255 }, BLENDED, { NULL, NULL, NULL }, window->GetRenderer(), { 18, 168 }, { NULL, NULL }, NULL, SDL_FLIP_NONE, 255),
+endtext("WIN", "../fonts/akabara-cinderella.ttf", 100, 0x00, { 255, 255, 255 }, BLENDED, { NULL, NULL, NULL }, window->GetRenderer(), { 260, 175 }, { NULL, NULL }, NULL, SDL_FLIP_NONE, 255),
+gradetext("GRADE", "../fonts/akabara-cinderella.ttf", 75, 0x00, { 255, 255, 255 }, BLENDED, { NULL, NULL, NULL }, window->GetRenderer(), { 470, 10 }, { NULL, NULL }, NULL, SDL_FLIP_NONE, 255),
+hinttext("Click to continue", "../fonts/akabara-cinderella.ttf", 50, 0x00, { 211, 211, 211 }, BLENDED, { NULL, NULL, NULL }, window->GetRenderer(), { 390, 520 }, { NULL, NULL }, NULL, SDL_FLIP_NONE, 255),
+rectext(" ", "../fonts/akabara-cinderella.ttf", 55, 0x00, { 255, 0, 0 }, BLENDED, { NULL, NULL, NULL }, window->GetRenderer(), { 250, 500 }, { NULL, NULL }, NULL, SDL_FLIP_NONE, 255),
+quittext("Quit","../fonts/akabara-cinderella.ttf", 26, 0x00, { 0, 0, 255 }, BLENDED, { NULL, NULL, NULL }, window->GetRenderer(), { 1112, 527 }, { NULL, NULL }, NULL, SDL_FLIP_NONE, 255),
+maptext(" ", "../fonts/akabara-cinderella.ttf",40,0x00,{0,0,0}, BLENDED, { NULL, NULL, NULL }, window->GetRenderer(), { 0, 0 }, { NULL, NULL }, NULL, SDL_FLIP_NONE, 255)
 {
 	FILE* f = fopen("../bin/record.dat", "rb");
 	fseek(f, 0, SEEK_SET);
@@ -37,7 +40,7 @@ maptext(" ", "../fonts/akabara-cinderella.ttf",40,0x00,{0,0,0}, BLENDED, { NULL,
 }
 void Functions::Menu(SDL_Renderer* renderer)
 {
-	SDL_RenderSetViewport(window.GetRenderer(), NULL);
+	SDL_RenderSetViewport(window->GetRenderer(), NULL);
 	count = 3;
 	SDL_Event e;
 	int x, y;
@@ -138,11 +141,11 @@ void Functions::Counting(Map& map)
 	while (count)
 	{
 		counttext.close();
-		window.clear();
+		window->clear();
 		sprintf_s(countstring, "%d", count);
 		counttext.setString(countstring);
 		counttext.generateTexture();
-		map.draw(window.GetRenderer());
+		map.draw(window->GetRenderer());
 		counttext.draw();
 		if ((*dual))
 		{
@@ -152,7 +155,7 @@ void Functions::Counting(Map& map)
 			counttext.draw();
 			counttext.setPos({ 260, 175 });
 		}
-		window.display();
+		window->display();
 		SDL_Delay(1000);
 		count--;
 	}
@@ -188,12 +191,12 @@ void Functions::Victory(EndType type)
 	}
 	endtext.generateTexture();
 	endtext.draw();
-	window.display();
+	window->display();
 }
 void Functions::Grade(EndType type, int record)
 {
-	SDL_RenderSetViewport(window.GetRenderer(), NULL);
-	window.clear();
+	SDL_RenderSetViewport(window->GetRenderer(), NULL);
+	window->clear();
 	gradetext.close();
 	if (record)
 	{
@@ -217,7 +220,7 @@ void Functions::Grade(EndType type, int record)
 		}
 		gradetext.generateTexture();
 		gradetext.draw();
-		window.display();
+		window->display();
 		SDL_Delay(1000);
 
 		int ms = record % 1000;
@@ -238,7 +241,7 @@ void Functions::Grade(EndType type, int record)
 		gradetext.generateTexture();
 		gradetext.draw();
 
-		window.display();
+		window->display();
 		SDL_Delay(2000);
 	}
 	else
@@ -262,7 +265,7 @@ void Functions::Grade(EndType type, int record)
 		}
 		gradetext.generateTexture();
 		gradetext.draw();
-		window.display();
+		window->display();
 		SDL_Delay(1000);
 
 		gradetext.close();
@@ -277,11 +280,11 @@ void Functions::Grade(EndType type, int record)
 		gradetext.generateTexture();
 		gradetext.draw();
 
-		window.display();
+		window->display();
 		SDL_Delay(2000);
 	}
 	hinttext.draw();
-	window.display();
+	window->display();
 	SDL_Event e;
 	bool conti = false;
 	while (!conti)
@@ -340,7 +343,7 @@ void Functions::Record(SDL_Renderer* renderer)
 	}
 
 	hinttext.draw();
-	window.display();
+	window->display();
 
 	while (!quit)
 	{

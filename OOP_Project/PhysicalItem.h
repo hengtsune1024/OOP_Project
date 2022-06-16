@@ -23,6 +23,7 @@ class PhysicalItem: public BlenderObject
 	vector<Line>* lines;
 	
 public:
+	PhysicalItem();
 	PhysicalItem(const char* objfile, const char* texfile, vector<Line>* l, double scale);
 	~PhysicalItem();
 

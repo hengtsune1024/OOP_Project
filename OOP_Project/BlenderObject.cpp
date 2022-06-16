@@ -1,5 +1,8 @@
 #include "BlenderObject.h"
 
+BlenderObject::BlenderObject():objectList(0), clip(0), textureNum(0), triangles(0), img(NULL) 
+{}
+
 BlenderObject::BlenderObject(const char* objectFile, const char* textureFile, double scale, int num, int texnum) :
 	objectList(num), clip(HEIGHT), textureNum(texnum)
 {

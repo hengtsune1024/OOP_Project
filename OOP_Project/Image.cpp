@@ -1,5 +1,8 @@
 #include "Image.h"
 
+Image::Image() :width(0), height(0), alpha(0), texture(NULL)
+{}
+
 Image::Image(const char* path, SDL_Renderer* renderer)
 {
 	SDL_Surface* imgSurface = IMG_Load(path);
@@ -20,6 +23,7 @@ Image::Image(const char* path, SDL_Renderer* renderer)
 	cout << "[Image] SDL_CreateTextureFromSurface OK 0000" << endl;
 	width = imgSurface->w;   // 表面結構可取得圖片寬高
 	height = imgSurface->h;
+	alpha = 255;
 
 	SDL_FreeSurface(imgSurface);
 

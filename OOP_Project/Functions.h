@@ -11,7 +11,7 @@
 
 class Functions
 {
-	RenderWindow& window;
+	RenderWindow* window;
 	bool* dual;
 	bool* quit;
 	bool* menu;
@@ -33,8 +33,9 @@ class Functions
 	char recordstr[50];
 
 public:
-	~Functions();
+	Functions();
 	Functions(RenderWindow& window, bool* d, bool* q, bool* m);
+	~Functions();
 	void Menu(SDL_Renderer* renderer);
 	void Counting(Map& map);
 	void Victory(EndType type);

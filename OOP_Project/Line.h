@@ -19,11 +19,11 @@ class Line
     double criticalVel;
 
     Image* sprite;
-    Image* actsprite;
 
 public:
 
     Line();
+    Line(double xx, double yy, double zz);
     ~Line();
 
     //getter
@@ -51,7 +51,6 @@ public:
     void setAll(double _x, double _y, double _z, double _s, unsigned long long _t, double rd, double rvm, double max);
     void setSprite(Image* i, double sX) { sprite = i; spriteX = sX; }
     void setClip(double c) { clip = c; }
-    void setActSprite(Image* i, double sX) { actsprite = i; spriteX = sX; }
     void setRoadVelM(double rvm) { roadVelM = rvm; }
     void setRoadDegree(double rd) { roadDegree = rd; }
     void setCritVel(double cv) { criticalVel = cv; }
@@ -63,7 +62,6 @@ public:
 
     //draw image
     void drawSprite(SDL_Renderer*);
-    void drawActSprite(SDL_Renderer*, int);
 
 };
 

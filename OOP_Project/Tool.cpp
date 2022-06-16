@@ -70,13 +70,13 @@ void Tool::drawmytool(SDL_Renderer* renderer, bool car) {
 		roundedRectangleRGBA(renderer, 430, 10, 465, 45, 1, 255, 0, 255, 255);
 		roundedRectangleRGBA(renderer, 470, 10, 505, 45, 1, 255, 0, 255, 255);
 
-		if (car1tool.Tool[0])
+		if (car1tool[0])
 			tool1img.draw(renderer, NULL, &loc1);
-		if (car1tool.Tool[1])
+		if (car1tool[1])
 			tool2img.draw(renderer, NULL, &loc2);
-		if (car1tool.Tool[2])
+		if (car1tool[2])
 			tool3img.draw(renderer, NULL, &loc3);
-		if (car1tool.Tool[3])
+		if (car1tool[3])
 			tool4img.draw(renderer, NULL, &loc4);
 
 		switch (chosen1)
@@ -106,17 +106,17 @@ void Tool::drawmytool(SDL_Renderer* renderer, bool car) {
 		if (car) {
 			//car1
 
-			if (car1tool.Tool[0])
+			if (car1tool[0])
 				tool1img.draw(renderer, NULL, &loc1);
-			if (car1tool.Tool[1])
+			if (car1tool[1])
 				tool2img.draw(renderer, NULL, &loc2);
-			if (car1tool.Tool[2])
+			if (car1tool[2])
 				tool3img.draw(renderer, NULL, &loc3);
-			if (car1tool.Tool[3])
+			if (car1tool[3])
 				tool4img.draw(renderer, NULL, &loc4);
-			if (car1tool.Tool[4])
+			if (car1tool[4])
 				tool5img.draw(renderer, NULL, &loc5);
-			if (car1tool.Tool[5])
+			if (car1tool[5])
 				tool6img.draw(renderer, NULL, &loc6);
 
 			switch (chosen1)
@@ -143,17 +143,17 @@ void Tool::drawmytool(SDL_Renderer* renderer, bool car) {
 		}
 		else {
 			//car2
-			if (car2tool.Tool[0])
+			if (car2tool[0])
 				tool1img.draw(renderer, NULL, &loc1);
-			if (car2tool.Tool[1])
+			if (car2tool[1])
 				tool2img.draw(renderer, NULL, &loc2);
-			if (car2tool.Tool[2])
+			if (car2tool[2])
 				tool3img.draw(renderer, NULL, &loc3);
-			if (car2tool.Tool[3])
+			if (car2tool[3])
 				tool4img.draw(renderer, NULL, &loc4);
-			if (car2tool.Tool[4])
+			if (car2tool[4])
 				tool5img.draw(renderer, NULL, &loc5);
-			if (car2tool.Tool[5])
+			if (car2tool[5])
 				tool6img.draw(renderer, NULL, &loc6);
 
 			switch (chosen2)
@@ -203,9 +203,9 @@ void Tool::getTools(bool car, int ind)
 		while (num != -1)
 		{
 			if (car) {
-				if (!checktoolset(car1tool) || num == 5)
+				if (!checktoolset(true) || num == 5)
 				{
-					car1tool.Tool[5] = 1;
+					car1tool[5] = 1;
 					chosen1 = 5;
 					num = -1;
 				}
@@ -214,9 +214,9 @@ void Tool::getTools(bool car, int ind)
 					switch (num)
 					{
 					case SPEEDUP:
-						if (!car1tool.Tool[0])
+						if (!car1tool[0])
 						{
-							car1tool.Tool[0] = 1;
+							car1tool[0] = 1;
 							chosen1 = 0;
 							num = -1;
 						}
@@ -224,9 +224,9 @@ void Tool::getTools(bool car, int ind)
 							num++;
 						break;
 					case INVINCIBLE:
-						if (!car1tool.Tool[1])
+						if (!car1tool[1])
 						{
-							car1tool.Tool[1] = 1;
+							car1tool[1] = 1;
 							chosen1 = 1;
 							num = -1;
 						}
@@ -234,9 +234,9 @@ void Tool::getTools(bool car, int ind)
 							num++;
 						break;
 					case HEALING:
-						if (!car1tool.Tool[2])
+						if (!car1tool[2])
 						{
-							car1tool.Tool[2] = 1;
+							car1tool[2] = 1;
 							chosen1 = 2;
 							num = -1;
 						}
@@ -244,9 +244,9 @@ void Tool::getTools(bool car, int ind)
 							num++;
 						break;
 					case GHOST:
-						if (!car1tool.Tool[3])
+						if (!car1tool[3])
 						{
-							car1tool.Tool[3] = 1;
+							car1tool[3] = 1;
 							chosen1 = 3;
 							num = -1;
 						}
@@ -254,9 +254,9 @@ void Tool::getTools(bool car, int ind)
 							num = 0;
 						break;
 					case LIGHTNING:
-						if (!car1tool.Tool[4])
+						if (!car1tool[4])
 						{
-							car1tool.Tool[4] = 1;
+							car1tool[4] = 1;
 							chosen1 = 4;
 							num = -1;
 						}
@@ -269,9 +269,9 @@ void Tool::getTools(bool car, int ind)
 				}
 			}
 			else {
-				if (!checktoolset(car2tool) || num == 5)
+				if (!checktoolset(false) || num == 5)
 				{
-					car2tool.Tool[5] = 1;
+					car2tool[5] = 1;
 					chosen2 = 5;
 					num = -1;
 				}
@@ -280,9 +280,9 @@ void Tool::getTools(bool car, int ind)
 					switch (num)
 					{
 					case SPEEDUP:
-						if (!car2tool.Tool[0])
+						if (!car2tool[0])
 						{
-							car2tool.Tool[0] = 1;
+							car2tool[0] = 1;
 							chosen2 = 0;
 							num = -1;
 						}
@@ -290,9 +290,9 @@ void Tool::getTools(bool car, int ind)
 							num++;
 						break;
 					case INVINCIBLE:
-						if (!car2tool.Tool[1])
+						if (!car2tool[1])
 						{
-							car2tool.Tool[1] = 1;
+							car2tool[1] = 1;
 							chosen2 = 1;
 							num = -1;
 						}
@@ -300,9 +300,9 @@ void Tool::getTools(bool car, int ind)
 							num++;
 						break;
 					case HEALING:
-						if (!car2tool.Tool[2])
+						if (!car2tool[2])
 						{
-							car2tool.Tool[2] = 1;
+							car2tool[2] = 1;
 							chosen2 = 2;
 							num = -1;
 						}
@@ -310,9 +310,9 @@ void Tool::getTools(bool car, int ind)
 							num++;
 						break;
 					case GHOST:
-						if (!car2tool.Tool[3])
+						if (!car2tool[3])
 						{
-							car2tool.Tool[3] = 1;
+							car2tool[3] = 1;
 							chosen2 = 3;
 							num = -1;
 						}
@@ -320,9 +320,9 @@ void Tool::getTools(bool car, int ind)
 							num = 0;
 						break;
 					case LIGHTNING:
-						if (!car2tool.Tool[4])
+						if (!car2tool[4])
 						{
-							car2tool.Tool[4] = 1;
+							car2tool[4] = 1;
 							chosen2 = 4;
 							num = -1;
 						}
@@ -354,45 +354,45 @@ int Tool::usetool(ToolType type, bool car) {
 		switch (type)
 		{
 			case SPEEDUP:
-				if (car1tool.Tool[0])
+				if (car1tool[0])
 				{
-					car1tool.Tool[0] = 0;
+					car1tool[0] = 0;
 					return SPEEDUP;
 				}
 				break;
 			case INVINCIBLE:
-				if (car1tool.Tool[1])
+				if (car1tool[1])
 				{
-					car1tool.Tool[1] = 0;
+					car1tool[1] = 0;
 					return INVINCIBLE;
 				}
 				break;
 			case HEALING:
-				if (car1tool.Tool[2])
+				if (car1tool[2])
 				{
-					car1tool.Tool[2] = 0;
+					car1tool[2] = 0;
 					return HEALING;
 				}
 				break;
 			case GHOST:
-				if (car1tool.Tool[3])
+				if (car1tool[3])
 				{
-					car1tool.Tool[3] = 0;
+					car1tool[3] = 0;
 					return GHOST;
 				}
 				break;
 			case LIGHTNING:
-				if (car1tool.Tool[4])
+				if (car1tool[4])
 				{
-					car1tool.Tool[4] = 0;
+					car1tool[4] = 0;
 					return LIGHTNING;
 				}
 				break;
 
 			case SWITCH:
-				if (car1tool.Tool[5])
+				if (car1tool[5])
 				{
-					car1tool.Tool[5] = 0;
+					car1tool[5] = 0;
 					return SWITCH;
 				}
 				break;
@@ -403,45 +403,45 @@ int Tool::usetool(ToolType type, bool car) {
 		switch (type)
 		{
 		case SPEEDUP:
-			if (car2tool.Tool[0])
+			if (car2tool[0])
 			{
-				car2tool.Tool[0] = 0;
+				car2tool[0] = 0;
 				return SPEEDUP;
 			}
 			break;
 		case INVINCIBLE:
-			if (car2tool.Tool[1])
+			if (car2tool[1])
 			{
-				car2tool.Tool[1] = 0;
+				car2tool[1] = 0;
 				return INVINCIBLE;
 			}
 			break;
 		case HEALING:
-			if (car2tool.Tool[2])
+			if (car2tool[2])
 			{
-				car2tool.Tool[2] = 0;
+				car2tool[2] = 0;
 				return HEALING;
 			}
 			break;
 		case GHOST:
-			if (car2tool.Tool[3])
+			if (car2tool[3])
 			{
-				car2tool.Tool[3] = 0;
+				car2tool[3] = 0;
 				return GHOST;
 			}
 			break;
 		case LIGHTNING:
-			if (car2tool.Tool[4])
+			if (car2tool[4])
 			{
-				car2tool.Tool[4] = 0;
+				car2tool[4] = 0;
 				return LIGHTNING;
 			}
 			break;
 
 		case SWITCH:
-			if (car2tool.Tool[5])
+			if (car2tool[5])
 			{
-				car2tool.Tool[5] = 0;
+				car2tool[5] = 0;
 				return SWITCH;
 			}
 			break;
@@ -450,31 +450,39 @@ int Tool::usetool(ToolType type, bool car) {
 	return -1;
 }
 
-int Tool::checktoolset(ToolSet set)
+int Tool::checktoolset(bool car)
 {
-	if (!set.Tool[0] || !set.Tool[1] || !set.Tool[2] || !set.Tool[3] || !set.Tool[4])
-		return 1;
-	else
-		return 0;
+	if (car) {
+		if (!car1tool[0] || !car1tool[1] || !car1tool[2] || !car1tool[3] || !car1tool[4])
+			return 1;
+		else
+			return 0;
+	}
+	else {
+		if (!car2tool[0] || !car2tool[1] || !car2tool[2] || !car2tool[3] || !car2tool[4])
+			return 1;
+		else
+			return 0;
+	}
 }
 
 void Tool::getalltools(bool car)
 {
 	if (car)
 	{
-		car1tool.Tool[0] = 1;
-		car1tool.Tool[1] = 1;
-		car1tool.Tool[2] = 1;
-		car1tool.Tool[3] = 1;
-		car1tool.Tool[4] = 1;
+		car1tool[0] = 1;
+		car1tool[1] = 1;
+		car1tool[2] = 1;
+		car1tool[3] = 1;
+		car1tool[4] = 1;
 	}
 	else
 	{
-		car2tool.Tool[0] = 1;
-		car2tool.Tool[1] = 1;
-		car2tool.Tool[2] = 1;
-		car2tool.Tool[3] = 1;
-		car2tool.Tool[4] = 1;
+		car2tool[0] = 1;
+		car2tool[1] = 1;
+		car2tool[2] = 1;
+		car2tool[3] = 1;
+		car2tool[4] = 1;
 	}
 }
 
@@ -485,7 +493,7 @@ void Tool::setchosentool(bool car)
 		for (int i = 0; i < 4; i++)
 		{
 			chosen1 < 3 ? chosen1++ : chosen1 = 0;
-			if (car1tool.Tool[chosen1])
+			if (car1tool[chosen1])
 				break;
 
 		}
@@ -497,7 +505,7 @@ void Tool::setchosentool(bool car)
 			for (int i = 0; i < 6; i++)
 			{
 				chosen1 < 5 ? chosen1++ : chosen1 = 0;
-				if (car1tool.Tool[chosen1])
+				if (car1tool[chosen1])
 					break;
 			}
 		}
@@ -506,7 +514,7 @@ void Tool::setchosentool(bool car)
 			for (int i = 0; i < 6; i++)
 			{
 				chosen2 < 5 ? chosen2++ : chosen2 = 0;
-				if (car2tool.Tool[chosen2])
+				if (car2tool[chosen2])
 					break;
 
 			}
