@@ -98,14 +98,8 @@ void BlenderObject::Load(const char* objectFile, double scale)
 		std::cout << "error: cannot open " << objectFile << std::endl;
 		exit(1);
 	}
-	//printf("%u %lf %lf \n", triangles.size(),min*scale,max*scale);
 }
 
-/*
-void BlenderObject::Logic(double elapsedTime)
-{
-	rotation.y += 1 * elapsedTime;
-}*/
 void BlenderObject::BlenderObject_draw(Point3D pos, Point3D worldRot, double camDeg, double camDepth, Engine* engine, bool clean, double maxy, int ind)
 {
 	Uint32* bmp = engine->getPixels();

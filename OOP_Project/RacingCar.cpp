@@ -9,7 +9,7 @@ RacingCar::~RacingCar()
 
 RacingCar::RacingCar(const char* obfpath, const char* imgpath, SDL_Renderer* renderer, Line* initpos) :
 	isRushing(NONE), fullEnergy(true), energy(100.0), healthPoint(100.0), motion(MOTION_INIT), accState(0), roadtype(NORMAL), currentPos(initpos),
-	theOtherCar(NULL), starttime(SDL_GetTicks64() + 3000), timing("00:00:000"), arrive(false), totaltime(0), invincible(0), select(0), toolnum(0),
+	theOtherCar(NULL), starttime(SDL_GetTicks64() + 3000), timing("00:00:000"), arrive(false), totaltime(0), invincible(0),
 	BlenderObject(obfpath, imgpath, 1000, 1, 3),
 	timetext(timing, "../fonts/akabara-cinderella.ttf", 20, 0x02, { 255, 255, 255 }, SHADED, { 0, 0, 0 }, renderer, { 200, 10 }, { 10, 10 }, NULL, SDL_FLIP_NONE, 255),
 	dizzy(0), lost(0), slow(0), slowimg("../images/slow.png", renderer),
@@ -35,14 +35,6 @@ void RacingCar::quit()
 
 void RacingCar::operator-=(double d) {
 	healthPoint -= d;
-}
-void RacingCar::operator++() {
-	if (toolnum < 6)
-		++toolnum;
-}
-void RacingCar::operator--() {
-	if (toolnum > 0)
-		--toolnum;
 }
 void RacingCar::changeSelect() {
 

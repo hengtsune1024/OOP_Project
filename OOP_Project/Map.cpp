@@ -826,7 +826,7 @@ Uint32 Map::move(Uint32 interval, void* para)
 				}
 			}
 
-			if (map->cube.collide(car)) 
+			if (!car->getghost() && map->cube.collide(car)) 
 			{
 				car->setPosY(motion.posY - velY / 2);
 				car->setPosX(motion.posX - velX / 2);
@@ -851,7 +851,7 @@ Uint32 Map::move(Uint32 interval, void* para)
 		if (type & TOOLAREA)
 		{
 			int index = map->tools.getNearestTool(startpos);
-			if (map->tools.hitTool(midY, camH - CAMERA_HEIGHT, motion.velM, index))
+			if (!car->getghost() && map->tools.hitTool(midY, camH - CAMERA_HEIGHT, motion.velM, index))
 				map->tools.getTools((map->dualMode ? times - 1 : true), index);
 		}
 
