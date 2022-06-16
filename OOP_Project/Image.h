@@ -13,7 +13,7 @@ class Image
 	int alpha;
 
 public:
-	Image() {}
+	Image();
 	Image(const char* path, SDL_Renderer* renderer);	//圖片初始化
 	~Image() {}
 

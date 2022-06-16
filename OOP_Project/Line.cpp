@@ -1,11 +1,16 @@
 #include "Line.h"
 
-Line::Line() : x(0), y(0), z(0), curve(0), type(0), clip(0), slope(0), sprite(NULL), actsprite(NULL)
+Line::Line() : x(0), y(0), z(0), curve(0), type(0), clip(0), slope(0), 
+    sprite(NULL), X(0), Y(0), W(0), criticalVel(0), scale(1), roadDegree(0), spriteX(0), roadVelM(1)
+{}
+
+Line::Line(double xx, double yy, double zz) : x(xx), y(yy), z(zz), curve(0), type(0), clip(0), slope(0),
+    sprite(NULL), X(0), Y(0), W(0), criticalVel(0), scale(1), roadDegree(0), spriteX(0), roadVelM(1)
 {}
 
 Line::~Line() {
     //no need to delete the image, since they all point to the image object in Map class
-    sprite = actsprite = NULL;
+    sprite = NULL;
 }
 
 void Line::setAll(double _x, double _y, double _z, double _s, unsigned long long _t, double rd, double rvm, double max)
@@ -67,7 +72,7 @@ void Line::drawSprite(SDL_Renderer* renderer) {
     sprite->draw(renderer, &src, &dst, true);
 
 }
-
+/*
 void Line::drawActSprite(SDL_Renderer* renderer, int state) {
     if (actsprite == NULL)
         return;
@@ -93,7 +98,7 @@ void Line::drawActSprite(SDL_Renderer* renderer, int state) {
 
    
 }
-
+*/
 //if (W > WIDTH)
 //    W = WIDTH;
 /*

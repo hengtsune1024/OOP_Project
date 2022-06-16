@@ -7,8 +7,7 @@
 
 
 Text::Text()
-{
-}
+{}
 
 // A structure that represents a color.
 // https://wiki.libsdl.org/SDL_Color

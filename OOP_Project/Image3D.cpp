@@ -1,7 +1,12 @@
 #include "Image3D.h"
 
-Image3D::Image3D() : pixels(NULL), texture(NULL), surface(NULL)
+Image3D::Image3D() : pixels(NULL), texture(NULL), surface(NULL), width(0), height(0)
 {}
+
+Image3D::Image3D(const char* textureFile): texture(NULL)
+{
+	loadSurface(textureFile);
+}
 
 Uint32 Image3D::getColor(int x, int y) 
 {

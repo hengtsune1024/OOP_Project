@@ -7,14 +7,10 @@
 #include "BlenderObject.h"
 using namespace std;
 
-struct ToolSet {
-	int Tool[6];
-};
-
 class Tool: public BlenderObject
 {
-	ToolSet car1tool;
-	ToolSet car2tool;
+	int car1tool[6];
+	int car2tool[6];
 	int gettime;
 	bool dual;
 	int chosen1;
@@ -50,7 +46,7 @@ public:
 	void draw3D(Point3D pos, double camDeg, double camDepth, Engine* engine, bool& clean, int ind, double maxy = HEIGHT) override;
 	void logic(void* = NULL, void* = NULL) override;
 
-	int checktoolset(ToolSet set);
+	int checktoolset(bool car);
 
 	void close();
 };

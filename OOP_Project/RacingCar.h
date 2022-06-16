@@ -70,8 +70,6 @@ class RacingCar: public BlenderObject
 
 	bool touch=false;
 
-	int select;
-	int toolnum;
 	//map object
 
 	//road type

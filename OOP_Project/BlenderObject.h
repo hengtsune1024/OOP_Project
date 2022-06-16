@@ -28,7 +28,7 @@ protected:
 	std::vector<Location> objectList;
 
 public:
-	//BlenderObject() {}
+	BlenderObject();
 	BlenderObject(const char* objectFile, const char* textureFile, double scale, int num, int texnum);
 	virtual ~BlenderObject();
 

@@ -16,6 +16,20 @@ Engine::Engine()
 	pixels = (Uint32*)img->pixels;
 }
 
+Engine::Engine(double z0) 
+{
+	FILE* f;
+	fopen_s(&f, "../images/tmp.bmp", "ab");
+	fseek(f, 54, SEEK_SET);
+	Uint32 tmp = 0;
+	fwrite(&tmp, sizeof(tmp), WIDTH * HEIGHT, f);
+	fclose(f);
+
+	Z0 = z0;
+	img = SDL_LoadBMP("../images/tmp.bmp");
+	pixels = (Uint32*)img->pixels;
+}
+
 Engine::~Engine()
 {
 	SDL_FreeSurface(img);

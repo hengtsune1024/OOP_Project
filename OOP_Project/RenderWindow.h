@@ -10,10 +10,10 @@ class RenderWindow
 	SDL_Renderer* renderer;
 
 public:
-	RenderWindow() :window(nullptr), renderer(nullptr) {}
+	RenderWindow();
 	~RenderWindow() {}
 
-	void init(bool);
+	void init();
 	void quit();
 
 	void clear();

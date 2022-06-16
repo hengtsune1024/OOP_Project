@@ -13,6 +13,7 @@ class Image3D
 
 public:
 	Image3D();
+	Image3D(const char* textureFile);
 	~Image3D() {}
 	int getWidth() { return width; }
 	int getHeight() { return height; }

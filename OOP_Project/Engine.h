@@ -23,6 +23,7 @@ class Engine
 
 public:
 	Engine();
+	Engine(double z0);
 	~Engine();
 
 	//getter
