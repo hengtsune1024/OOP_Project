@@ -162,11 +162,10 @@ void eventHandler(SDL_Event& e, RenderWindow& w, Map& map, RacingCar* car1, Raci
 			if (!car1->Dizzy())
 				car1->rush(ENERGY);
 			break;
-			
+			/*
 		case SDLK_v:
 			map.getAllTool();
 			break;
-			/*
 		case SDLK_b:
 			car1->gettrap(BANANA);
 			break;
