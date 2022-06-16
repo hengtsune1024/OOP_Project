@@ -163,7 +163,6 @@ public:
 	int Dizzy() { return dizzy; }
 	int islost() { return lost; }
 	void beattacked();
-	void changeSelect();
 };
 
 /*void setInvincible() {

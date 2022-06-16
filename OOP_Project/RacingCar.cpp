@@ -37,9 +37,6 @@ void RacingCar::quit()
 void RacingCar::operator-=(double d) {
 	healthPoint -= d;
 }
-void RacingCar::changeSelect() {
-
-}
 
 bool RacingCar::collided() 
 {
