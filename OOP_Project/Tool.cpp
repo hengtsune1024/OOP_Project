@@ -207,7 +207,7 @@ void Tool::getTools(bool car, int ind)
 				{
 					if (dual)
 					{
-						car1tool.Tool[5] = 1;
+						car1tool[5] = 1;
 						chosen1 = 5;
 					}
 					num = -1;
@@ -453,12 +453,24 @@ int Tool::usetool(ToolType type, bool car) {
 
 int Tool::checktoolset(bool car)
 {
-	if (dual && (!set.Tool[0] || !set.Tool[1] || !set.Tool[2] || !set.Tool[3] || !set.Tool[4]))
-		return 1;
-	else if (!dual && (!set.Tool[0] || !set.Tool[1] || !set.Tool[2] || !set.Tool[3]))
-		return 1;
+	if (car)
+	{
+		if (dual && (!car1tool[0] || !car1tool[1] || !car1tool[2] || !car1tool[3] || !car1tool[4]))
+			return 1;
+		else if (!dual && (!car1tool[0] || !car1tool[1] || !car1tool[2] || !car1tool[3]))
+			return 1;
+		else
+			return 0;
+	}
 	else
-		return 0;
+	{
+		if (dual && (!car2tool[0] || !car2tool[1] || !car2tool[2] || !car2tool[3] || !car2tool[4]))
+			return 1;
+		else if (!dual && (!car2tool[0] || !car2tool[1] || !car2tool[2] || !car2tool[3]))
+			return 1;
+		else
+			return 0;
+	}
 }
 
 void Tool::getalltools(bool car)
