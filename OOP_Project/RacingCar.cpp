@@ -40,6 +40,12 @@ void RacingCar::operator-=(double d) {
 void RacingCar::changeSelect() {
 
 }
+void RacingCar::operator++() {
+	motion.velAngular += ROTATE;
+}
+void RacingCar::operator--() {
+	motion.velAngular -= ROTATE;
+}
 
 bool RacingCar::collided() 
 {
@@ -456,31 +462,6 @@ void RacingCar::touchobstacle(Obstacle& rock, int ind, vector<Line>& lines)
 			rock.broken(rock.getNearestObstacle(motion.posX / SEGMENT_LENGTH));
 			return;
 		}
-		/*
-		if (motion.velLinear > 0) {
-			motion.posX -= ROCK_SIZE / 2 * cos(motion.axleDegree);
-			motion.posY -= ROCK_SIZE / 2 * sin(motion.axleDegree);
-			if (collided()) {
-				theOtherCar->motion.posX -= ROCK_SIZE / 2 * cos(motion.axleDegree);
-				theOtherCar->motion.posY -= ROCK_SIZE / 2 * sin(motion.axleDegree);
-			}
-		}
-		else if (motion.velLinear < 0) {
-			motion.posX += ROCK_SIZE / 2 * cos(motion.axleDegree);
-			motion.posY += ROCK_SIZE / 2 * sin(motion.axleDegree);
-			if (collided()) {
-				theOtherCar->motion.posX += ROCK_SIZE / 2 * cos(motion.axleDegree);
-				theOtherCar->motion.posY += ROCK_SIZE / 2 * sin(motion.axleDegree);
-			}
-		}*/
-		/*
-		motion.posX -= motion.velLinear * cos(motion.axleDegree) * motion.velM;
-		motion.posY -= motion.velLinear * sin(motion.axleDegree) * motion.velM;
-
-		if (collided()) {
-			theOtherCar->motion.posX -= motion.velLinear * cos(motion.axleDegree);
-			theOtherCar->motion.posY -= motion.velLinear * sin(motion.axleDegree);
-		}*/
 
 		motion.velLinear = -motion.velLinear * 0.5;
 

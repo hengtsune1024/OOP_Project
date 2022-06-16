@@ -106,9 +106,9 @@ void eventHandler(SDL_Event& e, RenderWindow& w, Map& map, RacingCar* car1, Raci
 			if (!car1->Dizzy())
 			{
 				if (car1->islost())
-					car1->setVelAngular(car1->getVelAngular() + ROTATE);
+					++(*car1);
 				else {
-					car1->setVelAngular(car1->getVelAngular() - ROTATE);
+					--(*car1);
 				}
 			}
 			break;
@@ -116,9 +116,9 @@ void eventHandler(SDL_Event& e, RenderWindow& w, Map& map, RacingCar* car1, Raci
 			if (!car1->Dizzy())
 			{
 				if (car1->islost())
-					car1->setVelAngular(car1->getVelAngular() - ROTATE);
+					--(*car1);
 				else
-					car1->setVelAngular(car1->getVelAngular() + ROTATE);
+					++(*car1);
 			}
 			break;
 		case SDLK_q:
@@ -190,9 +190,9 @@ void eventHandler(SDL_Event& e, RenderWindow& w, Map& map, RacingCar* car1, Raci
 			if (car2 && !car2->Dizzy()) 
 			{
 				if (car2->islost())
-					car2->setVelAngular(car2->getVelAngular() + ROTATE);
+					++(*car2);
 				else {
-					car2->setVelAngular(car2->getVelAngular() - ROTATE);
+					--(*car2);
 				}
 			}
 			break;
@@ -200,9 +200,9 @@ void eventHandler(SDL_Event& e, RenderWindow& w, Map& map, RacingCar* car1, Raci
 			if (car2 && !car2->Dizzy()) 
 			{
 				if (car2->islost())
-					car2->setVelAngular(car2->getVelAngular() - ROTATE);
+					--(*car2);
 				else
-					car2->setVelAngular(car2->getVelAngular() + ROTATE);
+					++(*car2);
 			}
 			break;
 		case SDLK_RETURN:
