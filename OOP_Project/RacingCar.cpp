@@ -37,9 +37,7 @@ void RacingCar::quit()
 void RacingCar::operator-=(double d) {
 	healthPoint -= d;
 }
-void RacingCar::changeSelect() {
 
-}
 void RacingCar::operator++() {
 	motion.velAngular += ROTATE;
 }
@@ -423,7 +421,6 @@ void RacingCar::gettrap(int type)
 	switch (type)
 	{
 		case STAIN:
-
 			break;
 		case BANANA:
 			lost = SDL_GetTicks64();
@@ -459,7 +456,7 @@ void RacingCar::touchobstacle(Obstacle& rock, int ind, vector<Line>& lines)
 		if (!invincible)
 			healthPoint -= motion.velLinear * motion.velLinear / 2 / 100000;
 		else if (isRushing) {
-			rock.broken(rock.getNearestObstacle(motion.posX / SEGMENT_LENGTH));
+			rock.broken(getNearestObstacle(rock, motion.posX / SEGMENT_LENGTH));
 			return;
 		}
 

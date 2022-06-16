@@ -843,14 +843,14 @@ Uint32 Map::move(Uint32 interval, void* para)
 		//trap
 		if (type & TRAPAREA)
 		{
-			int index = map->virus.getNearestTrap(startpos);
+			int index = getNearestTrap(map->virus, startpos);
 			if (!car->getghost() && map->virus.hitTrap(midY, camH - CAMERA_HEIGHT, motion.velM, index))
 				car->gettrap(map->virus.gettrap((map->dualMode ? times - 1 : true), car->getInvincible(), index));
 		}
 		//tool
 		if (type & TOOLAREA)
 		{
-			int index = map->tools.getNearestTool(startpos);
+			int index = getNearestTool(map->tools, startpos);
 			if (!car->getghost() && map->tools.hitTool(midY, camH - CAMERA_HEIGHT, motion.velM, index))
 				map->tools.getTools((map->dualMode ? times - 1 : true), index);
 		}
@@ -858,7 +858,7 @@ Uint32 Map::move(Uint32 interval, void* para)
 		//obstacle
 		if (type & OBSTACLEAREA)
 		{
-			int index = map->rock.getNearestObstacle(startpos);
+			int index = getNearestObstacle(map->rock, startpos);
 			if (!car->getghost() && !map->rock.getBroken(index) && map->rock.hitObstacle(midY, camH - CAMERA_HEIGHT, index))
 			{
 				car->setPosX(motion.posX - velX);
@@ -1006,7 +1006,7 @@ void Map::carCollision(RacingCar* car)
 			(*otherCar) -= v1 * v1 / 2 / 100000;
 		else
 			(*otherCar) -= v1 * v1 / 2 / 1000000;
-		if (endtype == PLAYING && car->getHP() <= 0)
+		if (endtype == PLAYING && otherCar->getHP() <= 0)
 		{
 			endtype = PLAYER1;
 			endtime = SDL_GetTicks64() + 3000;

@@ -22,13 +22,13 @@ bool Trap::hitTrap(double carx, double height, double mod, int ind)
 		&& (height < objectList[ind].position.y + 500);
 }
 
-int Trap::getNearestTrap(int startpos) 
+int getNearestTrap(Trap& trap, int startpos) 
 {
 	for (int i = 0; i < NUM_TRAP; ++i) {
-		if (startpos - objectList[i].index <= 0) {
+		if (startpos - trap.objectList[i].index <= 0) {
 			if (i == 0)
 				return 0;
-			else if (objectList[i].index + objectList[i - 1].index < 2 * startpos) {
+			else if (trap.objectList[i].index + trap.objectList[i - 1].index < 2 * startpos) {
 				return i;
 			}
 			else

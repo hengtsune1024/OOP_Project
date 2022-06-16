@@ -13,7 +13,6 @@ class Trap : public BlenderObject
 {
 	TrapSet car1trap;
 	TrapSet car2trap;
-
 	Image stain;
 
 public:
@@ -24,8 +23,7 @@ public:
 	//setter and getter
 	void setTrap(Line *line, int lineindex, int ind);
 	int gettrap(bool car, bool invincible, int ind);
-	//bool getSide(int ind) { return side[ind]; }
-	int getNearestTrap(int startpos);
+	friend int getNearestTrap(Trap& trap, int startpos);
 
 	void drawStain(SDL_Renderer* renderer,  bool car);
 	bool hitTrap(double carY, double height, double mod, int ind);

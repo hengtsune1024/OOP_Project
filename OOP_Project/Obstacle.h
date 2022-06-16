@@ -19,7 +19,7 @@ public:
 	//state
 	int istouching(int ind);
 	bool hitObstacle(double carx, double height, int ind);
-	int getNearestObstacle(int startpos);
+	friend int getNearestObstacle(Obstacle& obst, int startpos);
 	
 	void close();
 	void broken(int ind) { isBroken[ind] = true; }
