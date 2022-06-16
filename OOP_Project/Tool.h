@@ -33,8 +33,8 @@ public:
 	void getTools(bool car, int ind);
 	int getchosentool(bool car) { return car ? chosen1 : chosen2; }
 	void setchosentool(bool car);
+	friend int getNearestTool(Tool& tool, int startpos);
 
-	int getNearestTool(int startpos);
 	//tool function
 	int usetool(ToolType, bool car);
 	void drawmytool(SDL_Renderer* renderer, bool car);	//car=1 for car1, car=0 for car2

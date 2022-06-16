@@ -14,6 +14,8 @@ class Triangle
 	double normalZ;
 
 public:
+
+	Triangle();
 	Triangle(Point3D, Point3D, Point3D);
 
 	double getNormalZ() { return normalZ; }

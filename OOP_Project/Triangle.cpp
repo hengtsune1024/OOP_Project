@@ -1,5 +1,8 @@
 #include "Triangle.h"
 
+Triangle::Triangle() :points{ 0 }, drawPoints{ 0 }, cameraPoints{ 0 }
+{}
+
 Triangle::Triangle(Point3D p0, Point3D p1, Point3D p2) {
 	points[0] = p0;
 	points[1] = p1;

@@ -127,6 +127,8 @@ public:
 	int getInvincible() { return invincible; }
 	int getghost() { return ghost; }
 	int isSlow() { return slow; }
+	int Dizzy() { return dizzy; }
+	int islost() { return lost; }
 
 	//setter
 	void setOtherCar(RacingCar* c) { theOtherCar = c; }
@@ -160,9 +162,8 @@ public:
 	void brake(int type = -1);		//car accelerating
 	void touchobstacle(Obstacle& rock, int ind, vector<Line>& lines);
 	void isarrive();
-	int Dizzy() { return dizzy; }
-	int islost() { return lost; }
 	void beattacked();
+	
 };
 
 /*void setInvincible() {

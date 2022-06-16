@@ -77,7 +77,7 @@ void PhysicalItem::logic(void* para1, void* para2)
 		//collision with obstacle
 		objectList[i].index = objectList[i].position.z / SEGMENT_LENGTH;
 		if ((lines->at(objectList[i].index).getType() & OBSTACLEAREA)
-			&& obst->hitObstacle(objectList[i].position.x, objectList[i].position.y + CUBE_SIZE, obst->getNearestObstacle(objectList[i].index)))
+			&& obst->hitObstacle(objectList[i].position.x, objectList[i].position.y + CUBE_SIZE, getNearestObstacle(*obst, objectList[i].index)))
 		{
 			objectList[i].position.x -= move[i].moveVel * sin_;
 			objectList[i].position.z -= move[i].moveVel * cos_;

@@ -38,6 +38,13 @@ void RacingCar::operator-=(double d) {
 	healthPoint -= d;
 }
 
+void RacingCar::operator++() {
+	motion.velAngular += ROTATE;
+}
+void RacingCar::operator--() {
+	motion.velAngular -= ROTATE;
+}
+
 bool RacingCar::collided() 
 {
 	if (theOtherCar == NULL)
@@ -414,7 +421,6 @@ void RacingCar::gettrap(int type)
 	switch (type)
 	{
 		case STAIN:
-
 			break;
 		case BANANA:
 			lost = SDL_GetTicks64();
@@ -450,34 +456,9 @@ void RacingCar::touchobstacle(Obstacle& rock, int ind, vector<Line>& lines)
 		if (!invincible)
 			healthPoint -= motion.velLinear * motion.velLinear / 2 / 100000;
 		else if (isRushing) {
-			rock.broken(rock.getNearestObstacle(motion.posX / SEGMENT_LENGTH));
+			rock.broken(getNearestObstacle(rock, motion.posX / SEGMENT_LENGTH));
 			return;
 		}
-		/*
-		if (motion.velLinear > 0) {
-			motion.posX -= ROCK_SIZE / 2 * cos(motion.axleDegree);
-			motion.posY -= ROCK_SIZE / 2 * sin(motion.axleDegree);
-			if (collided()) {
-				theOtherCar->motion.posX -= ROCK_SIZE / 2 * cos(motion.axleDegree);
-				theOtherCar->motion.posY -= ROCK_SIZE / 2 * sin(motion.axleDegree);
-			}
-		}
-		else if (motion.velLinear < 0) {
-			motion.posX += ROCK_SIZE / 2 * cos(motion.axleDegree);
-			motion.posY += ROCK_SIZE / 2 * sin(motion.axleDegree);
-			if (collided()) {
-				theOtherCar->motion.posX += ROCK_SIZE / 2 * cos(motion.axleDegree);
-				theOtherCar->motion.posY += ROCK_SIZE / 2 * sin(motion.axleDegree);
-			}
-		}*/
-		/*
-		motion.posX -= motion.velLinear * cos(motion.axleDegree) * motion.velM;
-		motion.posY -= motion.velLinear * sin(motion.axleDegree) * motion.velM;
-
-		if (collided()) {
-			theOtherCar->motion.posX -= motion.velLinear * cos(motion.axleDegree);
-			theOtherCar->motion.posY -= motion.velLinear * sin(motion.axleDegree);
-		}*/
 
 		motion.velLinear = -motion.velLinear * 0.5;
 

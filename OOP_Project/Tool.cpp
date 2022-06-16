@@ -26,13 +26,13 @@ bool Tool::hitTool(double carx, double height, double mod, int ind)
 	return objectList[ind].shownflag && carx > objectList[ind].position.x - TOOL_WIDTH * mod && carx < objectList[ind].position.x + TOOL_WIDTH * mod && height < objectList[ind].position.y + 1300;
 }
 
-int Tool::getNearestTool(int startpos)
+int getNearestTool(Tool& tool, int startpos)
 {
 	for (int i = 0; i < NUM_TOOL; ++i) {
-		if (startpos - objectList[i].index <= 0) {
+		if (startpos - tool.objectList[i].index <= 0) {
 			if (i == 0)
 				return 0;
-			else if (objectList[i].index + objectList[i - 1].index < 2 * startpos) {
+			else if (tool.objectList[i].index + tool.objectList[i - 1].index < 2 * startpos) {
 				return i;
 			}
 			else
@@ -179,12 +179,6 @@ void Tool::drawmytool(SDL_Renderer* renderer, bool car) {
 			}
 		}
 	}
-
-	/*
-	if (SDL_GetTicks64() - gettime < 3000)
-		shownflag = false;
-	else
-		shownflag = true;*/
 }
 
 void Tool::getTools(bool car, int ind) 
@@ -349,7 +343,8 @@ void Tool::logic(void*, void*)
 }
 
 
-int Tool::usetool(ToolType type, bool car) {
+int Tool::usetool(ToolType type, bool car) 
+{
 	if (car) {
 		setchosentool(car);
 		switch (type)

@@ -21,14 +21,14 @@ void Obstacle::close() {
 	BlenderObject::close();
 }
 
-int Obstacle::getNearestObstacle(int startpos)
+int getNearestObstacle(Obstacle& obst, int startpos)
 {
 	for (int i = 0; i < NUM_OBSTACLE; ++i) 
 	{
-		if (startpos - objectList[i].index <= 0) {
+		if (startpos - obst.objectList[i].index <= 0) {
 			if (i == 0)
 				return 0;
-			else if (objectList[i].index + objectList[i - 1].index < 2 * startpos) {
+			else if (obst.objectList[i].index + obst.objectList[i - 1].index < 2 * startpos) {
 				return i;
 			}
 			else
