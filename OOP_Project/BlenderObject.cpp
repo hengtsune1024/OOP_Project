@@ -107,8 +107,13 @@ void BlenderObject::BlenderObject_draw(Point3D pos, Point3D worldRot, double cam
 {
 	Uint32* bmp = engine->getPixels();
 	if (clean) {
-		memset(bmp, 0, WIDTH * HEIGHT * 4);
-		memset(engine->getZBuffer(), 0, WIDTH * HEIGHT * sizeof(double));
+		double* buffer = engine->getZBuffer();
+		for (int i = 0; i < WIDTH * HEIGHT; ++i) {
+			bmp[i] = 0;
+			buffer[i] = 0;
+		}
+		//memset(bmp, 0, WIDTH * HEIGHT * 4);
+		//memset(engine->getZBuffer(), 0, WIDTH * HEIGHT * sizeof(double));
 	}
 
 	std::vector<Triangle*> allTriangles;

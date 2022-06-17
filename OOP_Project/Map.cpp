@@ -554,9 +554,6 @@ void Map::draw(SDL_Renderer* renderer)
 			car->drawOtherCar(renderer, &engine, clean, lines[otherCar->getIndex()].getClip(), camH);
 		}
 
-		engine.drawAll(renderer);
-
-		clean = true;
 		car->draw3D({ 0,0,0 }, car->getMotion().camDegree, car->getMotion().camDepth, &engine, clean, 0, HEIGHT);
 
 		engine.drawAll(renderer);
