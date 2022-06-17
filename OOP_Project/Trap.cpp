@@ -13,7 +13,7 @@ void Trap::close() {
 Trap::Trap(SDL_Renderer* renderer):
 	stain("../images/stain.png", renderer), BlenderObject("../images/trap/trap.txt", "../images/trap/trap.bmp", 500, NUM_TRAP,1)
 {
-	car1trap.staintime = car2trap.staintime = SDL_GetTicks64() - STAIN_INTERVAL;
+	car1stain = car2stain = SDL_GetTicks64() - STAIN_INTERVAL;
 }
 
 bool Trap::hitTrap(double carx, double height, double mod, int ind)
@@ -76,7 +76,7 @@ void Trap::drawStain(SDL_Renderer* renderer, bool car)
 	Uint64 time = SDL_GetTicks64();
 	if (car) 
 	{
-		if (time - car1trap.staintime < STAIN_INTERVAL)
+		if (time - car1stain < STAIN_INTERVAL)
 		{
 			stain.draw(renderer, NULL, NULL);
 		}
@@ -85,7 +85,7 @@ void Trap::drawStain(SDL_Renderer* renderer, bool car)
 
 	}else
 	{
-		if (time - car2trap.staintime < STAIN_INTERVAL)
+		if (time - car2stain < STAIN_INTERVAL)
 		{
 			stain.draw(renderer, NULL, NULL);
 		}
@@ -111,7 +111,7 @@ int Trap::gettrap(bool car, bool invincible, int ind)
 			switch (num)
 			{
 				case STAIN:
-					car1trap.staintime = SDL_GetTicks64();
+					car1stain = SDL_GetTicks64();
 					break;
 				case BANANA:
 					return BANANA;
@@ -129,7 +129,7 @@ int Trap::gettrap(bool car, bool invincible, int ind)
 			switch (num)
 			{
 				case STAIN:
-					car2trap.staintime = SDL_GetTicks64();
+					car2stain = SDL_GetTicks64();
 					break;
 				case BANANA:
 					return BANANA;

@@ -5,14 +5,10 @@
 #include "Line.h"
 #include <SDL.h>
 
-struct TrapSet {
-	int staintime;
-};
-
 class Trap : public BlenderObject
 {
-	TrapSet car1trap;
-	TrapSet car2trap;
+	int car1stain;
+	int car2stain;
 	Image stain;
 
 public:
